@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0c1616">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Commander Companion VI – Fantasy Life Counter & Turnier</title>
+<title>Commander Companion VII – Immersive Fantasy Life Counter & Turnier</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Commander">
@@ -163,11 +163,90 @@ body.table-mode .player-inner::-webkit-scrollbar{display:none}
 .backup-tools span{flex:1 1 170px}
 body.table-mode .backup-tools{display:none}
 @media(max-width:520px){.backup-tools{display:grid;grid-template-columns:1fr 1fr}.backup-tools .btn{font-size:.69rem;min-height:43px;padding:7px 4px}.backup-tools span{grid-column:1/-1;font-size:.72rem}}
+
+
+/* Commander Companion VII: immersive match view with centered menu and edge-oriented tabletop mode. */
+body.match-focus{overflow:hidden;background:#06110e}
+body.match-focus .mast,body.match-focus .top-tabs,body.match-focus .backup-tools{display:none!important}
+body.match-focus .shell{width:100%;max-width:none;min-height:100vh;min-height:100dvh;padding:calc(4px + env(safe-area-inset-top)) calc(4px + env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) calc(4px + env(safe-area-inset-left));display:flex;flex-direction:column}
+body.match-focus #lifePanel,body.match-focus .game{flex:1;min-height:0}
+body.match-focus .game{display:flex;flex-direction:column;gap:0}
+body.match-focus .toolbar,body.match-focus #announcement,body.match-focus .footnote{display:none!important}
+body.match-focus .board{flex:1;min-height:0;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,1fr));gap:4px;height:100%}
+body.match-focus .board.two-players{grid-template-columns:1fr;grid-template-rows:repeat(2,minmax(0,1fr))}
+body.match-focus.table-mode .board.two-players{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:1fr}
+body.match-focus .board.odd-count .player:last-child{grid-column:1/-1}
+body.match-focus .player{border-radius:16px;min-height:0;height:100%;border-width:2px}
+body.match-focus .player-inner{height:100%;display:flex;flex-direction:column;justify-content:center}
+body.match-focus .player-top{padding:8px 10px 0}
+body.match-focus .player-name{font-size:clamp(.95rem,3vw,1.22rem)}
+body.match-focus .star{font-size:.66rem}
+body.match-focus .life-controls{flex:1;min-height:0;padding:8px;gap:6px;grid-template-columns:minmax(54px,.95fr) minmax(0,1.25fr) minmax(54px,.95fr)}
+body.match-focus .step{min-height:72px;font-size:clamp(2.1rem,7vw,3.7rem);border-radius:16px}
+body.match-focus .life-value{font-size:clamp(3rem,11vw,6rem)}
+body.match-focus .quick{padding:0 8px 8px;gap:6px}
+body.match-focus .quick .btn{min-height:44px;padding:8px 6px;font-size:.8rem}
+body.match-focus .commander-direct{padding:0 8px 8px}
+body.match-focus .commander-direct-title{margin-bottom:4px;font-size:.7rem}
+body.match-focus .commander-chips{grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:4px}
+body.match-focus .commander-chip{min-height:30px;padding:4px 6px}
+body.match-focus .cmd-name{font-size:.68rem}
+body.match-focus .bottom-status{padding:0 8px 8px;font-size:.65rem}
+body.table-mode.match-focus .board{gap:5px}
+body.table-mode.match-focus .player{position:relative;overflow:hidden}
+body.table-mode.match-focus .player-inner{position:absolute;inset:0;transform-origin:center center;padding:4px}
+body.table-mode.match-focus .player.left-edge .player-inner{transform:rotate(-90deg) scale(var(--edge-scale,1))}
+body.table-mode.match-focus .player.right-edge .player-inner{transform:rotate(90deg) scale(var(--edge-scale,1))}
+body.table-mode.match-focus .player.center-seat .player-inner{transform:none;padding:8px}
+body.table-mode.match-focus .player-top{padding:2px 4px 0}
+body.table-mode.match-focus .player-name{font-size:clamp(.7rem,2.2vw,1rem)}
+body.table-mode.match-focus .life-controls{padding:4px;gap:4px;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr)}
+body.table-mode.match-focus .step{min-height:34px;font-size:clamp(1.35rem,5vw,2.4rem);border-radius:10px}
+body.table-mode.match-focus .life-value{font-size:clamp(1.7rem,10vw,4rem)}
+body.table-mode.match-focus .life-caption{font-size:.48rem;margin-top:2px}
+body.table-mode.match-focus .commander-direct{padding:0 4px 4px}
+body.table-mode.match-focus .commander-direct-title{font-size:clamp(.44rem,1.3vw,.62rem);margin-bottom:2px}
+body.table-mode.match-focus .commander-chips{grid-template-columns:repeat(3,minmax(0,1fr));gap:2px}
+body.table-mode.match-focus .commander-chip{min-height:18px;padding:1px 3px;border-radius:6px}
+body.table-mode.match-focus .cmd-name{display:none}
+body.table-mode.match-focus .cmd-number{width:12px;height:14px;font-size:.58rem;background:transparent}
+body.table-mode.match-focus .cmd-amount{font-size:clamp(.58rem,1.9vw,.75rem)}
+body.table-mode.match-focus .quick{padding:0 4px 4px;gap:3px}
+body.table-mode.match-focus .quick .btn{min-height:28px;padding:4px 3px;border-radius:8px;font-size:clamp(.5rem,1.7vw,.72rem)}
+body.table-mode.match-focus .quick strong{font-size:.76rem}
+body.table-mode.match-focus .bottom-status{padding:0 4px 4px;font-size:.5rem}
+.menu-fab{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:18;border-radius:999px;min-height:58px;padding:0 18px;background:linear-gradient(160deg,#d8b26a,#6a4f24);color:#150f05;border:1px solid #fff2c08a;box-shadow:0 12px 28px #0008;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.menu-fab:active{transform:translateX(-50%) scale(.97)}
+.game-menu{position:fixed;inset:0;z-index:22}
+.game-menu.hidden{display:none}
+.game-menu-backdrop{position:absolute;inset:0;border:0;background:#03110fe3}
+.game-menu-sheet{position:absolute;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(560px,calc(100vw - 14px));background:linear-gradient(180deg,#15251f,#0b1512);border:1px solid #d8b26a7f;border-radius:22px;box-shadow:0 18px 60px #000a;padding:18px}
+.game-menu-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.game-menu-head h2{margin:0;font-size:1.22rem}
+.menu-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.menu-stat{background:#ffffff10;border:1px solid #d9bb7e4c;border-radius:14px;padding:10px 12px;min-width:0}
+.menu-stat span{display:block;color:#d9d1b7;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.menu-stat strong{display:block;font-size:.96rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.menu-note{grid-column:1/-1;margin:2px 0 0;color:#ffe5b2;font-size:.78rem;line-height:1.45;padding:10px 12px;border-radius:12px;background:#5d43201f;border:1px solid #b58a4560}
+.game-menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.game-menu-grid .btn{min-height:48px;padding:10px 8px}
+body.menu-open{overflow:hidden}
+@media(max-width:520px){
+ body.match-focus .player-name{font-size:.96rem}
+ body.match-focus .step{min-height:66px}
+ .menu-fab{min-height:56px;padding:0 16px;font-size:.95rem}
+ .game-menu-sheet{width:calc(100vw - 10px);padding:16px;border-radius:18px}
+ .menu-summary,.game-menu-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:380px){
+ body.match-focus .commander-chips{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .menu-summary,.game-menu-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 <main class="shell">
-<header class="mast"><div class="brand"><span class="crest" aria-hidden="true">✦</span><div><p class="eyebrow">✧ Das Archiv der Ebenenwandler ✧</p><h1>Commander Companion <small>VI</small></h1></div></div><span id="gameTag" class="chip">Neue Partie</span></header>
+<header class="mast"><div class="brand"><span class="crest" aria-hidden="true">✦</span><div><p class="eyebrow">✧ Das Archiv der Ebenenwandler ✧</p><h1>Commander Companion <small>VII</small></h1></div></div><span id="gameTag" class="chip">Neue Partie</span></header>
 <nav class="top-tabs" aria-label="Bereiche"><button id="tabLife" class="tab" type="button" aria-selected="true" aria-controls="lifePanel">⚔ Lebenszähler</button><button id="tabTournament" class="tab" type="button" aria-selected="false" aria-controls="tournamentPanel">🏆 Turnier</button></nav>
 <section class="backup-tools" aria-label="Spielstand sichern und wiederherstellen">
 <button id="backupExport" class="btn" type="button">⇩ Spielstand sichern</button>
@@ -189,6 +268,24 @@ body.table-mode .backup-tools{display:none}
 <div id="announcement" class="notice hidden" role="status" aria-live="polite"></div>
 <div id="board" class="board"></div>
 <p class="footnote">Tipp: Auf „☠ Gift“ oder „⚔ Schaden“ tippen, um die Spezialzähler zu öffnen. Commander-Schaden wird nach verursachendem Commander erfasst; Lebenspunkte werden dabei nicht automatisch verändert.</p>
+<button id="menuFab" class="menu-fab hidden" type="button" aria-haspopup="dialog" aria-controls="gameMenu" aria-expanded="false">☰ Menü</button>
+<div id="gameMenu" class="game-menu hidden" role="presentation">
+  <button id="gameMenuBackdrop" class="game-menu-backdrop" type="button" aria-label="Menü schließen"></button>
+  <section class="game-menu-sheet" role="dialog" aria-modal="true" aria-labelledby="gameMenuTitle">
+    <div class="game-menu-head"><div><p class="eyebrow">✧ Schlachtmenü ✧</p><h2 id="gameMenuTitle">Partie-Steuerung</h2></div><button id="menuClose" class="icon-btn" type="button" aria-label="Menü schließen">×</button></div>
+    <div id="menuSummary" class="menu-summary"></div>
+    <div class="game-menu-grid">
+      <button id="menuMode" class="btn" type="button">↕ Ansicht wechseln</button>
+      <button id="menuPick" class="btn" type="button">🎲 Startspieler neu</button>
+      <button id="menuUndo" class="btn" type="button">↶ Rückgängig</button>
+      <button id="menuReset" class="btn warning" type="button">↻ Neue Partie</button>
+      <button id="menuTournament" class="btn" type="button">🏆 Zum Turnier</button>
+      <button id="menuBackupExport" class="btn" type="button">⇩ Sichern</button>
+      <button id="menuBackupImport" class="btn" type="button">⇧ Laden</button>
+      <button id="menuClosePrimary" class="btn primary" type="button">Weiter spielen</button>
+    </div>
+  </section>
+</div>
 </section>
 </div>
 <section id="tournamentPanel" class="tournament hidden" aria-label="Turnierverwaltung">
@@ -243,9 +340,41 @@ function discard(){try{window.localStorage.removeItem(STORAGE)}catch(e){}}
 function remember(){if(!state)return;history.push(JSON.stringify(state));if(history.length>120)history.shift()}
 function setChoice(n){selectedCount=n;var buttons=el('playerChoices').querySelectorAll('button');for(var i=0;i<buttons.length;i++){var chosen=Number(buttons[i].getAttribute('data-n'))===n;buttons[i].classList.toggle('selected',chosen);buttons[i].setAttribute('aria-pressed',chosen?'true':'false')}}
 function buildChoices(){var html='';for(var i=2;i<=8;i++)html+='<button type="button" class="choice" data-n="'+i+'" aria-label="'+i+' Spieler">'+i+'</button>';el('playerChoices').innerHTML=html;setChoice(selectedCount)}
-function revealSetup(){closeModal();document.body.classList.remove('table-mode');el('setup').classList.remove('hidden');el('game').classList.add('hidden');el('gameTag').textContent='Neue Partie';el('announcement').classList.add('hidden')}
+function revealSetup(){closeModal();closeGameMenu();document.body.classList.remove('table-mode');document.body.classList.remove('match-focus');el('setup').classList.remove('hidden');el('game').classList.add('hidden');el('gameTag').textContent='Neue Partie';el('announcement').classList.add('hidden')}
 function beginGame(event){if(event)event.preventDefault();var life=limit(parseInt(el('startingLife').value,10)||40,1,999);var n=selectedCount;var players=[];for(var i=0;i<n;i++){var damages=[];for(var j=0;j<n;j++)damages.push(0);players.push({name:'Spieler '+(i+1),life:life,poison:0,experience:0,commander:damages})}state={version:2,mode:'table',starter:pickRandom(n),players:players};history=[];store();render();announce('🎲 '+state.players[state.starter].name+' beginnt!');window.scrollTo(0,0)}
 function announce(message){el('announcement').textContent=message;el('announcement').classList.remove('hidden')}
+function gameSummaryHTML(){
+ if(!state)return '';
+ var starter=state.players[state.starter]?state.players[state.starter].name:'—';
+ return '<div class="menu-stat"><span>Spieler</span><strong>'+state.players.length+'</strong></div>'+
+ '<div class="menu-stat"><span>Startspieler</span><strong>'+esc(starter)+'</strong></div>'+
+ '<div class="menu-stat"><span>Ansicht</span><strong>'+(state.mode==='table'?'Tabletop':'Standard')+'</strong></div>'+
+ '<div class="menu-stat"><span>Rückgängig</span><strong>'+(history.length?history.length+' Schritte':'leer')+'</strong></div>'+
+ (el('announcement').textContent?'<p class="menu-note">'+esc(el('announcement').textContent)+'</p>':'');
+}
+function closeGameMenu(){
+ var menu=el('gameMenu'),fab=el('menuFab');
+ if(!menu||!fab)return;
+ menu.classList.add('hidden');
+ fab.setAttribute('aria-expanded','false');
+ document.body.classList.remove('menu-open');
+}
+function openGameMenu(){
+ if(!state||activeTab!=='life')return;
+ renderGameMenu();
+ el('gameMenu').classList.remove('hidden');
+ el('menuFab').setAttribute('aria-expanded','true');
+ document.body.classList.add('menu-open');
+}
+function toggleGameMenu(){if(el('gameMenu').classList.contains('hidden'))openGameMenu();else closeGameMenu()}
+function renderGameMenu(){
+ var inMatch=activeTab==='life'&&!!state;
+ if(el('menuFab'))el('menuFab').classList.toggle('hidden',!inMatch);
+ if(!inMatch){closeGameMenu();return}
+ if(el('menuSummary'))el('menuSummary').innerHTML=gameSummaryHTML();
+ if(el('menuUndo'))el('menuUndo').disabled=history.length===0;
+ if(el('menuMode'))el('menuMode').textContent=state.mode==='table'?'▦ Standardansicht':'↕ Tabletop-Modus';
+}
 function lostReasons(p){var r=[];if(p.life<=0)r.push('0 Leben');if(p.poison>=10)r.push('10 Gift');for(var j=0;j<p.commander.length;j++)if(p.commander[j]>=21){r.push('21 Commander-Schaden');break}return r}
 function commanderDamageHTML(p,i){
  var items=[];
@@ -259,22 +388,60 @@ function commanderDamageHTML(p,i){
  }
  return '<section class="commander-direct" aria-label="Erhaltener Commander-Schaden"><div class="commander-direct-title">⚔ Erhaltener Commander-Schaden <span>Antippen zum Ändern</span></div><div class="commander-chips">'+items.join('')+'</div></section>';
 }
-function playerHTML(p,i){var reasons=lostReasons(p),rotated=state.mode==='table'&&i<Math.ceil(state.players.length/2);return '<article class="player '+(state.starter===i?'starter ':'')+(reasons.length?'eliminated ':'')+(rotated?'rotated':'')+'" style="--player:'+PALETTE[i%PALETTE.length]+'">'+
+function tableSeatClass(i){
+ if(!state||state.mode!=='table')return '';
+ var n=state.players.length;
+ if(n%2===1 && i===n-1)return ' center-seat';
+ return i%2===0?' left-edge':' right-edge';
+}
+function boardRows(){
+ if(!state)return 1;
+ if(state.mode==='table'&&state.players.length===2)return 1;
+ return Math.ceil(state.players.length/2);
+}
+function edgeScale(){
+ if(!state)return 1;
+ var n=state.players.length;
+ if(n<=2)return 1;
+ if(n<=4)return .72;
+ if(n<=6)return .58;
+ return .5;
+}
+function playerHTML(p,i){var reasons=lostReasons(p),seatClass=tableSeatClass(i);return '<article class="player '+(state.starter===i?'starter ':'')+(reasons.length?'eliminated ':'')+seatClass+'" style="--player:'+PALETTE[i%PALETTE.length]+'">'+
 '<div class="player-inner"><div class="player-top"><span class="player-name">'+esc(p.name)+'</span>'+(i===state.starter?'<span class="star">★ START</span>':'')+'</div>'+
 '<div class="life-controls"><button type="button" class="step" data-act="life" data-i="'+i+'" data-d="-1" aria-label="'+esc(p.name)+': ein Leben abziehen">−</button><div class="life-display"><span class="life-value">'+p.life+'</span><span class="life-caption">LEBEN</span></div><button type="button" class="step" data-act="life" data-i="'+i+'" data-d="1" aria-label="'+esc(p.name)+': ein Leben hinzufügen">+</button></div>'+
 commanderDamageHTML(p,i)+
 '<div class="quick"><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Giftmarken von '+esc(p.name)+' verwalten">☠ Gift <strong>'+p.poison+'</strong></button><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Commander-Schaden von '+esc(p.name)+' verwalten">⚔ Bearbeiten</button><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Weitere Zähler von '+esc(p.name)+' verwalten">⚙</button></div>'+
 (reasons.length?'<div class="bottom-status">⚠ Ausgeschieden · '+esc(reasons.join(', '))+'</div>':'')+'</div></article>'}
-function render(){if(!state){revealSetup();return}document.body.classList.toggle('table-mode',activeTab==='life'&&state.mode==='table');el('setup').classList.add('hidden');el('game').classList.remove('hidden');el('gameTag').textContent=state.players.length+' Spieler';el('mode').textContent=state.mode==='table'?'▦ Standardansicht':'↕ Tabletop-Modus';el('mode').classList.toggle('active',state.mode==='table');el('undo').disabled=history.length===0;var board=el('board');board.style.setProperty('--rows',state.players.length===2?'2':String(Math.ceil(state.players.length/2)));board.classList.toggle('two-players',state.players.length===2);board.innerHTML=state.players.map(playerHTML).join('');if(activeModal!==null)renderModal()}
+function render(){
+ if(!state){revealSetup();return}
+ document.body.classList.toggle('table-mode',activeTab==='life'&&state.mode==='table');
+ document.body.classList.toggle('match-focus',activeTab==='life');
+ el('setup').classList.add('hidden');
+ el('game').classList.remove('hidden');
+ el('gameTag').textContent=state.players.length+' Spieler';
+ el('mode').textContent=state.mode==='table'?'▦ Standardansicht':'↕ Tabletop-Modus';
+ el('mode').classList.toggle('active',state.mode==='table');
+ el('undo').disabled=history.length===0;
+ var board=el('board');
+ board.style.setProperty('--rows',String(boardRows()));
+ board.style.setProperty('--edge-scale',String(edgeScale()));
+ board.classList.toggle('two-players',state.players.length===2);
+ board.classList.toggle('odd-count',state.players.length%2===1);
+ board.classList.toggle('table-layout',state.mode==='table');
+ board.innerHTML=state.players.map(playerHTML).join('');
+ renderGameMenu();
+ if(activeModal!==null)renderModal()
+}
 function adjust(i,key,d,source){if(!state||!state.players[i]||!Number.isFinite(d))return;var p=state.players[i];remember();if(key==='life')p.life=limit(p.life+d,-999,999);else if(key==='commander'){if(!Number.isInteger(source)||source<0||source>=state.players.length||source===i){history.pop();return}p.commander[source]=limit(p.commander[source]+d,0,999)}else if(key==='poison'||key==='experience')p[key]=limit(p[key]+d,0,999);else{history.pop();return}store();render()}
-function openModal(i){if(!state||!state.players[i])return;activeModal=i;el('modalBackdrop').classList.remove('hidden');renderModal()}
+function openModal(i){if(!state||!state.players[i])return;closeGameMenu();activeModal=i;el('modalBackdrop').classList.remove('hidden');renderModal()}
 function closeModal(){activeModal=null;el('modalBackdrop').classList.add('hidden')}
 function counterHTML(title,i,key,value,source){var extra=typeof source==='number'?' data-source="'+source+'"':'';return '<div class="counter-row"><span class="who">'+esc(title)+'</span><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="-1"'+extra+' aria-label="'+esc(title)+' reduzieren">−</button><output>'+value+'</output><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="1"'+extra+' aria-label="'+esc(title)+' erhöhen">+</button></div>'}
 function renderModal(){if(activeModal===null||!state||!state.players[activeModal])return;var i=activeModal,p=state.players[i];el('modalTitle').textContent=p.name+' · Zähler';var html='<div class="field"><label for="editName">Spielername</label><input id="editName" type="text" maxlength="35" autocomplete="off" value="'+esc(p.name)+'"></div>';
 html+='<h3 class="section-label">Status & Marken</h3>'+counterHTML('☠ Giftmarken',i,'poison',p.poison)+counterHTML('✦ Erfahrungsmarken',i,'experience',p.experience);
 html+='<h3 class="section-label">Commander-Schaden erhalten</h3>';for(var j=0;j<state.players.length;j++)if(j!==i)html+=counterHTML('Von '+state.players[j].name,i,'commander',p.commander[j],j);
 html+='<p class="notice-inline">21 Schaden durch <strong>denselben</strong> Commander oder 10 Giftmarken bedeuten eine Niederlage. Commander-Schaden ändert hier nicht automatisch die Lebenspunkte, um Doppelzählungen zu vermeiden.</p><div class="modal-actions"><button type="button" class="btn primary" id="modalDone">Fertig</button></div>';el('modalContent').innerHTML=html}
-function newGamePrompt(){el('modalTitle').textContent='Neue Partie starten?';el('modalContent').innerHTML='<p class="muted">Alle aktuellen Lebenspunkte und Spezialzähler werden gelöscht.</p><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button><button class="btn warning" type="button" id="reallyReset">Neue Partie</button></div>';activeModal=null;el('modalBackdrop').classList.remove('hidden')}
+function newGamePrompt(){closeGameMenu();el('modalTitle').textContent='Neue Partie starten?';el('modalContent').innerHTML='<p class="muted">Alle aktuellen Lebenspunkte und Spezialzähler werden gelöscht.</p><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button><button class="btn warning" type="button" id="reallyReset">Neue Partie</button></div>';activeModal=null;el('modalBackdrop').classList.remove('hidden')}
 function validate(s){if(!s||!Array.isArray(s.players)||s.players.length<2||s.players.length>8)return false;var n=s.players.length;if(!Number.isInteger(s.starter)||s.starter<0||s.starter>=n)return false;for(var i=0;i<n;i++){var p=s.players[i];if(!p||typeof p.name!=='string'||!Number.isFinite(p.life)||!Number.isFinite(p.poison)||!Number.isFinite(p.experience)||!Array.isArray(p.commander)||p.commander.length!==n)return false;for(var j=0;j<n;j++)if(!Number.isFinite(p.commander[j]))return false}return true}
 function restore(){try{var raw=window.localStorage.getItem(STORAGE);if(raw){var candidate=JSON.parse(raw);if(validate(candidate)){state=candidate;state.mode=(state.mode==='table'?'table':'standard');return true}}}catch(e){}return false}
 function migrate(){try{var raw=window.localStorage.getItem('commander-life-tracker-v1');if(!raw)return false;var s=JSON.parse(raw);if(!validate(s))return false;state={version:2,mode:'standard',starter:s.starter,players:s.players};store();return true}catch(e){return false}}
@@ -367,7 +534,7 @@ function planTournament(n,rounds){
  }
  return schedule;
 }
-function setTab(which){activeTab=which==='tournament'?'tournament':'life';closeModal();el('lifePanel').classList.toggle('hidden',activeTab!=='life');el('tournamentPanel').classList.toggle('hidden',activeTab!=='tournament');el('tabLife').setAttribute('aria-selected',String(activeTab==='life'));el('tabTournament').setAttribute('aria-selected',String(activeTab==='tournament'));document.body.classList.toggle('table-mode',activeTab==='life'&&!!state&&state.mode==='table');if(activeTab==='tournament'){el('gameTag').textContent=tournament?'Turnier':'Turnierplanung';renderTournament()}else if(state)render();else revealSetup();window.scrollTo(0,0)}
+function setTab(which){activeTab=which==='tournament'?'tournament':'life';closeModal();closeGameMenu();el('lifePanel').classList.toggle('hidden',activeTab!=='life');el('tournamentPanel').classList.toggle('hidden',activeTab!=='tournament');el('tabLife').setAttribute('aria-selected',String(activeTab==='life'));el('tabTournament').setAttribute('aria-selected',String(activeTab==='tournament'));document.body.classList.toggle('table-mode',activeTab==='life'&&!!state&&state.mode==='table');document.body.classList.toggle('match-focus',activeTab==='life'&&!!state);if(activeTab==='tournament'){el('gameTag').textContent=tournament?'Turnier':'Turnierplanung';renderTournament()}else if(state)render();else revealSetup();window.scrollTo(0,0)}
 function syncPairingPreview(){
  var n=Number(el('tournamentCount').value),r=Number(el('tournamentRounds').value),box=el('pairingPreview');if(!Number.isInteger(n)||n<2||n>32){box.textContent='Gib eine Spieleranzahl zwischen 2 und 32 ein.';return}
  var l=getLayout(n);
@@ -422,14 +589,14 @@ function selectMatchWinner(table,index){
  if(!tournament||editingRound===null)return;var match=tournament.schedule[editingRound].tables[table];if(!match||!match.players.includes(index))return;
  match.winner=match.winner===index?null:index;saveTournament();renderTournament();
 }
-function promptTournamentReset(){if(!tournament)return;el('modalTitle').textContent='Ein neues Turnier beginnen?';el('modalContent').innerHTML='<p class="muted">Die aktuelle Tabelle, die Tischzuordnung und alle Sieger werden aus der App entfernt. Exportiere vorher bei Bedarf die CSV-Datei.</p><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button><button class="btn warning" type="button" id="reallyResetTour">Turnier löschen</button></div>';activeModal=null;el('modalBackdrop').classList.remove('hidden')}
+function promptTournamentReset(){closeGameMenu();if(!tournament)return;el('modalTitle').textContent='Ein neues Turnier beginnen?';el('modalContent').innerHTML='<p class="muted">Die aktuelle Tabelle, die Tischzuordnung und alle Sieger werden aus der App entfernt. Exportiere vorher bei Bedarf die CSV-Datei.</p><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button><button class="btn warning" type="button" id="reallyResetTour">Turnier löschen</button></div>';activeModal=null;el('modalBackdrop').classList.remove('hidden')}
 function exportTournamentCsv(){
  if(!tournament)return;var rows=[['Platz','Spieler','Siege','Gespielte Partien','Geplante Pausen','Gewonnene Runden']];var ranking=counts().sort(function(a,b){return b.wins-a.wins||a.idx-b.idx}),place=0,last=null;
  ranking.forEach(function(p,i){if(p.wins!==last)place=i+1;last=p.wins;rows.push([place,tournament.players[p.idx],p.wins,p.played,p.byes,p.rounds.join(', ')])});
  rows.push([]);rows.push(['Runde','Tisch','Mitspieler','Sieger','Pausiert']);
  tournament.schedule.forEach(function(round,i){round.tables.forEach(function(m,j){rows.push([i+1,j+1,m.players.map(function(p){return tournament.players[p]}).join(' / '),m.winner===null?'':tournament.players[m.winner],round.bye===null?'':tournament.players[round.bye]])})});
  var content='\uFEFF'+rows.map(function(row){return row.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"'}).join(';')}).join('\r\n');
- var blob=new Blob([content],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='Commander_Turnier_6_Ergebnisse.csv';document.body.appendChild(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url)},10000);
+ var blob=new Blob([content],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='Commander_Turnier_7_Ergebnisse.csv';document.body.appendChild(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url)},10000);
 }
 
 function createBackup(){
@@ -470,6 +637,17 @@ function initialize(){buildChoices();syncNameFields();loadTournament();
 el('backupExport').addEventListener('click',downloadBackup);
 el('backupImport').addEventListener('click',function(){el('backupFile').click()});
 el('backupFile').addEventListener('change',restoreBackup);
+el('menuFab').addEventListener('click',toggleGameMenu);
+el('menuClose').addEventListener('click',closeGameMenu);
+el('menuClosePrimary').addEventListener('click',closeGameMenu);
+el('gameMenuBackdrop').addEventListener('click',closeGameMenu);
+el('menuMode').addEventListener('click',function(){el('mode').click();renderGameMenu()});
+el('menuPick').addEventListener('click',function(){el('pick').click();renderGameMenu()});
+el('menuUndo').addEventListener('click',function(){el('undo').click();renderGameMenu()});
+el('menuReset').addEventListener('click',function(){closeGameMenu();el('reset').click()});
+el('menuTournament').addEventListener('click',function(){closeGameMenu();setTab('tournament')});
+el('menuBackupExport').addEventListener('click',downloadBackup);
+el('menuBackupImport').addEventListener('click',function(){el('backupFile').click()});
 initPWA();
 el('tabLife').addEventListener('click',function(){setTab('life')});el('tabTournament').addEventListener('click',function(){setTab('tournament')});
 el('tournamentCount').addEventListener('input',syncNameFields);el('tournamentCount').addEventListener('change',syncNameFields);el('tournamentRounds').addEventListener('input',syncPairingPreview);el('tournamentForm').addEventListener('submit',createTournament);
@@ -487,7 +665,7 @@ el('modalClose').addEventListener('click',closeModal);
 el('modalBackdrop').addEventListener('click',function(e){if(e.target===el('modalBackdrop'))closeModal()});
 el('modalContent').addEventListener('click',onModalClick);
 el('modalContent').addEventListener('change',onNameChange);
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(!el('gameMenu').classList.contains('hidden'))closeGameMenu();else closeModal()}});
 if(restore()||migrate())render();else revealSetup()}
 initialize();
 })();

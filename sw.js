@@ -1,5 +1,5 @@
-/* Commander Companion VI — offline-first application shell. */
-const CACHE = 'commander-companion-vi-2026-10-20-1';
+/* Commander Companion VII — offline-first application shell. */
+const CACHE = 'commander-companion-vii-2026-10-20-1';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
