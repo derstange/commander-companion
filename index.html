@@ -652,7 +652,20 @@ function optimizeGroups(active,size,hist,previous,n){
  }
  return best;
 }
+// 7 players (2 tables of 3, 1 bye): cyclic design over Z7 with base tables {1,2,4} and {3,5,6}.
+// Every block of 7 rounds: each player sits out exactly once and meets every other player exactly twice.
+function planSeven(rounds){
+ var schedule=[],perm,order;
+ for(var r=0;r<rounds;r++){
+  if(r%7===0){perm=shuffleCopy([0,1,2,3,4,5,6]);order=shuffleCopy([0,1,2,3,4,5,6])}
+  var k=order[r%7],at=function(d){return perm[(k+d)%7]};
+  var tables=shuffleCopy([[at(1),at(2),at(4)],[at(3),at(5),at(6)]]).map(function(m){return {players:shuffleCopy(m),winner:null}});
+  schedule.push({bye:at(0),tables:tables});
+ }
+ return schedule;
+}
 function planTournament(n,rounds){
+ if(n===7)return planSeven(rounds);
  var layout=getLayout(n),hist=new Uint16Array(n*n),schedule=[],previous=null;
  var byeOrder=shuffleCopy(Array.from({length:n},function(_,i){return i}));
  for(var r=0;r<rounds;r++){
