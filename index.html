@@ -20,6 +20,9 @@ body.table-mode{overflow:hidden;background:#11121d}body.table-mode .shell{width:
 @media(max-height:670px){body.table-mode .mast{display:none}body.table-mode .toolbar .btn{min-height:32px}body.table-mode .player-top{padding-top:2px}body.table-mode .quick .btn{min-height:30px}body.table-mode .life-value{font-size:clamp(1.9rem,8vh,4rem)}}
 @media(max-width:400px){body.table-mode .toolbar .btn{font-size:.67rem}body.table-mode .quick .btn{font-size:.64rem}}
 @media(prefers-reduced-motion:no-preference){.btn,.step,.mini,.choice{transition:filter .12s,transform .12s}}
+.step,.mini{-webkit-touch-callout:none}.step.holding,.mini.holding{filter:brightness(1.4);box-shadow:inset 0 0 0 2px #f5c96b,0 0 18px #f5c96b55}
+.life-display{position:relative}
+.life-delta{position:absolute;left:50%;top:0;transform:translate(-50%,-55%);padding:1px 8px;border-radius:99px;background:#000a;border:1px solid #f5c96b88;color:#ffe3a3;font-size:clamp(.7rem,2.4vw,.9rem);font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none}
 
 /* Tabs, tournament setup, rounds and rankings */
 .top-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;border:1px solid var(--line);padding:5px;border-radius:15px;background:#191928}
@@ -617,8 +620,53 @@ function newGamePrompt(){closeGameMenu();el('modalTitle').textContent='Neue Part
 function validate(s){if(!s||!Array.isArray(s.players)||s.players.length<2||s.players.length>8)return false;var n=s.players.length;if(!Number.isInteger(s.starter)||s.starter<0||s.starter>=n)return false;for(var i=0;i<n;i++){var p=s.players[i];if(!p||typeof p.name!=='string'||!Number.isFinite(p.life)||!Number.isFinite(p.poison)||!Number.isFinite(p.experience)||!Array.isArray(p.commander)||p.commander.length!==n)return false;for(var j=0;j<n;j++)if(!Number.isFinite(p.commander[j]))return false}return true}
 function restore(){try{var raw=window.localStorage.getItem(STORAGE);if(raw){var candidate=JSON.parse(raw);if(validate(candidate)){state=candidate;state.mode=(state.mode==='table'?'table':'standard');return true}}}catch(e){}return false}
 function migrate(){try{var raw=window.localStorage.getItem('commander-life-tracker-v1');if(!raw)return false;var s=JSON.parse(raw);if(!validate(s))return false;state={version:2,mode:'standard',starter:s.starter,players:s.players};store();return true}catch(e){return false}}
-function onBoardClick(e){var node=e.target.closest('button[data-act]');if(!node)return;var i=parseInt(node.getAttribute('data-i'),10);var action=node.getAttribute('data-act');if(action==='life')adjust(i,'life',Number(node.getAttribute('data-d')));else if(action==='modal')openModal(i)}
-function onModalClick(e){var btn=e.target.closest('button');if(!btn)return;if(btn.id==='modalDone'||btn.id==='keepGame'){closeModal();return}if(btn.id==='reallyResetTour'){closeModal();tournament=null;editingRound=null;try{window.localStorage.removeItem(TOUR_STORAGE)}catch(e){}renderTournament();return}if(btn.id==='reallyPlayMatch'){closeModal();launchTournamentMatch(Number(btn.getAttribute('data-round')),Number(btn.getAttribute('data-table')));return}if(btn.id==='reallyReset'){closeModal();state=null;history=[];discard();revealSetup();window.scrollTo(0,0);return}if(btn.getAttribute('data-act')==='adjust'){var i=Number(btn.getAttribute('data-i')),key=btn.getAttribute('data-key'),d=Number(btn.getAttribute('data-d')),source=btn.hasAttribute('data-source')?Number(btn.getAttribute('data-source')):undefined;adjust(i,key,d,source)}}
+// Press and hold on any − / + (life on the board, poison, experience and commander damage in the counter dialog):
+// the value keeps changing until release and speeds up the longer the button is held.
+// Only the number is updated while holding; everything is redrawn on release, and a whole hold is one undo step.
+var holds={},lastHoldEnd=0,HOLD_BUTTONS='.step[data-act="life"],.mini[data-act="adjust"]';
+function holdButton(h){
+ if(h.key==='life')return el('board').querySelector('.step[data-act="life"][data-i="'+h.i+'"][data-d="'+h.d+'"]');
+ if(activeModal!==h.i)return null;
+ return el('modalContent').querySelector('.mini[data-key="'+h.key+'"][data-d="'+h.d+'"]'+(h.key==='commander'?'[data-source="'+h.source+'"]':''));
+}
+function holdStep(h){
+ var p=state.players[h.i];
+ if(h.key==='life'){var before=p.life;p.life=limit(p.life+h.d,-999,999);return {value:p.life,change:p.life-before}}
+ if(h.key==='commander'){var c=p.commander[h.source];p.commander[h.source]=limit(c+h.d,0,999);return {value:p.commander[h.source],change:p.commander[h.source]-c}}
+ var old=p[h.key];p[h.key]=limit(old+h.d,0,999);return {value:p[h.key],change:p[h.key]-old};
+}
+function holdTick(id){
+ var h=holds[id];if(!h||!state||!state.players[h.i])return;
+ var step=holdStep(h);h.total+=step.change;
+ var btn=holdButton(h);
+ if(btn){
+  btn.classList.add('holding');
+  if(h.key==='life'){
+   var box=btn.closest('.life-controls');box.querySelector('.life-value').textContent=step.value;
+   var badge=box.querySelector('.life-delta');if(!badge){badge=document.createElement('span');badge.className='life-delta';badge.setAttribute('aria-hidden','true');box.querySelector('.life-display').appendChild(badge)}
+   badge.textContent=(h.total>0?'+':h.total<0?'−':'±')+Math.abs(h.total);
+  }else btn.closest('.counter-row').querySelector('output').textContent=step.value;
+ }
+ h.count++;
+ h.timer=setTimeout(function(){holdTick(id)},h.count===1?450:Math.max(35,Math.round(170*Math.pow(.86,h.count-2))));
+}
+function startHold(e){
+ var btn=e.target.closest(HOLD_BUTTONS);if(!btn||!state||(e.pointerType==='mouse'&&e.button!==0))return;
+ var h={i:parseInt(btn.getAttribute('data-i'),10),key:btn.getAttribute('data-act')==='life'?'life':btn.getAttribute('data-key'),d:Number(btn.getAttribute('data-d')),source:btn.hasAttribute('data-source')?Number(btn.getAttribute('data-source')):null,count:0,total:0};
+ var p=state.players[h.i];if(!p||!Number.isFinite(h.d)||['life','poison','experience','commander'].indexOf(h.key)<0)return;
+ if(h.key==='commander'&&(!Number.isInteger(h.source)||h.source<0||h.source>=state.players.length||h.source===h.i))return;
+ endHold(e.pointerId);remember();holds[e.pointerId]=h;holdTick(e.pointerId);
+}
+function endHold(id,cancelled){
+ var h=holds[id];if(!h)return;clearTimeout(h.timer);delete holds[id];lastHoldEnd=Date.now();
+ var others=Object.keys(holds).length>0;
+ // A cancelled short touch (e.g. the page or dialog started scrolling) should not change anything.
+ if((cancelled&&h.count<=1)||h.total===0){if(state&&state.players[h.i]){h.d=-h.total;if(h.d)holdStep(h)}if(!others)history.pop()}
+ store();if(!others)render();
+}
+function endAllHolds(){Object.keys(holds).forEach(function(id){endHold(id)})}
+function onBoardClick(e){var node=e.target.closest('button[data-act]');if(!node)return;var i=parseInt(node.getAttribute('data-i'),10);var action=node.getAttribute('data-act');if(action==='life'&&window.PointerEvent&&Date.now()-lastHoldEnd<700)return;if(action==='life')adjust(i,'life',Number(node.getAttribute('data-d')));else if(action==='modal')openModal(i)}
+function onModalClick(e){var btn=e.target.closest('button');if(!btn)return;if(btn.id==='modalDone'||btn.id==='keepGame'){closeModal();return}if(btn.id==='reallyResetTour'){closeModal();tournament=null;editingRound=null;try{window.localStorage.removeItem(TOUR_STORAGE)}catch(e){}renderTournament();return}if(btn.id==='reallyPlayMatch'){closeModal();launchTournamentMatch(Number(btn.getAttribute('data-round')),Number(btn.getAttribute('data-table')));return}if(btn.id==='reallyReset'){closeModal();state=null;history=[];discard();revealSetup();window.scrollTo(0,0);return}if(btn.getAttribute('data-act')==='adjust'){if(window.PointerEvent&&Date.now()-lastHoldEnd<700)return;var i=Number(btn.getAttribute('data-i')),key=btn.getAttribute('data-key'),d=Number(btn.getAttribute('data-d')),source=btn.hasAttribute('data-source')?Number(btn.getAttribute('data-source')):undefined;adjust(i,key,d,source)}}
 function onNameChange(e){if(e.target.id!=='editName'||activeModal===null||!state)return;var name=e.target.value.trim().slice(0,35)||'Spieler '+(activeModal+1);if(state.players[activeModal].name===name)return;remember();state.players[activeModal].name=name;store();render();el('modalTitle').textContent=name+' · Zähler'}
 
 
@@ -931,6 +979,13 @@ document.addEventListener('keydown',function(e){if(e.key!=='Enter'||!e.target.cl
 // A real form submit works with both touch and keyboard and does not rely on click handlers.
 el('setupForm').addEventListener('submit',beginGame);
 el('board').addEventListener('click',onBoardClick);
+if(window.PointerEvent){
+ el('board').addEventListener('pointerdown',startHold);el('modalContent').addEventListener('pointerdown',startHold);
+ document.addEventListener('pointerup',function(e){endHold(e.pointerId)});
+ document.addEventListener('pointercancel',function(e){endHold(e.pointerId,true)});
+ document.addEventListener('contextmenu',function(e){if(e.target.closest&&e.target.closest(HOLD_BUTTONS))e.preventDefault()});
+ window.addEventListener('blur',endAllHolds);document.addEventListener('visibilitychange',function(){if(document.hidden)endAllHolds()});
+}
 el('mode').addEventListener('click',function(){if(!state)return;state.mode=state.mode==='table'?'standard':'table';store();render();window.scrollTo(0,0)});
 el('pick').addEventListener('click',function(){if(!state)return;remember();state.starter=pickRandom(state.players.length);store();render();announce('🎲 '+state.players[state.starter].name+' beginnt!')});
 el('undo').addEventListener('click',function(){if(!history.length)return;state=JSON.parse(history.pop());store();render()});
