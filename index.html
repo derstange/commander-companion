@@ -230,6 +230,9 @@ body.table-mode.match-focus .bottom-status{padding:0 4px 4px;font-size:.5rem}
 .menu-note{grid-column:1/-1;margin:2px 0 0;color:#ffe5b2;font-size:.78rem;line-height:1.45;padding:10px 12px;border-radius:12px;background:#5d43201f;border:1px solid #b58a4560}
 .game-menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .game-menu-grid .btn{min-height:48px;padding:10px 8px}
+.menu-exit{display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;min-height:58px;margin:0 0 12px;padding:10px 14px;text-align:left;border:1px solid #f2cb82;background:linear-gradient(135deg,#5e4a31,#2a2a1d)}
+.menu-exit-title{font-size:1rem;font-weight:850;color:#fff1c9}
+.menu-exit-sub{font-size:.72rem;font-weight:600;color:#e1cfa6}
 body.menu-open{overflow:hidden}
 @media(max-width:520px){
  body.match-focus .player-name{font-size:.96rem}
@@ -349,13 +352,13 @@ body.match-focus .quick .btn{min-width:0}
   <button id="gameMenuBackdrop" class="game-menu-backdrop" type="button" aria-label="Menü schließen"></button>
   <section class="game-menu-sheet" role="dialog" aria-modal="true" aria-labelledby="gameMenuTitle">
     <div class="game-menu-head"><div><p class="eyebrow">✧ Schlachtmenü ✧</p><h2 id="gameMenuTitle">Partie-Steuerung</h2></div><button id="menuClose" class="icon-btn" type="button" aria-label="Menü schließen">×</button></div>
+    <button id="menuTournament" class="btn menu-exit" type="button"><span class="menu-exit-title">🏆 Turnierübersicht</span><span class="menu-exit-sub">Lebenszähler verlassen · Partie bleibt gespeichert</span></button>
     <div id="menuSummary" class="menu-summary"></div>
     <div class="game-menu-grid">
       <button id="menuMode" class="btn" type="button">↕ Ansicht wechseln</button>
       <button id="menuPick" class="btn" type="button">🎲 Startspieler neu</button>
       <button id="menuUndo" class="btn" type="button">↶ Rückgängig</button>
       <button id="menuReset" class="btn warning" type="button">↻ Neue Partie</button>
-      <button id="menuTournament" class="btn" type="button">🏆 Zum Turnier</button>
       <button id="menuBackupExport" class="btn" type="button">⇩ Sichern</button>
       <button id="menuBackupImport" class="btn" type="button">⇧ Laden</button>
       <button id="menuWake" class="btn" type="button">☀ Bildschirm wachhalten</button>
