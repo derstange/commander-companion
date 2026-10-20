@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c1616">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Commander Companion VI – Fantasy Life Counter & Turnier</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Commander">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Dein Commander Lebenszähler und Turnierplaner – auch offline auf dem Spieltisch.">
+<style>
+:root{color-scheme:dark;--ink:#f6f4ff;--muted:#bbb7ce;--line:#ffffff29;--panel:#202133;--main:#10121d;--gold:#f5c96b;--purple:#9667eb;--radius:21px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*{box-sizing:border-box}html{background:var(--main)}body{margin:0;min-height:100vh;min-height:100dvh;background:radial-gradient(circle at 50% 0,#29203d 0,transparent 420px),var(--main);color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer;color:inherit;border:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #f5c96b;outline-offset:3px}button:disabled{opacity:.38;cursor:default}.hidden{display:none!important}.shell{width:min(1200px,100%);margin:auto;padding:calc(14px + env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) calc(22px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}.mast{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}.brand{display:flex;align-items:center;gap:11px}.crest{font-size:1.9rem;line-height:1}.eyebrow{text-transform:uppercase;letter-spacing:.2em;color:var(--gold);font-size:.62rem;font-weight:900;margin:0 0 2px}.mast h1{margin:0;font-size:clamp(1.15rem,4.2vw,1.65rem);letter-spacing:-.03em}.muted{color:var(--muted)}.tiny{font-size:.76rem}.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:999px;padding:9px 12px;color:var(--gold);font-weight:750;font-size:.77rem;white-space:nowrap}.setup{max-width:540px;margin:clamp(12px,6vh,65px) auto;background:#1c1c2e;border:1px solid var(--line);padding:clamp(20px,5vw,34px);border-radius:26px;box-shadow:0 22px 75px #05030a69}.setup h2{font-size:1.75rem;letter-spacing:-.04em;margin:4px 0 8px}.setup p{line-height:1.55}.field{margin-top:20px}.field label{display:block;font-size:.86rem;font-weight:750;margin-bottom:9px}.choice-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.choice{min-height:52px;border:1px solid var(--line);border-radius:12px;background:#303044;font-size:1.15rem;font-weight:850}.choice.selected{border:2px solid var(--gold);background:#615035;color:#fff7df}input[type=number],input[type=text]{width:100%;border:1px solid #5b5870;background:#111323;color:white;border-radius:12px;min-height:52px;padding:12px 14px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);border-radius:12px;background:#303044;padding:12px 14px;font-weight:750;min-height:46px;line-height:1.1}.btn:active,.step:active,.mini:active,.choice:active{filter:brightness(1.3);transform:scale(.975)}.btn.primary{background:linear-gradient(125deg,#8859d9,#6340bc);border-color:#a07cf0}.btn.warning{background:#5f2d3c}.btn.full{width:100%;margin-top:23px;min-height:56px;font-size:1.08rem}.hint{text-align:center;font-size:.78rem;color:var(--muted);margin:12px 0 0}.game{display:flex;flex-direction:column;gap:10px}.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.toolbar .btn{flex:1 1 auto;font-size:.83rem;padding:11px 8px}.toolbar .btn.active{background:#54416f;border-color:#bd93ff;color:white}.notice{background:#41341d;color:#ffe7ab;padding:10px 13px;border:1px solid #a77d38;border-radius:12px;font-size:.85rem;font-weight:650}.board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.player{min-width:0;position:relative;border:2px solid #ffffff30;border-radius:20px;background:var(--player);overflow:hidden;box-shadow:inset 0 0 55px #00000018}.player.starter{border-color:var(--gold);box-shadow:inset 0 0 40px #00000010,0 0 0 1px #f5c96b65}.player.eliminated{filter:saturate(.65)}.player-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px 0}.player-name{font-weight:850;font-size:1.1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.star{color:#ffe18a;font-size:.7rem;font-weight:850;white-space:nowrap}.life-controls{display:grid;grid-template-columns:minmax(66px,1fr) minmax(76px,1.25fr) minmax(66px,1fr);gap:8px;padding:12px}.step{background:#ffffff2a;border:1px solid #ffffff18;border-radius:15px;min-height:116px;font-size:2.75rem;line-height:1;font-weight:350;user-select:none;-webkit-user-select:none}.life-display{display:flex;flex-direction:column;justify-content:center;align-items:center;min-width:0;line-height:1}.life-value{font-variant-numeric:tabular-nums;font-size:clamp(3.15rem,7vw,5.25rem);font-weight:900;letter-spacing:-.07em}.life-caption{font-size:.68rem;letter-spacing:.16em;font-weight:800;opacity:.8;margin-top:5px}.quick{display:flex;gap:7px;padding:0 12px 12px}.quick .btn{flex:1;font-size:.82rem;background:#0000002b;min-width:0;padding:9px 5px}.quick strong{font-size:1rem}.bottom-status{padding:0 12px 11px;font-size:.72rem;color:#fff0bd;font-weight:750}.player:not(.eliminated) .bottom-status{display:none}.footnote{line-height:1.55;font-size:.76rem;color:var(--muted);padding:2px 3px}.empty{border:1px dashed #ffffff3a;border-radius:16px}.modal-back{position:fixed;inset:0;z-index:10;background:#05050cdd;display:flex;align-items:center;justify-content:center;padding:14px;padding-top:calc(14px + env(safe-area-inset-top));padding-bottom:calc(14px + env(safe-area-inset-bottom))}.modal{background:#202133;border:1px solid #5e5876;box-shadow:0 12px 60px #000c;border-radius:22px;width:min(490px,100%);max-height:90vh;max-height:90dvh;overflow-y:auto;overscroll-behavior:contain;padding:20px}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:9px}.modal h2{font-size:1.25rem;margin:0}.icon-btn{background:#ffffff19;border-radius:10px;width:44px;height:44px;flex-shrink:0;font-size:1.4rem}.modal .field{margin:15px 0}.section-label{margin:18px 0 10px;color:var(--gold);font-size:.83rem;text-transform:uppercase;letter-spacing:.11em}.counter-row{display:grid;grid-template-columns:minmax(0,1fr) 44px 42px 44px;gap:6px;align-items:center;margin:9px 0}.counter-row .who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.85rem}.counter-row output{text-align:center;font-weight:850;font-size:1.12rem;font-variant-numeric:tabular-nums}.mini{background:#ffffff20;border-radius:10px;min-height:44px;font-size:1.35rem}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}.modal-actions .btn{min-width:110px}.notice-inline{font-size:.78rem;line-height:1.5;color:var(--muted);margin-top:14px}.tabletop-label{display:none}
+/* Tabletop mode: opposite side of the phone/tablet reads upside-down relative to its owner. */
+body.table-mode{overflow:hidden;background:#11121d}body.table-mode .shell{width:100%;max-width:none;height:100vh;height:100dvh;padding:calc(6px + env(safe-area-inset-top)) calc(6px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(6px + env(safe-area-inset-left));display:flex;flex-direction:column;gap:6px}body.table-mode .mast{margin:0;min-height:34px;flex-shrink:0}body.table-mode .crest{display:none}body.table-mode .eyebrow{display:none}body.table-mode .mast h1{font-size:.87rem}body.table-mode .chip{padding:5px 8px;font-size:.68rem}body.table-mode .game{flex:1;min-height:0;gap:6px}body.table-mode .toolbar{flex:0 0 auto;gap:5px}body.table-mode .toolbar .btn{min-height:35px;padding:6px 7px;font-size:.73rem;border-radius:9px}body.table-mode .notice{font-size:.72rem;padding:5px 8px;flex:0 0 auto}body.table-mode .board{flex:1;min-height:0;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,1fr));gap:6px}body.table-mode .board.two-players{grid-template-columns:1fr;grid-template-rows:repeat(2,minmax(0,1fr))}body.table-mode .player{border-radius:13px;display:flex;flex-direction:column;justify-content:center}body.table-mode .player.rotated>.player-inner{transform:rotate(180deg)}body.table-mode .player-inner{min-height:0;display:flex;flex-direction:column;justify-content:center;height:100%}body.table-mode .player-top{padding:4px 8px 0}body.table-mode .player-name{font-size:clamp(.7rem,2.6vw,1.2rem)}body.table-mode .star{font-size:.62rem}body.table-mode .life-controls{flex:1;min-height:0;padding:4px 7px;gap:5px;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr)}body.table-mode .step{min-height:44px;border-radius:10px;font-size:clamp(1.8rem,7vw,3rem)}body.table-mode .life-value{font-size:clamp(2rem,12vw,5.8rem)}body.table-mode .life-caption{font-size:.5rem;margin-top:3px}body.table-mode .quick{padding:0 7px 5px;gap:5px}body.table-mode .quick .btn{font-size:clamp(.62rem,2vw,.9rem);min-height:35px;padding:5px 3px;border-radius:7px}body.table-mode .quick strong{font-size:.85rem}body.table-mode .bottom-status{padding:0 7px 5px;font-size:.57rem}body.table-mode .footnote{display:none}body.table-mode .tabletop-label{display:inline}body.table-mode .desktop-label{display:none}
+@media(max-width:680px){.toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar .btn{min-width:0}body.table-mode .toolbar{display:flex}.board{grid-template-columns:1fr}.mast{margin-bottom:12px}.life-value{font-size:4.5rem}.step{min-height:104px}.toolbar .btn{font-size:.75rem}.chip{font-size:.68rem}.quick .btn{font-size:.75rem}}
+@media(max-height:670px){body.table-mode .mast{display:none}body.table-mode .toolbar .btn{min-height:32px}body.table-mode .player-top{padding-top:2px}body.table-mode .quick .btn{min-height:30px}body.table-mode .life-value{font-size:clamp(1.9rem,8vh,4rem)}}
+@media(max-width:400px){body.table-mode .toolbar .btn{font-size:.67rem}body.table-mode .quick .btn{font-size:.64rem}}
+@media(prefers-reduced-motion:no-preference){.btn,.step,.mini,.choice{transition:filter .12s,transform .12s}}
+
+/* Tabs, tournament setup, rounds and rankings */
+.top-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;border:1px solid var(--line);padding:5px;border-radius:15px;background:#191928}
+.tab{border:1px solid transparent;background:transparent;border-radius:10px;min-height:48px;font-weight:850;color:var(--muted)}
+.tab[aria-selected="true"]{background:#624a89;color:#fff;border-color:#a880e2}
+#tournamentActive{display:flex;flex-direction:column;gap:16px}.tournament{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.tour-card{background:#1c1c2e;border:1px solid var(--line);border-radius:22px;padding:clamp(15px,4vw,24px)}
+.tour-card h2,.tour-card h3{margin:0 0 8px;letter-spacing:-.025em}
+.tour-card p{line-height:1.55}
+.tour-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.tour-metrics{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tour-metric{border:1px solid var(--line);border-radius:11px;background:#ffffff0b;padding:9px 12px;font-size:.85rem;font-weight:700}
+.tour-metric strong{color:var(--gold)}
+.tour-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tour-fields .field{margin-top:10px}
+.name-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.name-grid label{display:block;font-size:.77rem;font-weight:750;color:var(--muted);margin:0 0 5px}
+.name-grid input{min-width:0}
+.tour-players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:16px 0 9px}
+.winner-choice{background:#2c2b42;border:2px solid #ffffff26;border-radius:13px;padding:13px 11px;min-height:60px;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;font-weight:790;overflow-wrap:anywhere}
+.winner-choice.selected{border-color:var(--gold);background:#69502c;color:#fff6df}
+.winner-choice .marker{width:22px;height:22px;border:2px solid #ad9cbd;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem}
+.winner-choice.selected .marker{border-color:var(--gold);background:var(--gold);color:#241a0e}
+.round-top{display:flex;gap:9px;align-items:center;justify-content:space-between;margin:0 0 12px}
+.progress-track{height:9px;border-radius:50px;background:#ffffff1a;overflow:hidden;margin-top:14px}
+.progress-fill{height:100%;background:linear-gradient(90deg,#9b6aec,#f5c96b);width:0%;transition:width .2s}
+.rank-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:12px}
+.rank-table{width:100%;border-collapse:collapse;min-width:320px}
+.rank-table th{color:#c4beda;font-size:.74rem;text-transform:uppercase;letter-spacing:.045em;text-align:left;padding:10px 9px;border-bottom:1px solid var(--line)}
+.rank-table td{padding:13px 9px;border-bottom:1px solid #ffffff13;font-size:.89rem;vertical-align:middle}
+.rank-table td:nth-child(1){color:var(--gold);font-weight:850;width:44px}
+.rank-table td:nth-child(3){font-weight:850;font-variant-numeric:tabular-nums}
+.rank-table .leader td{background:#9b743515}
+.rounds-list{display:grid;gap:8px;margin-top:10px}
+.round-item{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:10px 12px;background:#ffffff0d;border:1px solid #ffffff16;border-radius:12px;min-height:54px}
+.round-item .round-label{font-weight:800;font-size:.86rem;white-space:nowrap}
+.round-item .round-result{flex:1;min-width:0;text-align:right;font-size:.83rem;overflow-wrap:anywhere}
+.round-item .btn{min-height:41px;padding:8px 10px;font-size:.79rem}
+.round-item.pending{opacity:.77}
+.note-box{border-left:3px solid var(--gold);padding:7px 11px;color:var(--muted);background:#ffffff09;border-radius:5px;font-size:.79rem}
+.tour-actions{display:flex;gap:9px;flex-wrap:wrap}
+.tour-actions .btn{flex:1 1 140px}
+.winner-current{color:var(--gold);font-weight:850}
+body.table-mode .top-tabs{flex:0 0 auto;min-height:32px;padding:2px;margin:0;gap:4px;border-radius:10px}
+body.table-mode .tab{min-height:32px;font-size:.74rem;padding:4px}
+@media(max-width:520px){.mast .chip{max-width:42vw;overflow:hidden;text-overflow:ellipsis}.tour-fields,.name-grid,.tour-players{grid-template-columns:1fr}.tour-card{padding:15px}.tour-card h2{font-size:1.35rem}.top-tabs{margin-bottom:11px}.rank-table td{font-size:.82rem;padding:12px 5px}.rank-table th{padding:9px 5px}.round-item{padding:9px 8px;gap:6px}.round-item .btn{padding:7px 8px}}
+@media(max-height:670px){body.table-mode .top-tabs{min-height:29px}body.table-mode .tab{min-height:27px}}
+
+/* Commander Companion IV – dark fantasy / illuminated-manuscript theme */
+:root{--ink:#f6efdb;--muted:#c7bda3;--line:#cba96335;--panel:#182329;--main:#0c1616;--gold:#e8c381;--purple:#82a991;--radius:19px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+html{background:#091210}
+body{background:radial-gradient(ellipse at 55% -70px,#28443d 0%,transparent 51%),radial-gradient(ellipse at 0% 65%,#24312d 0%,transparent 46%),repeating-linear-gradient(114deg,transparent 0 22px,#d1b47505 22px 23px),#0a1312;color:var(--ink)}
+body:not(.table-mode):before,body:not(.table-mode):after{content:"✧";pointer-events:none;position:fixed;color:#d3ac5540;font:120px Georgia,serif;z-index:0}
+body:not(.table-mode):before{top:6%;left:-27px}body:not(.table-mode):after{right:-15px;bottom:-20px;transform:rotate(25deg)}
+.shell{position:relative;z-index:1}
+.mast{padding:11px 9px 16px;border-bottom:1px solid #a7835136}
+.crest{font:2.9rem Georgia,serif;color:var(--gold);text-shadow:0 0 23px #d4b77866}
+.mast h1,.setup h2,.tour-card h2,.tour-card h3,.modal h2{font-family:Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:.008em;color:#f7e8c3}
+.mast h1 small{font:600 .56em Georgia,serif;color:var(--gold)}
+.eyebrow{color:#cba96e;letter-spacing:.21em}
+.top-tabs{background:#101c1c;border:1px solid #a78d5c66;box-shadow:0 5px 20px #0003}
+.tab{font-family:Georgia,"Times New Roman",serif;font-size:1.04rem;letter-spacing:.015em}
+.tab[aria-selected="true"]{color:#261a0e;background:linear-gradient(125deg,#f1d49b,#b38a50);border-color:#f8d9a1;box-shadow:0 2px 15px #aa813b47}
+.setup,.tour-card,.modal{background:linear-gradient(148deg,#1d2d2b 0%,#121c1d 100%);border:1px solid #9f7c4a82;box-shadow:0 16px 42px #0007,inset 0 0 0 3px #e0bb6420;position:relative}
+.setup:before,.tour-card:before{content:"✧";position:absolute;right:18px;top:9px;font:20px Georgia,serif;color:#d1af6e72;pointer-events:none}
+.tour-card h2,.setup h2{font-size:clamp(1.45rem,5vw,2.1rem)}
+.btn,.choice,.mini{background:linear-gradient(145deg,#2a3b3a,#1b292b);border:1px solid #90774e73;color:#f4e7cf}
+.btn.primary{background:linear-gradient(125deg,#8b683c,#b69258 46%,#886737);border:1px solid #f6d99b;color:#16140d;box-shadow:0 7px 22px #9a6b2e44;text-shadow:0 1px #fff4}
+.btn.warning{background:#562d2f;border-color:#ac6666}
+.choice.selected,.winner-choice.selected{color:#fff1c9;background:linear-gradient(135deg,#5e4a31,#3d3829);border-color:#f2cb82}
+.chip{border-color:#ab8a537a;background:#98743e1c;color:#eed095}
+input[type=number],input[type=text]{background:#0b1718;color:#fff2d5;border-color:#8b774e94}
+input::placeholder{color:#9b9888}
+.field label,.section-label{color:#dfcb9f}
+.player{border-color:#d8b67973}.player.starter{border-color:#f2ce7e}.player-name{font-family:Georgia,serif}.step{background:#071c1b67}.life-value{font-family:Georgia,serif;font-variant-numeric:tabular-nums}.quick .btn{background:#0c171b81}
+.modal-back{backdrop-filter:blur(4px)}.modal{background:#192726;border-color:#c09c61}
+.tour-metric{background:#d8b37b0d;border-color:#92764962}.tour-metric strong{color:#f0cf8c}
+.round-item{background:#162626;border-color:#876b4566}
+.progress-track{background:#62503960}.progress-fill{background:linear-gradient(90deg,#547e70,#edc980)}
+.winner-choice{background:linear-gradient(130deg,#263633,#1b292a);border-color:#806b4d7a}
+.winner-choice .marker{border-color:#bba97f}.winner-choice.selected .marker{background:#ecc47d;border-color:#ffdf9d}
+.rank-table th{color:#ddc999;border-color:#a1855666}.rank-table td{border-color:#d0ac5b21}.rank-table td:first-child{color:#f0c87c}.rank-table .leader td{background:#dab45e1a}
+.round-pager{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 0 14px}.round-pager span{white-space:nowrap;text-align:center}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:13px}
+.match-card{border:1px solid #c79c5a7b;border-radius:16px;padding:15px;background:radial-gradient(ellipse at 96% 0,#9b754b23,transparent 55%),linear-gradient(145deg,#273833,#101e20);box-shadow:inset 0 0 0 2px #c9a76b14}
+.match-card.done{border-color:#a99d62}
+.match-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.match-title{color:#f5d99d;font-family:Georgia,serif;font-size:1.22rem;font-weight:700}
+.match-status{font-size:.71rem;color:#bcb4a2;padding:5px 8px;border:1px solid #9e875354;border-radius:99px}
+.match-card.done .match-status{color:#f4d591;border-color:#e5bc6f70;background:#e5bc6f14}
+.match-contenders{display:grid;gap:8px}
+.match-contenders .winner-choice{min-height:52px;padding:10px 12px;font-size:.95rem}
+.match-contenders .winner-choice span:first-child{overflow-wrap:anywhere}
+.match-foot{font-size:.72rem;margin-top:11px;color:#c3b495}
+.bye-card{margin:12px 0 0;border:1px dashed #c4a365b3;border-radius:13px;padding:13px;background:#e9be6810;color:#f1dfbd;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.bye-card strong{color:#ebcb8c}
+.round-saved{font-size:.8rem;color:#e5c891;min-height:17px;margin-top:10px}
+.pairing-preview{margin:15px 0 0;border-left:3px solid #d2aa64;background:#bd9d5a15;border-radius:0 12px 12px 0;padding:11px 13px;color:#eadab8;font-size:.83rem;line-height:1.55}
+.rounds-list .round-item{align-items:flex-start;flex-wrap:wrap}.round-label{color:#f0d29c}.round-result{text-align:left!important;flex:1 1 180px!important;line-height:1.6}
+.round-item .btn{align-self:center}
+.table-badge{display:inline-block;border:1px solid #987c486f;border-radius:7px;padding:3px 6px;margin:2px 4px 2px 0;color:#ecd6a9;line-height:1.4}
+.tour-head .btn{flex-shrink:0}
+@media(max-width:560px){.mast h1{font-size:1.05rem}.mast h1 small{font-size:.65em}.crest{font-size:2.1rem}.eyebrow{letter-spacing:.11em}.round-pager .btn{font-size:.76rem;padding:10px 8px}.match-card{padding:12px}.tour-head{align-items:center}.round-item .round-result{flex-basis:150px!important}.tour-card h2{font-size:1.4rem}}
+@media(max-width:375px){.top-tabs .tab{font-size:.85rem}.round-pager{gap:4px}.round-pager span{font-size:.66rem}.round-pager .btn{padding:10px 5px}.mast .chip{font-size:.57rem}}
+/* In tabletop mode keep every player's panel as the only focus. */
+body.table-mode{background:#07110e}body.table-mode .mast{padding:0;border:none}body.table-mode .tab{font-family:system-ui,sans-serif}body.table-mode .player:before{display:none}
+
+
+/* Commander Companion V: commander damage is visible for each attacker directly on each player tile. */
+.commander-direct{padding:0 12px 9px;min-width:0}
+.commander-direct-title{display:flex;justify-content:space-between;gap:6px;align-items:baseline;margin:0 0 6px;font-size:.71rem;letter-spacing:.01em;font-weight:850;color:#fff0cf}
+.commander-direct-title span{font-size:.62rem;color:#dfd4be;font-weight:550;white-space:nowrap}
+.commander-chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:5px}
+.commander-chip{background:#07171992;border:1px solid #d4b27766;border-radius:8px;min-height:34px;padding:5px 7px;display:flex;align-items:center;justify-content:space-between;gap:5px;text-align:left;color:#fff5df;min-width:0}
+.commander-chip:active{filter:brightness(1.35)}
+.commander-chip.marked{border-color:#f3d18ba8;background:#6e522a7d}
+.commander-chip.danger{border-color:#ef9d5f;background:#773f22ac}
+.commander-chip.critical{border-color:#ff6969;background:#8b2837;color:#fff0dc}
+.cmd-who{display:flex;align-items:center;gap:5px;min-width:0}
+.cmd-number{display:grid;place-items:center;flex-shrink:0;width:19px;height:19px;border-radius:5px;background:#ffffff1c;font-size:.68rem;font-weight:850;color:#f9d796}
+.cmd-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.71rem;font-weight:690}
+.cmd-amount{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:.96rem;font-weight:900}
+.cmd-amount small{font-weight:600;opacity:.8;font-size:.63rem}
+body.table-mode .commander-direct{padding:0 6px 3px;flex:0 0 auto}
+body.table-mode .commander-direct-title{font-size:clamp(.47rem,1.4vw,.68rem);margin-bottom:2px}
+body.table-mode .commander-direct-title span{display:none}
+body.table-mode .commander-chips{grid-template-columns:repeat(3,minmax(0,1fr));gap:2px}
+body.table-mode .commander-chip{min-height:20px;padding:2px 3px;border-radius:5px;gap:2px}
+body.table-mode .cmd-name{display:none}
+body.table-mode .cmd-number{width:13px;height:15px;font-size:.6rem;background:transparent}
+body.table-mode .cmd-amount{font-size:clamp(.65rem,2vw,.79rem)}
+body.table-mode .cmd-amount small{font-size:.5rem}
+body.table-mode .player-inner{overflow-y:auto;scrollbar-width:none}
+body.table-mode .player-inner::-webkit-scrollbar{display:none}
+@media(max-width:680px){.commander-chips{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-height:670px){body.table-mode .commander-chip{min-height:17px;padding:1px 2px}body.table-mode .commander-direct-title{margin-bottom:1px}}
+
+/* PWA: Backup tools remain accessible in both sections, but not on the crowded shared-table view. */
+.backup-tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 13px}
+.backup-tools .btn{font-size:.77rem;min-height:39px;padding:9px 10px;background:#25332e;border-color:#b995565e;color:#ffe1a7}
+.backup-tools span{flex:1 1 170px}
+body.table-mode .backup-tools{display:none}
+@media(max-width:520px){.backup-tools{display:grid;grid-template-columns:1fr 1fr}.backup-tools .btn{font-size:.69rem;min-height:43px;padding:7px 4px}.backup-tools span{grid-column:1/-1;font-size:.72rem}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="mast"><div class="brand"><span class="crest" aria-hidden="true">✦</span><div><p class="eyebrow">✧ Das Archiv der Ebenenwandler ✧</p><h1>Commander Companion <small>VI</small></h1></div></div><span id="gameTag" class="chip">Neue Partie</span></header>
+<nav class="top-tabs" aria-label="Bereiche"><button id="tabLife" class="tab" type="button" aria-selected="true" aria-controls="lifePanel">⚔ Lebenszähler</button><button id="tabTournament" class="tab" type="button" aria-selected="false" aria-controls="tournamentPanel">🏆 Turnier</button></nav>
+<section class="backup-tools" aria-label="Spielstand sichern und wiederherstellen">
+<button id="backupExport" class="btn" type="button">⇩ Spielstand sichern</button>
+<button id="backupImport" class="btn" type="button">⇧ Sicherung laden</button>
+<input id="backupFile" class="hidden" type="file" accept=".json,application/json" aria-label="Gesicherten Spielstand auswählen">
+<span id="backupFeedback" role="status" aria-live="polite" class="tiny muted"></span>
+</section>
+<div id="lifePanel">
+<section id="setup" class="setup">
+<p class="eyebrow">✧ Die nächste Schlacht ✧</p><h2>Eine neue Partie.</h2><p class="muted">Lebenspunkte, Giftmarken und Commander-Schaden für euren Spieltisch. Ohne Anmeldung, ohne Internet.</p>
+<form id="setupForm">
+<div class="field"><label>Wie viele Personen spielen mit?</label><div class="choice-grid" id="playerChoices" aria-label="Spieleranzahl"></div></div>
+<div class="field"><label for="startingLife">Startlebenspunkte</label><input id="startingLife" type="number" min="1" max="999" value="40" inputmode="numeric" required></div>
+<button id="begin" class="btn primary full" type="submit">⚔ Partie starten</button>
+</form><p class="hint">🎲 Startspieler wird automatisch ausgelost.</p>
+</section>
+<section id="game" class="game hidden">
+<nav class="toolbar" aria-label="Spielsteuerung"><button id="mode" class="btn" type="button">↕ Tabletop-Modus</button><button id="pick" class="btn" type="button">🎲 Startspieler</button><button id="undo" class="btn" type="button">↶ Rückgängig</button><button id="reset" class="btn" type="button">↻ Neu</button></nav>
+<div id="announcement" class="notice hidden" role="status" aria-live="polite"></div>
+<div id="board" class="board"></div>
+<p class="footnote">Tipp: Auf „☠ Gift“ oder „⚔ Schaden“ tippen, um die Spezialzähler zu öffnen. Commander-Schaden wird nach verursachendem Commander erfasst; Lebenspunkte werden dabei nicht automatisch verändert.</p>
+</section>
+</div>
+<section id="tournamentPanel" class="tournament hidden" aria-label="Turnierverwaltung">
+  <div id="tournamentSetup" class="tour-card">
+    <p class="eyebrow">✧ Das Turnier der Legenden ✧</p>
+    <h2>Neues Commander-Turnier</h2>
+    <p class="muted">Legt eure Turnierrunden fest. Mehr als vier Teilnehmer werden automatisch auf gleich große Spieltische verteilt. Jeder Tisch kürt einen Sieger.</p>
+    <form id="tournamentForm">
+      <div class="tour-fields">
+        <div class="field"><label for="tournamentCount">Anzahl der Spieler (2–32)</label><input type="number" id="tournamentCount" min="2" max="32" step="1" value="4" inputmode="numeric" required></div>
+        <div class="field"><label for="tournamentRounds">Anzahl der Runden (1–50)</label><input type="number" id="tournamentRounds" min="1" max="50" step="1" value="5" inputmode="numeric" required></div>
+      </div>
+      <div id="pairingPreview" class="pairing-preview" aria-live="polite"></div>
+      <h3 class="section-label">Teilnehmernamen</h3>
+      <div id="tournamentNames" class="name-grid"></div>
+      <button class="btn primary full" type="submit">⚔ Turnierplan schmieden</button>
+    </form>
+  </div>
+  <div id="tournamentActive" class="hidden">
+    <div class="tour-card">
+      <div class="tour-head"><div><p class="eyebrow">Turnierübersicht</p><h2 id="tourTitle">Commander-Turnier</h2><p class="muted tiny" id="tourSubtitle"></p></div><button type="button" id="tourReset" class="btn warning">↻ Neues Turnier</button></div>
+      <div id="tourMetrics" class="tour-metrics"></div><div class="progress-track" aria-label="Turnierfortschritt"><div class="progress-fill" id="tourProgress"></div></div>
+    </div>
+    <div class="tour-card" id="roundEditorCard">
+      <div class="round-top"><div><p class="eyebrow" id="roundEyebrow">✧ Die Begegnungen</p><h2 id="roundHeading">Runde 1</h2></div><button id="roundBack" type="button" class="btn">Aktuelle Runde ↗</button></div>
+      <p class="muted tiny" id="roundHint">Berühre bei jedem Tisch den Sieger. Die Ergebnisse werden sofort gespeichert.</p>
+      <div class="round-pager"><button id="roundPrev" type="button" class="btn">← Vorherige</button><span id="roundPageStatus" class="tiny muted"></span><button id="roundNext" type="button" class="btn">Nächste →</button></div>
+      <div id="winnerChoices" class="match-grid" aria-label="Begegnungen und Sieger"></div>
+      <div id="roundStatus" class="round-saved" role="status" aria-live="polite"></div>
+    </div>
+    <div class="tour-card" id="rankingCard"><div class="tour-head"><div><p class="eyebrow">Live-Auswertung</p><h2>🏅 Rangliste</h2></div><button type="button" id="tourCsv" class="btn">↓ CSV exportieren</button></div>
+      <div class="rank-scroll"><table class="rank-table"><thead><tr><th>Rang</th><th>Spieler</th><th>Siege</th><th>Gespielt</th><th>Pausen (Plan)</th><th>Siege in Runde</th></tr></thead><tbody id="rankingBody"></tbody></table></div>
+      <p class="notice-inline">Rangfolge nach Siegen. Bei Gleichstand teilen sich die Spieler denselben Platz. „Gespielt“ zählt dokumentierte Partien; „Pausen“ zeigt die Pausen im gesamten Turnierplan.</p>
+    </div>
+    <div class="tour-card"><div class="tour-head"><div><p class="eyebrow">Ergebnisarchiv</p><h2>Alle Runden</h2></div></div><div id="roundsList" class="rounds-list"></div><p class="notice-inline">Alle Paarungen sind vorab festgelegt. Über „Ansehen“ kannst du Rundensieger jederzeit nachtragen oder ändern. Die Durchmischung ist heuristisch optimiert und nicht mathematisch garantiert perfekt.</p></div>
+  </div>
+</section>
+</main>
+<div id="modalBackdrop" class="modal-back hidden" role="presentation"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><h2 id="modalTitle">Zähler</h2><button id="modalClose" class="icon-btn" type="button" aria-label="Schließen">×</button></div><div id="modalContent"></div></div></div>
+<script>
+(function(){
+'use strict';
+var STORAGE='commander-companion-v2';
+var PALETTE=['#33547a','#744678','#35715e','#8a583c','#7b3a5c','#3e6875','#7f6b34','#5a5183'];
+var state=null,history=[],selectedCount=4,activeModal=null,activeTab='life';
+function el(id){return document.getElementById(id)}
+function limit(number,min,max){return Math.min(max,Math.max(min,number))}
+function esc(value){return String(value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function pickRandom(max){if(max<1)return 0;try{if(window.crypto && window.crypto.getRandomValues){var a=new Uint32Array(1);var ceiling=Math.floor(4294967296/max)*max;do{window.crypto.getRandomValues(a)}while(a[0]>=ceiling);return a[0]%max}}catch(e){}return Math.floor(Math.random()*max)}
+function store(){try{window.localStorage.setItem(STORAGE,JSON.stringify(state))}catch(e){}}
+function discard(){try{window.localStorage.removeItem(STORAGE)}catch(e){}}
+function remember(){if(!state)return;history.push(JSON.stringify(state));if(history.length>120)history.shift()}
+function setChoice(n){selectedCount=n;var buttons=el('playerChoices').querySelectorAll('button');for(var i=0;i<buttons.length;i++){var chosen=Number(buttons[i].getAttribute('data-n'))===n;buttons[i].classList.toggle('selected',chosen);buttons[i].setAttribute('aria-pressed',chosen?'true':'false')}}
+function buildChoices(){var html='';for(var i=2;i<=8;i++)html+='<button type="button" class="choice" data-n="'+i+'" aria-label="'+i+' Spieler">'+i+'</button>';el('playerChoices').innerHTML=html;setChoice(selectedCount)}
+function revealSetup(){closeModal();document.body.classList.remove('table-mode');el('setup').classList.remove('hidden');el('game').classList.add('hidden');el('gameTag').textContent='Neue Partie';el('announcement').classList.add('hidden')}
+function beginGame(event){if(event)event.preventDefault();var life=limit(parseInt(el('startingLife').value,10)||40,1,999);var n=selectedCount;var players=[];for(var i=0;i<n;i++){var damages=[];for(var j=0;j<n;j++)damages.push(0);players.push({name:'Spieler '+(i+1),life:life,poison:0,experience:0,commander:damages})}state={version:2,mode:'table',starter:pickRandom(n),players:players};history=[];store();render();announce('🎲 '+state.players[state.starter].name+' beginnt!');window.scrollTo(0,0)}
+function announce(message){el('announcement').textContent=message;el('announcement').classList.remove('hidden')}
+function lostReasons(p){var r=[];if(p.life<=0)r.push('0 Leben');if(p.poison>=10)r.push('10 Gift');for(var j=0;j<p.commander.length;j++)if(p.commander[j]>=21){r.push('21 Commander-Schaden');break}return r}
+function commanderDamageHTML(p,i){
+ var items=[];
+ for(var j=0;j<state.players.length;j++){
+  if(j===i)continue;
+  var source=state.players[j], damage=p.commander[j]||0;
+  var klass=damage>=21?' critical':damage>=15?' danger':damage>0?' marked':'';
+  var sourceName=esc(source.name);
+  items.push('<button type="button" class="commander-chip'+klass+'" data-act="modal" data-i="'+i+'" title="'+sourceName+': '+damage+' von 21 Commander-Schaden erhalten · antippen zum Bearbeiten" aria-label="'+esc(p.name)+': '+damage+' Commander-Schaden von '+sourceName+'. Antippen zum Bearbeiten">'+
+   '<span class="cmd-who"><span class="cmd-number">'+(j+1)+'</span><span class="cmd-name">'+sourceName+'</span></span><span class="cmd-amount">'+damage+'<small>/21</small></span></button>');
+ }
+ return '<section class="commander-direct" aria-label="Erhaltener Commander-Schaden"><div class="commander-direct-title">⚔ Erhaltener Commander-Schaden <span>Antippen zum Ändern</span></div><div class="commander-chips">'+items.join('')+'</div></section>';
+}
+function playerHTML(p,i){var reasons=lostReasons(p),rotated=state.mode==='table'&&i<Math.ceil(state.players.length/2);return '<article class="player '+(state.starter===i?'starter ':'')+(reasons.length?'eliminated ':'')+(rotated?'rotated':'')+'" style="--player:'+PALETTE[i%PALETTE.length]+'">'+
+'<div class="player-inner"><div class="player-top"><span class="player-name">'+esc(p.name)+'</span>'+(i===state.starter?'<span class="star">★ START</span>':'')+'</div>'+
+'<div class="life-controls"><button type="button" class="step" data-act="life" data-i="'+i+'" data-d="-1" aria-label="'+esc(p.name)+': ein Leben abziehen">−</button><div class="life-display"><span class="life-value">'+p.life+'</span><span class="life-caption">LEBEN</span></div><button type="button" class="step" data-act="life" data-i="'+i+'" data-d="1" aria-label="'+esc(p.name)+': ein Leben hinzufügen">+</button></div>'+
+commanderDamageHTML(p,i)+
+'<div class="quick"><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Giftmarken von '+esc(p.name)+' verwalten">☠ Gift <strong>'+p.poison+'</strong></button><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Commander-Schaden von '+esc(p.name)+' verwalten">⚔ Bearbeiten</button><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Weitere Zähler von '+esc(p.name)+' verwalten">⚙</button></div>'+
+(reasons.length?'<div class="bottom-status">⚠ Ausgeschieden · '+esc(reasons.join(', '))+'</div>':'')+'</div></article>'}
+function render(){if(!state){revealSetup();return}document.body.classList.toggle('table-mode',activeTab==='life'&&state.mode==='table');el('setup').classList.add('hidden');el('game').classList.remove('hidden');el('gameTag').textContent=state.players.length+' Spieler';el('mode').textContent=state.mode==='table'?'▦ Standardansicht':'↕ Tabletop-Modus';el('mode').classList.toggle('active',state.mode==='table');el('undo').disabled=history.length===0;var board=el('board');board.style.setProperty('--rows',state.players.length===2?'2':String(Math.ceil(state.players.length/2)));board.classList.toggle('two-players',state.players.length===2);board.innerHTML=state.players.map(playerHTML).join('');if(activeModal!==null)renderModal()}
+function adjust(i,key,d,source){if(!state||!state.players[i]||!Number.isFinite(d))return;var p=state.players[i];remember();if(key==='life')p.life=limit(p.life+d,-999,999);else if(key==='commander'){if(!Number.isInteger(source)||source<0||source>=state.players.length||source===i){history.pop();return}p.commander[source]=limit(p.commander[source]+d,0,999)}else if(key==='poison'||key==='experience')p[key]=limit(p[key]+d,0,999);else{history.pop();return}store();render()}
+function openModal(i){if(!state||!state.players[i])return;activeModal=i;el('modalBackdrop').classList.remove('hidden');renderModal()}
+function closeModal(){activeModal=null;el('modalBackdrop').classList.add('hidden')}
+function counterHTML(title,i,key,value,source){var extra=typeof source==='number'?' data-source="'+source+'"':'';return '<div class="counter-row"><span class="who">'+esc(title)+'</span><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="-1"'+extra+' aria-label="'+esc(title)+' reduzieren">−</button><output>'+value+'</output><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="1"'+extra+' aria-label="'+esc(title)+' erhöhen">+</button></div>'}
+function renderModal(){if(activeModal===null||!state||!state.players[activeModal])return;var i=activeModal,p=state.players[i];el('modalTitle').textContent=p.name+' · Zähler';var html='<div class="field"><label for="editName">Spielername</label><input id="editName" type="text" maxlength="35" autocomplete="off" value="'+esc(p.name)+'"></div>';
+html+='<h3 class="section-label">Status & Marken</h3>'+counterHTML('☠ Giftmarken',i,'poison',p.poison)+counterHTML('✦ Erfahrungsmarken',i,'experience',p.experience);
+html+='<h3 class="section-label">Commander-Schaden erhalten</h3>';for(var j=0;j<state.players.length;j++)if(j!==i)html+=counterHTML('Von '+state.players[j].name,i,'commander',p.commander[j],j);
+html+='<p class="notice-inline">21 Schaden durch <strong>denselben</strong> Commander oder 10 Giftmarken bedeuten eine Niederlage. Commander-Schaden ändert hier nicht automatisch die Lebenspunkte, um Doppelzählungen zu vermeiden.</p><div class="modal-actions"><button type="button" class="btn primary" id="modalDone">Fertig</button></div>';el('modalContent').innerHTML=html}
+function newGamePrompt(){el('modalTitle').textContent='Neue Partie starten?';el('modalContent').innerHTML='<p class="muted">Alle aktuellen Lebenspunkte und Spezialzähler werden gelöscht.</p><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button><button class="btn warning" type="button" id="reallyReset">Neue Partie</button></div>';activeModal=null;el('modalBackdrop').classList.remove('hidden')}
+function validate(s){if(!s||!Array.isArray(s.players)||s.players.length<2||s.players.length>8)return false;var n=s.players.length;if(!Number.isInteger(s.starter)||s.starter<0||s.starter>=n)return false;for(var i=0;i<n;i++){var p=s.players[i];if(!p||typeof p.name!=='string'||!Number.isFinite(p.life)||!Number.isFinite(p.poison)||!Number.isFinite(p.experience)||!Array.isArray(p.commander)||p.commander.length!==n)return false;for(var j=0;j<n;j++)if(!Number.isFinite(p.commander[j]))return false}return true}
+function restore(){try{var raw=window.localStorage.getItem(STORAGE);if(raw){var candidate=JSON.parse(raw);if(validate(candidate)){state=candidate;state.mode=(state.mode==='table'?'table':'standard');return true}}}catch(e){}return false}
+function migrate(){try{var raw=window.localStorage.getItem('commander-life-tracker-v1');if(!raw)return false;var s=JSON.parse(raw);if(!validate(s))return false;state={version:2,mode:'standard',starter:s.starter,players:s.players};store();return true}catch(e){return false}}
+function onBoardClick(e){var node=e.target.closest('button[data-act]');if(!node)return;var i=parseInt(node.getAttribute('data-i'),10);var action=node.getAttribute('data-act');if(action==='life')adjust(i,'life',Number(node.getAttribute('data-d')));else if(action==='modal')openModal(i)}
+function onModalClick(e){var btn=e.target.closest('button');if(!btn)return;if(btn.id==='modalDone'||btn.id==='keepGame'){closeModal();return}if(btn.id==='reallyResetTour'){closeModal();tournament=null;editingRound=null;try{window.localStorage.removeItem(TOUR_STORAGE)}catch(e){}renderTournament();return}if(btn.id==='reallyReset'){closeModal();state=null;history=[];discard();revealSetup();window.scrollTo(0,0);return}if(btn.getAttribute('data-act')==='adjust'){var i=Number(btn.getAttribute('data-i')),key=btn.getAttribute('data-key'),d=Number(btn.getAttribute('data-d')),source=btn.hasAttribute('data-source')?Number(btn.getAttribute('data-source')):undefined;adjust(i,key,d,source)}}
+function onNameChange(e){if(e.target.id!=='editName'||activeModal===null||!state)return;var name=e.target.value.trim().slice(0,35)||'Spieler '+(activeModal+1);if(state.players[activeModal].name===name)return;remember();state.players[activeModal].name=name;store();render();el('modalTitle').textContent=name+' · Zähler'}
+
+
+// Multi-table tournament planner: balanced byes, equal table size and diversified opponents.
+var TOUR_STORAGE='commander-companion-tournament-v2',LEGACY_TOUR_STORAGE='commander-companion-tournament-v1';
+var tournament=null,editingRound=null;
+function saveTournament(){try{localStorage.setItem(TOUR_STORAGE,JSON.stringify(tournament))}catch(e){}}
+function validTournament(t){
+ if(!t||t.version!==2||!Array.isArray(t.players)||t.players.length<2||t.players.length>32||!Number.isInteger(t.rounds)||t.rounds<1||t.rounds>50||!Array.isArray(t.schedule)||t.schedule.length!==t.rounds)return false;
+ var n=t.players.length;
+ for(var i=0;i<n;i++)if(typeof t.players[i]!=='string')return false;
+ for(var r=0;r<t.rounds;r++){
+  var round=t.schedule[r],seen=new Set();if(!round||!Array.isArray(round.tables)||round.tables.length<1||!(round.bye===null||(Number.isInteger(round.bye)&&round.bye>=0&&round.bye<n)))return false;
+  if(round.bye!==null)seen.add(round.bye);
+  var size=round.tables[0].players.length;
+  for(var j=0;j<round.tables.length;j++){
+   var m=round.tables[j];if(!m||!Array.isArray(m.players)||m.players.length!==size||size<2||m.players.length>n)return false;
+   for(var k=0;k<m.players.length;k++){var idx=m.players[k];if(!Number.isInteger(idx)||idx<0||idx>=n||seen.has(idx))return false;seen.add(idx)}
+   if(m.winner!==null&&!m.players.includes(m.winner))return false;
+  }
+  if(seen.size!==n)return false;
+ }
+ return true;
+}
+function loadTournament(){
+ try{var raw=localStorage.getItem(TOUR_STORAGE);if(raw){var t=JSON.parse(raw);if(validTournament(t)){tournament=t;return}}}catch(e){}
+ // Older, single-winner tournaments with at most four players can be migrated faithfully.
+ try{var old=JSON.parse(localStorage.getItem(LEGACY_TOUR_STORAGE)||'null');if(!old||!Array.isArray(old.players)||old.players.length<2||old.players.length>4||!Number.isInteger(old.rounds)||old.rounds<1||old.rounds>50||!Array.isArray(old.results)||old.results.length!==old.rounds)return;
+ var schedule=planTournament(old.players.length,old.rounds);
+ for(var i=0;i<old.rounds;i++){var w=old.results[i];if(Number.isInteger(w)&&w>=0&&w<old.players.length)schedule[i].tables[0].winner=w}
+ var converted={version:2,players:old.players,rounds:old.rounds,schedule:schedule};if(validTournament(converted)){tournament=converted;saveTournament()}
+ }catch(e){}
+}
+function getLayout(n){
+ if(n<=4)return {active:n,bye:false,size:n,tables:1};
+ if(n===5)return {active:4,bye:true,size:4,tables:1};
+ var active=n-(n%2),best=null;
+ // Prefer the usual Commander table sizes 4 and 3. If impossible: 5, then 2.
+ [4,3,5,2].forEach(function(size){if(active%size!==0||active/size<2)return;if(!best)best={active:active,bye:n%2===1,size:size,tables:active/size}});
+ return best;
+}
+function shuffleCopy(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=pickRandom(i+1),v=a[i];a[i]=a[j];a[j]=v}return a}
+function pairId(a,b,n){return Math.min(a,b)*n+Math.max(a,b)}
+function groupingScore(groups,hist,previous,n){
+ var score=0;
+ for(var g=0;g<groups.length;g++){
+  var people=groups[g];for(var a=0;a<people.length;a++)for(var b=a+1;b<people.length;b++){
+   var id=pairId(people[a],people[b],n),times=hist[id];
+   score+=2*times*times+4*times+((previous&&previous.has(id))?6:0);
+  }
+ }
+ return score;
+}
+function optimizeGroups(active,size,hist,previous,n){
+ var best=null,bestScore=Infinity,tries=active.length<=4?1:4;
+ for(var attempt=0;attempt<tries;attempt++){
+  var members=shuffleCopy(active),groups=[];
+  for(var i=0;i<members.length;i+=size)groups.push(members.slice(i,i+size));
+  var score=groupingScore(groups,hist,previous,n);
+  var loops=active.length<10?180:active.length<20?350:490;
+  for(var loop=0;loop<loops;loop++){
+   var a=pickRandom(groups.length),b=pickRandom(groups.length-1);if(b>=a)b++;
+   var x=pickRandom(size),y=pickRandom(size),v=groups[a][x];groups[a][x]=groups[b][y];groups[b][y]=v;
+   var trial=groupingScore(groups,hist,previous,n);
+   if(trial<=score||(loop<loops*.65&&Math.random()<Math.exp((score-trial)/(7*(1-loop/loops)+.9))))score=trial;
+   else{v=groups[a][x];groups[a][x]=groups[b][y];groups[b][y]=v}
+  }
+  if(score<bestScore){bestScore=score;best=groups.map(function(g){return g.slice()})}
+ }
+ return best;
+}
+function planTournament(n,rounds){
+ var layout=getLayout(n),hist=new Uint16Array(n*n),schedule=[],previous=null;
+ var byeOrder=shuffleCopy(Array.from({length:n},function(_,i){return i}));
+ for(var r=0;r<rounds;r++){
+  if(layout.bye&&r%n===0&&r>0)byeOrder=shuffleCopy(byeOrder); // full cycles: exactly even bye counts
+  var bye=layout.bye?byeOrder[r%n]:null;
+  var active=[];for(var i=0;i<n;i++)if(i!==bye)active.push(i);
+  var groups=layout.tables===1?[shuffleCopy(active)]:optimizeGroups(active,layout.size,hist,previous,n);
+  var cur=new Set();for(var g=0;g<groups.length;g++)for(var a=0;a<groups[g].length;a++)for(var b=a+1;b<groups[g].length;b++){
+   var p=pairId(groups[g][a],groups[g][b],n);hist[p]++;cur.add(p)
+  }
+  previous=cur;
+  schedule.push({bye:bye,tables:groups.map(function(m){return {players:m,winner:null}})});
+ }
+ return schedule;
+}
+function setTab(which){activeTab=which==='tournament'?'tournament':'life';closeModal();el('lifePanel').classList.toggle('hidden',activeTab!=='life');el('tournamentPanel').classList.toggle('hidden',activeTab!=='tournament');el('tabLife').setAttribute('aria-selected',String(activeTab==='life'));el('tabTournament').setAttribute('aria-selected',String(activeTab==='tournament'));document.body.classList.toggle('table-mode',activeTab==='life'&&!!state&&state.mode==='table');if(activeTab==='tournament'){el('gameTag').textContent=tournament?'Turnier':'Turnierplanung';renderTournament()}else if(state)render();else revealSetup();window.scrollTo(0,0)}
+function syncPairingPreview(){
+ var n=Number(el('tournamentCount').value),r=Number(el('tournamentRounds').value),box=el('pairingPreview');if(!Number.isInteger(n)||n<2||n>32){box.textContent='Gib eine Spieleranzahl zwischen 2 und 32 ein.';return}
+ var l=getLayout(n);
+ box.innerHTML='<strong>⚔ Tischaufteilung:</strong> '+l.tables+' '+(l.tables===1?'Partie':'Partien')+' mit je '+l.size+' '+(l.size===1?'Person':'Personen')+' pro Runde'+(l.bye?' · 1 Person pausiert in jeder Runde':' · keine Pausen')+'.'+(l.bye&&Number.isInteger(r)&&r>0?' Die Pausen werden über '+r+' Runden so gleichmäßig wie möglich verteilt.':'')+(l.size===2||l.size===5?' <span class="muted">Hinweis: Gleich große 3er-/4er-Tische sind bei dieser Spielerzahl rechnerisch nicht möglich.</span>':'');
+}
+function syncNameFields(){var n=Number(el('tournamentCount').value);syncPairingPreview();if(!Number.isInteger(n)||n<2||n>32)return;var container=el('tournamentNames');var old=container.querySelectorAll('input'),previous=[];for(var i=0;i<old.length;i++)previous.push(old[i].value);var html='';for(var j=0;j<n;j++)html+='<div><label for="tourPlayer'+j+'">Spieler '+(j+1)+'</label><input type="text" id="tourPlayer'+j+'" maxlength="35" autocomplete="off" placeholder="Spieler '+(j+1)+'" value="'+esc(previous[j]||'')+'"></div>';container.innerHTML=html}
+function createTournament(e){
+ if(e)e.preventDefault();var n=Number(el('tournamentCount').value),r=Number(el('tournamentRounds').value);
+ if(!Number.isInteger(n)||n<2||n>32||!Number.isInteger(r)||r<1||r>50){el('tournamentForm').reportValidity();return}
+ var inputs=el('tournamentNames').querySelectorAll('input');if(inputs.length!==n){syncNameFields();inputs=el('tournamentNames').querySelectorAll('input')}
+ var names=[];for(var i=0;i<n;i++)names.push((inputs[i].value.trim().slice(0,35)||('Spieler '+(i+1))));
+ tournament={version:2,players:names,rounds:r,schedule:planTournament(n,r)};editingRound=0;saveTournament();renderTournament();window.scrollTo(0,0);
+}
+function counts(){
+ var rows=tournament.players.map(function(_,i){return {idx:i,wins:0,played:0,byes:0,rounds:[]}});
+ tournament.schedule.forEach(function(round,ri){if(round.bye!==null)rows[round.bye].byes++;
+  round.tables.forEach(function(match){if(match.winner!==null){match.players.forEach(function(i){rows[i].played++});rows[match.winner].wins++;rows[match.winner].rounds.push(ri+1)}});
+ });return rows;
+}
+function nextOpenRound(){if(!tournament)return null;for(var i=0;i<tournament.rounds;i++)if(tournament.schedule[i].tables.some(function(t){return t.winner===null}))return i;return null}
+function showRound(i){if(!tournament||!Number.isInteger(i)||i<0||i>=tournament.rounds)return;editingRound=i;renderRoundEditor();el('roundEditorCard').scrollIntoView({block:'start',behavior:'smooth'})}
+function renderRoundEditor(){
+ if(!tournament)return;var r=editingRound;if(!Number.isInteger(r)||r<0||r>=tournament.rounds)r=nextOpenRound();if(r===null)r=tournament.rounds-1;editingRound=r;
+ el('roundEditorCard').classList.remove('hidden');var round=tournament.schedule[r],done=round.tables.filter(function(t){return t.winner!==null}).length;
+ el('roundEyebrow').textContent=done===round.tables.length?'✧ Runde abgeschlossen':'✧ Die Begegnungen';
+ el('roundHeading').textContent='Runde '+(r+1)+' von '+tournament.rounds;
+ el('roundHint').textContent='Wähle an jedem Tisch den Sieger. Tippe nochmals auf den Sieger, um die Markierung zu entfernen.';
+ el('roundPageStatus').textContent=(r+1)+' / '+tournament.rounds;el('roundPrev').disabled=r===0;el('roundNext').disabled=r===tournament.rounds-1;
+ el('roundBack').classList.toggle('hidden',nextOpenRound()===null||r===nextOpenRound());
+ var html=round.tables.map(function(match,i){var won=match.winner!==null;
+  return '<section class="match-card '+(won?'done':'')+'"><div class="match-head"><span class="match-title">⚔ Tisch '+(i+1)+'</span><span class="match-status">'+(won?'✓ Ergebnis erfasst':'Noch offen')+'</span></div><div class="match-contenders">'+match.players.map(function(idx){var picked=match.winner===idx;return '<button type="button" class="winner-choice '+(picked?'selected':'')+'" data-table="'+i+'" data-winner="'+idx+'" aria-pressed="'+picked+'"><span>'+esc(tournament.players[idx])+'</span><span class="marker">'+(picked?'✓':'')+'</span></button>'}).join('')+'</div><div class="match-foot">'+(won?'🏆 Sieger: '+esc(tournament.players[match.winner]):'Berühre den Gewinner dieser Partie.')+'</div></section>';
+ }).join('');
+ if(round.bye!==null)html+='<div class="bye-card">⏳ <span><strong>Pause:</strong> '+esc(tournament.players[round.bye])+' — in dieser Runde keine Partie.</span></div>';
+ el('winnerChoices').innerHTML=html;
+ el('roundStatus').textContent=done+' von '+round.tables.length+' '+(round.tables.length===1?'Partie':'Partien')+' abgeschlossen. Änderungen werden sofort gespeichert.';
+}
+function renderTournament(){
+ var started=!!tournament;el('tournamentSetup').classList.toggle('hidden',started);el('tournamentActive').classList.toggle('hidden',!started);if(!started){syncPairingPreview();return}
+ var matches=0,done=0,rDone=0;for(var r=0;r<tournament.rounds;r++){var completed=true;for(var j=0;j<tournament.schedule[r].tables.length;j++){matches++;if(tournament.schedule[r].tables[j].winner!==null)done++;else completed=false}if(completed)rDone++}
+ var l=getLayout(tournament.players.length),finished=done===matches;
+ el('tourSubtitle').textContent=tournament.players.length+' Teilnehmer · '+tournament.rounds+' Runden · '+l.tables+' '+(l.tables===1?'Tisch':'Tische')+' pro Runde';
+ el('tourMetrics').innerHTML='<span class="tour-metric"><strong>'+rDone+' / '+tournament.rounds+'</strong> Runden</span><span class="tour-metric"><strong>'+done+' / '+matches+'</strong> Partien erfasst</span>'+(l.bye?'<span class="tour-metric"><strong>1</strong> Pause / Runde</span>':'')+(finished?'<span class="tour-metric"><strong>✓</strong> Turnier abgeschlossen</span>':'');
+ el('tourProgress').style.width=(done/matches*100)+'%';renderRoundEditor();
+ var ranking=counts().sort(function(a,b){return b.wins-a.wins||a.idx-b.idx}),previousWins=null,place=0;
+ el('rankingBody').innerHTML=ranking.map(function(row,i){if(row.wins!==previousWins)place=i+1;previousWins=row.wins;return '<tr class="'+(place===1&&row.wins>0?'leader':'')+'"><td>'+place+'.</td><td>'+esc(tournament.players[row.idx])+'</td><td>'+row.wins+'</td><td>'+row.played+'</td><td>'+row.byes+'</td><td>'+(row.rounds.length?row.rounds.map(function(v){return 'R'+v}).join(' · '):'—')+'</td></tr>'}).join('');
+ el('roundsList').innerHTML=tournament.schedule.map(function(round,i){var wins=round.tables.filter(function(t){return t.winner!==null}).length;
+  var details=round.tables.map(function(t,j){return '<span class="table-badge">T'+(j+1)+': '+(t.winner===null?'offen':'🏆 '+esc(tournament.players[t.winner]))+'</span>'}).join('');
+  return '<div class="round-item '+(wins===0?'pending':'')+'"><span class="round-label">Runde '+(i+1)+'</span><span class="round-result">'+details+(round.bye!==null?'<span class="table-badge">⏳ '+esc(tournament.players[round.bye])+'</span>':'')+'</span><button type="button" class="btn" data-edit-round="'+i+'">'+(wins===round.tables.length?'Ansehen':'Erfassen')+'</button></div>'
+ }).join('');
+}
+function selectMatchWinner(table,index){
+ if(!tournament||editingRound===null)return;var match=tournament.schedule[editingRound].tables[table];if(!match||!match.players.includes(index))return;
+ match.winner=match.winner===index?null:index;saveTournament();renderTournament();
+}
+function promptTournamentReset(){if(!tournament)return;el('modalTitle').textContent='Ein neues Turnier beginnen?';el('modalContent').innerHTML='<p class="muted">Die aktuelle Tabelle, die Tischzuordnung und alle Sieger werden aus der App entfernt. Exportiere vorher bei Bedarf die CSV-Datei.</p><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button><button class="btn warning" type="button" id="reallyResetTour">Turnier löschen</button></div>';activeModal=null;el('modalBackdrop').classList.remove('hidden')}
+function exportTournamentCsv(){
+ if(!tournament)return;var rows=[['Platz','Spieler','Siege','Gespielte Partien','Geplante Pausen','Gewonnene Runden']];var ranking=counts().sort(function(a,b){return b.wins-a.wins||a.idx-b.idx}),place=0,last=null;
+ ranking.forEach(function(p,i){if(p.wins!==last)place=i+1;last=p.wins;rows.push([place,tournament.players[p.idx],p.wins,p.played,p.byes,p.rounds.join(', ')])});
+ rows.push([]);rows.push(['Runde','Tisch','Mitspieler','Sieger','Pausiert']);
+ tournament.schedule.forEach(function(round,i){round.tables.forEach(function(m,j){rows.push([i+1,j+1,m.players.map(function(p){return tournament.players[p]}).join(' / '),m.winner===null?'':tournament.players[m.winner],round.bye===null?'':tournament.players[round.bye]])})});
+ var content='\uFEFF'+rows.map(function(row){return row.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"'}).join(';')}).join('\r\n');
+ var blob=new Blob([content],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='Commander_Turnier_6_Ergebnisse.csv';document.body.appendChild(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url)},10000);
+}
+
+function createBackup(){
+ return {format:'commander-companion-backup',version:1,created:new Date().toISOString(),life:state,tournament:tournament};
+}
+function downloadBackup(){
+ var file=new Blob([JSON.stringify(createBackup(),null,2)],{type:'application/json;charset=utf-8'});
+ var url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download='Commander_Companion_Sicherung_'+new Date().toISOString().slice(0,10)+'.json';
+ document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},15000);
+ el('backupFeedback').textContent='Sicherungsdatei erstellt. Bitte sicher aufbewahren.';
+}
+function restoreBackup(e){
+ var f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+ if(f.size>1024*1024){el('backupFeedback').textContent='Sicherung zu groß (maximal 1 MB).';return}
+ var reader=new FileReader();reader.onerror=function(){el('backupFeedback').textContent='Datei konnte nicht gelesen werden.'};
+ reader.onload=function(){
+  try{
+   var backup=JSON.parse(String(reader.result));
+   if(!backup||backup.format!=='commander-companion-backup'||backup.version!==1||
+    !Object.prototype.hasOwnProperty.call(backup,'life')||!Object.prototype.hasOwnProperty.call(backup,'tournament')||
+    (backup.life!==null&&!validate(backup.life)) ||
+    (backup.tournament!==null&&!validTournament(backup.tournament)))throw new Error('Ungültige Sicherungsdatei');
+   if(!window.confirm('Die vorhandene Partie und das vorhandene Turnier durch diese Sicherung ersetzen?'))return;
+   if(backup.life===null){state=null;discard()}else{state=backup.life;state.mode=(state.mode==='table'?'table':'standard');store()}
+   if(backup.tournament===null){tournament=null;try{localStorage.removeItem(TOUR_STORAGE)}catch(e){}}else{tournament=backup.tournament;saveTournament()}
+   history=[];editingRound=null;el('backupFeedback').textContent='Sicherung eingelesen.';
+   setTab(activeTab);renderTournament();
+  }catch(err){el('backupFeedback').textContent='Ungültige Sicherung. Keine Daten geändert.'}
+ };
+ reader.readAsText(f,'UTF-8');
+}
+function initPWA(){
+ if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){})});
+ }
+}
+function initialize(){buildChoices();syncNameFields();loadTournament();
+el('backupExport').addEventListener('click',downloadBackup);
+el('backupImport').addEventListener('click',function(){el('backupFile').click()});
+el('backupFile').addEventListener('change',restoreBackup);
+initPWA();
+el('tabLife').addEventListener('click',function(){setTab('life')});el('tabTournament').addEventListener('click',function(){setTab('tournament')});
+el('tournamentCount').addEventListener('input',syncNameFields);el('tournamentCount').addEventListener('change',syncNameFields);el('tournamentRounds').addEventListener('input',syncPairingPreview);el('tournamentForm').addEventListener('submit',createTournament);
+el('winnerChoices').addEventListener('click',function(e){var b=e.target.closest('button[data-winner]');if(!b)return;selectMatchWinner(Number(b.getAttribute('data-table')),Number(b.getAttribute('data-winner')))});
+el('roundPrev').addEventListener('click',function(){showRound(editingRound-1)});el('roundNext').addEventListener('click',function(){showRound(editingRound+1)});el('roundsList').addEventListener('click',function(e){var btn=e.target.closest('button[data-edit-round]');if(btn)showRound(Number(btn.getAttribute('data-edit-round')))});
+el('roundBack').addEventListener('click',function(){var next=nextOpenRound();if(next!==null)showRound(next)});el('tourReset').addEventListener('click',promptTournamentReset);el('tourCsv').addEventListener('click',exportTournamentCsv);el('playerChoices').addEventListener('click',function(e){var b=e.target.closest('button[data-n]');if(b)setChoice(Number(b.getAttribute('data-n')))});
+// A real form submit works with both touch and keyboard and does not rely on click handlers.
+el('setupForm').addEventListener('submit',beginGame);
+el('board').addEventListener('click',onBoardClick);
+el('mode').addEventListener('click',function(){if(!state)return;state.mode=state.mode==='table'?'standard':'table';store();render();window.scrollTo(0,0)});
+el('pick').addEventListener('click',function(){if(!state)return;remember();state.starter=pickRandom(state.players.length);store();render();announce('🎲 '+state.players[state.starter].name+' beginnt!')});
+el('undo').addEventListener('click',function(){if(!history.length)return;state=JSON.parse(history.pop());store();render()});
+el('reset').addEventListener('click',newGamePrompt);
+el('modalClose').addEventListener('click',closeModal);
+el('modalBackdrop').addEventListener('click',function(e){if(e.target===el('modalBackdrop'))closeModal()});
+el('modalContent').addEventListener('click',onModalClick);
+el('modalContent').addEventListener('change',onNameChange);
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()});
+if(restore()||migrate())render();else revealSetup()}
+initialize();
+})();
+</script>
+</body>
+</html>

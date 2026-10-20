@@ -1,0 +1,73 @@
+COMMANDER COMPANION VI — INSTALLATIONSANLEITUNG
+===============================================
+
+Dies ist eine Progressive Web App (PWA). Der ZIP-Inhalt wird auf einer
+HTTPS-Webadresse veröffentlicht. Danach kann die App auf dem iPhone zum
+Home-Bildschirm hinzugefügt werden und funktioniert nach dem ersten Laden
+offline. Eine lokal aus der Dateien-App geöffnete index.html ist KEINE
+installierte PWA — dafür ist HTTPS erforderlich.
+
+A) VERÖFFENTLICHEN MIT GITHUB PAGES (kostenlos)
+------------------------------------------------
+1. ZIP-Datei auf dem PC entpacken (alle Dateien liegen im selben Ordner).
+2. https://github.com besuchen, ggf. kostenloses Konto erstellen.
+3. "New repository" auswählen, z.B. "commander-companion" als Namen,
+   "Public" auswählen und Repository erstellen.
+4. Im Repository "Add file" > "Upload files" anklicken.
+   Die folgenden Dateien einzeln/zusammen aus dem entpackten Ordner hochladen:
+   index.html, manifest.webmanifest, sw.js, icon-192.png, icon-512.png,
+   apple-touch-icon.png, .nojekyll (soweit beim System sichtbar).
+   Wichtig: Dateien NICHT bloß als ZIP hochladen! Sie gehören direkt in
+   das Stammverzeichnis des Repositorys, nicht in einen Unterordner.
+5. Änderungen über "Commit changes" speichern.
+6. In den Repository-Einstellungen "Settings" > "Pages" öffnen.
+   Unter "Build and deployment" die Quelle "Deploy from a branch" wählen;
+   Branch "main" und Verzeichnis "/ (root)" auswählen, dann "Save".
+7. Nach der Veröffentlichung erscheint eine Adresse ähnlich dieser:
+   https://DEIN-NAME.github.io/commander-companion/
+   Diese Adresse auf dem iPhone in Safari öffnen.
+
+B) AUF DEM IPHONE INSTALLIEREN
+-----------------------------
+1. Öffne die veröffentlichte HTTPS-Adresse in Safari (nicht aus Dateien).
+2. Im Safari-Menü "Teilen" wählen und "Zum Home-Bildschirm" antippen.
+3. Falls angeboten: "Als Web-App öffnen" aktivieren, dann "Hinzufügen".
+4. Das neue Commander-App-Symbol auf dem Home-Bildschirm antippen.
+5. Nach einem vollständig geladenen ersten Besuch und installierter
+   Offline-Zwischenspeicherung funktioniert die App auch ohne Internet.
+
+C) SPIELSTÄNDE, SICHERUNGEN, UPDATES
+-----------------------------------
+- Lebenspunkte und Turnier werden ausschließlich lokal auf dem Gerät im
+  Browser gespeichert (kein Konto, kein Cloud-Sync). Der Dienst GitHub
+  hostet nur den Code, NICHT deine Spielstände.
+- Über "Spielstand sichern" wird eine JSON-Datei erstellt. Mit
+  "Sicherung laden" lässt sich diese z.B. vom PC zum iPhone übertragen.
+- Eine frühere lokal geöffnete HTML-Datei teilt ihren lokalen Speicher
+  nicht automatisch mit der neuen Internetadresse. Auf dem alten Gerät
+  eine neue Sicherung machen, wenn die Version die Sicherung unterstützt.
+  Die HTML-Version V hat noch keinen JSON-Export: Daten lassen sich aus
+  ihr daher nicht einfach per Knopfdruck übertragen.
+- Wenn eine neue Version veröffentlicht wird, können neuere App-Dateien
+  bei Internetverbindung geladen werden. Bei Problemen App schließen,
+  online erneut öffnen und bei Bedarf neu installieren.
+- Browserdaten löschen, Privatmodus oder das Entfernen der Web-App kann
+  die lokalen Daten verlieren lassen. Vor wichtigen Partien sichern.
+- GitHub Pages Websites sind ÖFFENTLICH. Keine persönlichen/privaten
+  Informationen als Dateien mit hochladen. Die JSON-Sicherungen gehören
+  NICHT ins öffentliche Repository.
+
+DATEIEN
+-------
+index.html              Haupt-App (Life Tracker + Turnier)
+manifest.webmanifest    Installations-Metadaten
+sw.js                   Offline-Service-Worker
+icon-192.png            PWA-Symbol 192x192
+icon-512.png            PWA-Symbol 512x512
+apple-touch-icon.png    iPhone-Symbol 180x180
+.nojekyll               Deaktiviert Jekyll in GitHub Pages
+
+OFFIZIELLE HILFE
+----------------
+GitHub Pages: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+Apple iPhone: https://support.apple.com/en-ie/guide/iphone/iphea86e5236/27/ios/27
