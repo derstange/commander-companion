@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0c1616">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Commander Companion VIII – Fullscreen Commander Counter & Turnier</title>
+<title>Commander Companion VIII.1 – Fullscreen Commander Counter & Turnier</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Commander">
@@ -195,8 +195,8 @@ body.match-focus .bottom-status{padding:0 8px 8px;font-size:.65rem}
 body.table-mode.match-focus .board{gap:5px}
 body.table-mode.match-focus .player{position:relative;overflow:hidden}
 body.table-mode.match-focus .player-inner{position:absolute;inset:0;transform-origin:center center;padding:4px}
-body.table-mode.match-focus .player.left-edge .player-inner{transform:rotate(-90deg) scale(var(--edge-scale,1))}
-body.table-mode.match-focus .player.right-edge .player-inner{transform:rotate(90deg) scale(var(--edge-scale,1))}
+body.table-mode.match-focus .player.left-edge .player-inner{transform:rotate(90deg) scale(var(--edge-scale,1))}
+body.table-mode.match-focus .player.right-edge .player-inner{transform:rotate(-90deg) scale(var(--edge-scale,1))}
 body.table-mode.match-focus .player.center-seat .player-inner{transform:none;padding:8px}
 body.table-mode.match-focus .player-top{padding:2px 4px 0}
 body.table-mode.match-focus .player-name{font-size:clamp(.7rem,2.2vw,1rem)}
@@ -243,7 +243,7 @@ body.menu-open{overflow:hidden}
  .menu-summary,.game-menu-grid{grid-template-columns:1fr}
 }
 
-/* Commander Companion VIII – viewport-filling board. Fixes 13px collapsed board. */
+/* Commander Companion VIII.1 – corrected edge-oriented tabletop readability. */
 html,body{width:100%;height:100%;overscroll-behavior:none}
 body.match-focus{height:100dvh;overflow:hidden}
 body.match-focus .shell,
@@ -272,8 +272,8 @@ body.table-mode.match-focus .player.right-edge .player-inner{
   max-width:none;max-height:none;overflow:hidden;box-sizing:border-box;padding:3px;
   transform-origin:50% 50%;
 }
-body.table-mode.match-focus .player.left-edge .player-inner{transform:translate(-50%,-50%) rotate(-90deg)}
-body.table-mode.match-focus .player.right-edge .player-inner{transform:translate(-50%,-50%) rotate(90deg)}
+body.table-mode.match-focus .player.left-edge .player-inner{transform:translate(-50%,-50%) rotate(90deg)}
+body.table-mode.match-focus .player.right-edge .player-inner{transform:translate(-50%,-50%) rotate(-90deg)}
 body.table-mode.match-focus .player.center-seat .player-inner{position:absolute;inset:0;width:100%;height:100%;transform:none;overflow:hidden}
 body.table-mode.match-focus .player-top{padding:2px 4px 0;flex:0 0 auto}
 body.table-mode.match-focus .player-name{font-size:clamp(.76rem,2.8vw,1.12rem)}
@@ -322,7 +322,7 @@ body.match-focus .quick .btn{min-width:0}
 </head>
 <body>
 <main class="shell">
-<header class="mast"><div class="brand"><span class="crest" aria-hidden="true">✦</span><div><p class="eyebrow">✧ Das Archiv der Ebenenwandler ✧</p><h1>Commander Companion <small>VIII</small></h1></div></div><span id="gameTag" class="chip">Neue Partie</span></header>
+<header class="mast"><div class="brand"><span class="crest" aria-hidden="true">✦</span><div><p class="eyebrow">✧ Das Archiv der Ebenenwandler ✧</p><h1>Commander Companion <small>VIII.1</small></h1></div></div><span id="gameTag" class="chip">Neue Partie</span></header>
 <nav class="top-tabs" aria-label="Bereiche"><button id="tabLife" class="tab" type="button" aria-selected="true" aria-controls="lifePanel">⚔ Lebenszähler</button><button id="tabTournament" class="tab" type="button" aria-selected="false" aria-controls="tournamentPanel">🏆 Turnier</button></nav>
 <section class="backup-tools" aria-label="Spielstand sichern und wiederherstellen">
 <button id="backupExport" class="btn" type="button">⇩ Spielstand sichern</button>
