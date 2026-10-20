@@ -1,0 +1,17 @@
+COMMANDER COMPANION 8.0 – UPDATE VON 7.0
+
+1. Sicherung erstellen: in der bisherigen App im Match auf das zentrale Menü tippen, "Sichern" wählen.
+2. Das neue ZIP-Paket entpacken.
+3. Die Dateien index.html, sw.js, manifest.webmanifest, icon-192.png, icon-512.png und apple-touch-icon.png im Hauptverzeichnis des GitHub-Repositories ersetzen bzw. neu hochladen.
+4. Hinweis zu GitHub: Bei gleicher Dateibezeichnung überschreibt der GitHub-Webupload Dateien gegebenenfalls NICHT automatisch. Für bestehende Dateien jeweils die Datei öffnen, rechts "Edit" (Stift) wählen und Inhalt ersetzen, oder die bisherigen Dateien in einem Commit löschen und dann neu hochladen.
+5. GitHub Pages veröffentlichen lassen und die Website auf dem iPhone erneut öffnen. Falls noch Version VII erscheint, Safari-Website neu laden und etwas später erneut probieren.
+6. Spielstände bleiben erhalten, solange dieselbe Webadresse und derselbe lokale Datenspeicher verwendet werden. Trotzdem vorher Backup machen.
+
+NEU:
+- Vollflächige Match-Ansicht mit korrekt gefülltem Bildschirm
+- Linke und rechte Spielerfelder am langen Smartphone-Rand lesbar (90° Drehung)
+- Zentrales Menü
+- Bildschirm-wachhalten via Screen Wake Lock API, automatisch aktiviert, im Menü an/aus
+
+WICHTIG:
+Das automatische Wachhalten benötigt einen unterstützten Browser und eine sichere HTTPS-Verbindung. Auch iOS kann eine Wake Lock widerrufen oder ablehnen (z. B. wegen Energiesparen). Es ist keine Garantie, dass das Gerät nie sperrt.

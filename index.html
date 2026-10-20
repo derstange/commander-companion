@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0c1616">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Commander Companion VII – Immersive Fantasy Life Counter & Turnier</title>
+<title>Commander Companion VIII – Fullscreen Commander Counter & Turnier</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Commander">
@@ -242,11 +242,87 @@ body.menu-open{overflow:hidden}
  body.match-focus .commander-chips{grid-template-columns:repeat(2,minmax(0,1fr))}
  .menu-summary,.game-menu-grid{grid-template-columns:1fr}
 }
+
+/* Commander Companion VIII – viewport-filling board. Fixes 13px collapsed board. */
+html,body{width:100%;height:100%;overscroll-behavior:none}
+body.match-focus{height:100dvh;overflow:hidden}
+body.match-focus .shell,
+body.table-mode.match-focus .shell{
+  height:100dvh;min-height:0;max-height:100dvh;width:100%;max-width:none;
+  box-sizing:border-box;padding:calc(2px + env(safe-area-inset-top,0px)) calc(2px + env(safe-area-inset-right,0px)) calc(2px + env(safe-area-inset-bottom,0px)) calc(2px + env(safe-area-inset-left,0px));
+  display:flex;flex-direction:column;overflow:hidden;gap:0;
+}
+body.match-focus #lifePanel{display:flex;flex-direction:column;flex:1 1 0;min-height:0;height:100%;overflow:hidden}
+body.match-focus .game,body.table-mode.match-focus .game{display:flex;flex-direction:column;flex:1 1 0;min-height:0;height:100%;gap:0}
+body.match-focus .board,body.table-mode.match-focus .board{
+  display:grid;flex:1 1 0;min-height:0;height:100%;width:100%;
+  grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,1fr));
+  gap:3px;overflow:hidden;
+}
+body.match-focus .board.two-players{grid-template-columns:1fr;grid-template-rows:repeat(2,minmax(0,1fr))}
+body.match-focus.table-mode .board.two-players{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,1fr)}
+body.match-focus .board.odd-count .player:last-child{grid-column:1 / -1}
+body.match-focus .player,body.table-mode.match-focus .player{position:relative;box-sizing:border-box;width:100%;height:100%;min-width:0;min-height:0;display:block;overflow:hidden;border-radius:12px;border-width:2px}
+body.match-focus .player-inner{box-sizing:border-box;display:flex;flex-direction:column;position:absolute;inset:0;width:100%;height:100%;min-height:0;max-height:none;overflow:hidden;justify-content:center;padding:4px}
+/* Rotated fields are measured from their actual grid cell, then swapped in JS. */
+body.table-mode.match-focus .player.left-edge .player-inner,
+body.table-mode.match-focus .player.right-edge .player-inner{
+  position:absolute;inset:auto;top:50%;left:50%;
+  width:var(--rotated-width,100%);height:var(--rotated-height,100%);
+  max-width:none;max-height:none;overflow:hidden;box-sizing:border-box;padding:3px;
+  transform-origin:50% 50%;
+}
+body.table-mode.match-focus .player.left-edge .player-inner{transform:translate(-50%,-50%) rotate(-90deg)}
+body.table-mode.match-focus .player.right-edge .player-inner{transform:translate(-50%,-50%) rotate(90deg)}
+body.table-mode.match-focus .player.center-seat .player-inner{position:absolute;inset:0;width:100%;height:100%;transform:none;overflow:hidden}
+body.table-mode.match-focus .player-top{padding:2px 4px 0;flex:0 0 auto}
+body.table-mode.match-focus .player-name{font-size:clamp(.76rem,2.8vw,1.12rem)}
+body.table-mode.match-focus .star{font-size:.59rem}
+body.table-mode.match-focus .life-controls{flex:1 1 0;min-height:0;display:grid;padding:3px 2px;gap:3px;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr)}
+body.table-mode.match-focus .step{height:100%;min-height:24px;max-height:none;font-size:clamp(1.55rem,5vw,2.5rem);border-radius:9px}
+body.table-mode.match-focus .life-value{font-size:clamp(2.2rem,calc(var(--rotated-height,185px)*.34),5.2rem);line-height:.94;letter-spacing:-.075em}
+body.table-mode.match-focus .life-caption{font-size:.48rem;letter-spacing:.08em}
+body.table-mode.match-focus .commander-direct{flex:0 0 auto;padding:0 3px 4px}
+body.table-mode.match-focus .commander-direct-title{font-size:.52rem;margin:0 0 3px}
+body.table-mode.match-focus .commander-chips{grid-template-columns:repeat(var(--cmd-columns,3),minmax(0,1fr));gap:2px}
+body.table-mode.match-focus .commander-chip{height:24px;min-height:24px;border-radius:5px;padding:1px 3px}
+body.table-mode.match-focus .cmd-amount{font-size:clamp(.63rem,1.9vw,.84rem)}
+body.table-mode.match-focus .cmd-number{width:14px;height:14px;font-size:.62rem}
+body.table-mode.match-focus .cmd-name{display:none}
+body.table-mode.match-focus .quick{flex:0 0 auto;padding:0 3px 3px;gap:3px}
+body.table-mode.match-focus .quick .btn{font-size:clamp(.52rem,1.65vw,.73rem);padding:3px 2px;min-height:29px;border-radius:6px}
+body.table-mode.match-focus .quick strong{font-size:.77rem}
+body.match-focus:not(.table-mode) .player-inner{position:absolute;inset:0;width:100%;height:100%;overflow:hidden}
+body.match-focus:not(.table-mode) .life-controls{flex:1 1 0;min-height:0}
+body.match-focus:not(.table-mode) .step{min-height:42px;height:100%}
+body.match-focus:not(.table-mode) .life-value{font-size:clamp(2.5rem,12vw,6rem)}
+body.match-focus .bottom-status{flex:0 0 auto}
+/* Center orb sits in the gap between opponent zones, never in a header. */
+.menu-fab{position:fixed;z-index:18;top:50%;left:50%;bottom:auto;width:52px;height:52px;min-height:52px;padding:0;transform:translate(-50%,-50%);border-radius:50%;font-size:1.5rem;line-height:1;box-shadow:0 0 0 3px #09130f,0 8px 22px #000c;}
+.menu-fab:active{transform:translate(-50%,-50%) scale(.95)}
+.game-menu-sheet{max-height:calc(100dvh - 14px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;overscroll-behavior:contain}
+.menu-wake-status{margin:10px 0 0;color:#ded3b5;font-size:.76rem;line-height:1.4}
+.menu-wake-status.warning{color:#f5c47f}
+@media(max-width:520px){.game-menu-sheet{padding:14px}.menu-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.game-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.menu-fab{width:46px;height:46px;min-height:46px;font-size:1.3rem}}
+@media(max-width:380px){.menu-summary,.game-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-height:640px){.game-menu-head{margin-bottom:5px}.menu-summary{margin-bottom:7px}.game-menu-grid .btn{min-height:40px;padding:7px 5px}}
+
+
+/* Compact secondary controls leave more room for life totals. */
+body.match-focus .quick .btn{min-width:0}
+@media(max-width:520px){
+ body.match-focus:not(.table-mode) .commander-direct-title span{display:none}
+ body.match-focus:not(.table-mode) .commander-direct-title{font-size:.7rem;white-space:nowrap}
+ body.match-focus:not(.table-mode) .commander-chips{grid-template-columns:repeat(3,minmax(0,1fr))}
+ body.match-focus:not(.table-mode) .cmd-name{display:none}
+ body.match-focus:not(.table-mode) .commander-chip{min-height:32px;padding:4px 4px}
+ body.match-focus:not(.table-mode) .quick .btn{font-size:.8rem;min-height:40px}
+}
 </style>
 </head>
 <body>
 <main class="shell">
-<header class="mast"><div class="brand"><span class="crest" aria-hidden="true">✦</span><div><p class="eyebrow">✧ Das Archiv der Ebenenwandler ✧</p><h1>Commander Companion <small>VII</small></h1></div></div><span id="gameTag" class="chip">Neue Partie</span></header>
+<header class="mast"><div class="brand"><span class="crest" aria-hidden="true">✦</span><div><p class="eyebrow">✧ Das Archiv der Ebenenwandler ✧</p><h1>Commander Companion <small>VIII</small></h1></div></div><span id="gameTag" class="chip">Neue Partie</span></header>
 <nav class="top-tabs" aria-label="Bereiche"><button id="tabLife" class="tab" type="button" aria-selected="true" aria-controls="lifePanel">⚔ Lebenszähler</button><button id="tabTournament" class="tab" type="button" aria-selected="false" aria-controls="tournamentPanel">🏆 Turnier</button></nav>
 <section class="backup-tools" aria-label="Spielstand sichern und wiederherstellen">
 <button id="backupExport" class="btn" type="button">⇩ Spielstand sichern</button>
@@ -268,7 +344,7 @@ body.menu-open{overflow:hidden}
 <div id="announcement" class="notice hidden" role="status" aria-live="polite"></div>
 <div id="board" class="board"></div>
 <p class="footnote">Tipp: Auf „☠ Gift“ oder „⚔ Schaden“ tippen, um die Spezialzähler zu öffnen. Commander-Schaden wird nach verursachendem Commander erfasst; Lebenspunkte werden dabei nicht automatisch verändert.</p>
-<button id="menuFab" class="menu-fab hidden" type="button" aria-haspopup="dialog" aria-controls="gameMenu" aria-expanded="false">☰ Menü</button>
+<button id="menuFab" class="menu-fab hidden" type="button" aria-haspopup="dialog" aria-controls="gameMenu" aria-expanded="false" aria-label="Zentrales Spielmenü öffnen">☰</button>
 <div id="gameMenu" class="game-menu hidden" role="presentation">
   <button id="gameMenuBackdrop" class="game-menu-backdrop" type="button" aria-label="Menü schließen"></button>
   <section class="game-menu-sheet" role="dialog" aria-modal="true" aria-labelledby="gameMenuTitle">
@@ -282,8 +358,10 @@ body.menu-open{overflow:hidden}
       <button id="menuTournament" class="btn" type="button">🏆 Zum Turnier</button>
       <button id="menuBackupExport" class="btn" type="button">⇩ Sichern</button>
       <button id="menuBackupImport" class="btn" type="button">⇧ Laden</button>
+      <button id="menuWake" class="btn" type="button">☀ Bildschirm wachhalten</button>
       <button id="menuClosePrimary" class="btn primary" type="button">Weiter spielen</button>
     </div>
+    <p class="menu-wake-status" id="wakeStatus" role="status" aria-live="polite">Bildschirmstatus wird geprüft.</p>
   </section>
 </div>
 </section>
@@ -367,6 +445,47 @@ function openGameMenu(){
  document.body.classList.add('menu-open');
 }
 function toggleGameMenu(){if(el('gameMenu').classList.contains('hidden'))openGameMenu();else closeGameMenu()}
+var KEEP_AWAKE_KEY='commander-companion-keep-awake';
+var keepAwake=true,wakeSentinel=null,wakePending=false,wakeFailure='';
+try{keepAwake=localStorage.getItem(KEEP_AWAKE_KEY)!=='false'}catch(e){}
+function describeWake(){
+ if(!keepAwake)return 'Bildschirm wachhalten ist ausgeschaltet.';
+ if(!('wakeLock' in navigator))return 'Dieses Gerät unterstützt das automatische Wachhalten nicht. Prüfe unter iOS Einstellungen → Anzeige & Helligkeit → Automatische Sperre.';
+ if(wakeSentinel&&!wakeSentinel.released)return 'Aktiv: Der Bildschirm soll während der Nutzung eingeschaltet bleiben.';
+ if(document.visibilityState!=='visible')return 'Wird beim erneuten Öffnen der App angefordert.';
+ return wakePending?'Bildschirm-Wachhalten wird aktiviert …':(wakeFailure||'Nicht aktiv. Tippe auf „Bildschirm wachhalten“, um es erneut zu versuchen.');
+}
+function updateWakeUI(){
+ var b=el('menuWake'),status=el('wakeStatus');
+ if(b)b.textContent=keepAwake?'☀ Wachhalten: AN':'☾ Wachhalten: AUS';
+ if(status){status.textContent=describeWake();status.classList.toggle('warning',keepAwake&&(!wakeSentinel||wakeSentinel.released));}
+}
+async function requestWakeLock(){
+ if(!keepAwake||wakePending||document.visibilityState!=='visible')return;
+ if(wakeSentinel&&!wakeSentinel.released)return;
+ if(!('wakeLock' in navigator)){wakeFailure='Nicht unterstützt: Bitte die automatische Sperre in den iPhone-Einstellungen anpassen.';updateWakeUI();return;}
+ wakePending=true;wakeFailure='';updateWakeUI();
+ try{
+  var lock=await navigator.wakeLock.request('screen');
+  if(!keepAwake){await lock.release();return}
+  wakeSentinel=lock;
+  lock.addEventListener('release',function(){if(wakeSentinel===lock)wakeSentinel=null;updateWakeUI()});
+ }catch(e){wakeFailure='Der Browser oder iOS hat die Anfrage abgelehnt. Prüfe Energiesparmodus, Geräteeinstellungen und iOS-Version.';}
+ finally{wakePending=false;updateWakeUI()}
+}
+async function toggleWakeLock(){
+ keepAwake=!keepAwake;
+ try{localStorage.setItem(KEEP_AWAKE_KEY,String(keepAwake))}catch(e){}
+ if(!keepAwake){var old=wakeSentinel;wakeSentinel=null;if(old&&!old.released){try{await old.release()}catch(e){}}}
+ else await requestWakeLock();
+ updateWakeUI();
+}
+function initializeWakeLock(){
+ updateWakeUI();requestWakeLock();
+ document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')requestWakeLock();else updateWakeUI()});
+ window.addEventListener('pageshow',function(){requestWakeLock()});
+ document.addEventListener('pointerdown',function(){if(keepAwake&&!wakePending&&(!wakeSentinel||wakeSentinel.released))requestWakeLock()},{passive:true});
+}
 function renderGameMenu(){
  var inMatch=activeTab==='life'&&!!state;
  if(el('menuFab'))el('menuFab').classList.toggle('hidden',!inMatch);
@@ -374,6 +493,7 @@ function renderGameMenu(){
  if(el('menuSummary'))el('menuSummary').innerHTML=gameSummaryHTML();
  if(el('menuUndo'))el('menuUndo').disabled=history.length===0;
  if(el('menuMode'))el('menuMode').textContent=state.mode==='table'?'▦ Standardansicht':'↕ Tabletop-Modus';
+ updateWakeUI();
 }
 function lostReasons(p){var r=[];if(p.life<=0)r.push('0 Leben');if(p.poison>=10)r.push('10 Gift');for(var j=0;j<p.commander.length;j++)if(p.commander[j]>=21){r.push('21 Commander-Schaden');break}return r}
 function commanderDamageHTML(p,i){
@@ -386,7 +506,7 @@ function commanderDamageHTML(p,i){
   items.push('<button type="button" class="commander-chip'+klass+'" data-act="modal" data-i="'+i+'" title="'+sourceName+': '+damage+' von 21 Commander-Schaden erhalten · antippen zum Bearbeiten" aria-label="'+esc(p.name)+': '+damage+' Commander-Schaden von '+sourceName+'. Antippen zum Bearbeiten">'+
    '<span class="cmd-who"><span class="cmd-number">'+(j+1)+'</span><span class="cmd-name">'+sourceName+'</span></span><span class="cmd-amount">'+damage+'<small>/21</small></span></button>');
  }
- return '<section class="commander-direct" aria-label="Erhaltener Commander-Schaden"><div class="commander-direct-title">⚔ Erhaltener Commander-Schaden <span>Antippen zum Ändern</span></div><div class="commander-chips">'+items.join('')+'</div></section>';
+ return '<section class="commander-direct" aria-label="Erhaltener Commander-Schaden"><div class="commander-direct-title">⚔ Commander-DMG <span>Antippen zum Ändern</span></div><div class="commander-chips">'+items.join('')+'</div></section>';
 }
 function tableSeatClass(i){
  if(!state||state.mode!=='table')return '';
@@ -399,19 +519,32 @@ function boardRows(){
  if(state.mode==='table'&&state.players.length===2)return 1;
  return Math.ceil(state.players.length/2);
 }
-function edgeScale(){
- if(!state)return 1;
- var n=state.players.length;
- if(n<=2)return 1;
- if(n<=4)return .72;
- if(n<=6)return .58;
- return .5;
+function edgeScale(){return 1}
+function sizeRotatedCards(){
+ if(!state||activeTab!=='life'||state.mode!=='table')return;
+ var board=el('board');if(!board)return;
+ var cards=board.querySelectorAll('.player.left-edge, .player.right-edge');
+ for(var i=0;i<cards.length;i++){
+  var bounds=cards[i].getBoundingClientRect();
+  if(bounds.width<=5||bounds.height<=5)continue;
+  var content=cards[i].querySelector('.player-inner');
+  if(!content)continue;
+  content.style.setProperty('--rotated-width',Math.max(30,Math.floor(bounds.height-5))+'px');
+  content.style.setProperty('--rotated-height',Math.max(30,Math.floor(bounds.width-5))+'px');
+  content.style.setProperty('--cmd-columns',state.players.length>6?'4':'3');
+ }
+}
+var boardMeasureRequested=false;
+function scheduleCardSizing(){
+ if(boardMeasureRequested)return;
+ boardMeasureRequested=true;
+ requestAnimationFrame(function(){boardMeasureRequested=false;sizeRotatedCards()});
 }
 function playerHTML(p,i){var reasons=lostReasons(p),seatClass=tableSeatClass(i);return '<article class="player '+(state.starter===i?'starter ':'')+(reasons.length?'eliminated ':'')+seatClass+'" style="--player:'+PALETTE[i%PALETTE.length]+'">'+
 '<div class="player-inner"><div class="player-top"><span class="player-name">'+esc(p.name)+'</span>'+(i===state.starter?'<span class="star">★ START</span>':'')+'</div>'+
 '<div class="life-controls"><button type="button" class="step" data-act="life" data-i="'+i+'" data-d="-1" aria-label="'+esc(p.name)+': ein Leben abziehen">−</button><div class="life-display"><span class="life-value">'+p.life+'</span><span class="life-caption">LEBEN</span></div><button type="button" class="step" data-act="life" data-i="'+i+'" data-d="1" aria-label="'+esc(p.name)+': ein Leben hinzufügen">+</button></div>'+
 commanderDamageHTML(p,i)+
-'<div class="quick"><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Giftmarken von '+esc(p.name)+' verwalten">☠ Gift <strong>'+p.poison+'</strong></button><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Commander-Schaden von '+esc(p.name)+' verwalten">⚔ Bearbeiten</button><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Weitere Zähler von '+esc(p.name)+' verwalten">⚙</button></div>'+
+'<div class="quick"><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Giftmarken von '+esc(p.name)+' verwalten">☠ Gift <strong>'+p.poison+'</strong></button><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Alle Spezialzähler von '+esc(p.name)+' verwalten">⚙ Zähler</button></div>'+
 (reasons.length?'<div class="bottom-status">⚠ Ausgeschieden · '+esc(reasons.join(', '))+'</div>':'')+'</div></article>'}
 function render(){
  if(!state){revealSetup();return}
@@ -430,6 +563,7 @@ function render(){
  board.classList.toggle('odd-count',state.players.length%2===1);
  board.classList.toggle('table-layout',state.mode==='table');
  board.innerHTML=state.players.map(playerHTML).join('');
+ scheduleCardSizing();
  renderGameMenu();
  if(activeModal!==null)renderModal()
 }
@@ -596,7 +730,7 @@ function exportTournamentCsv(){
  rows.push([]);rows.push(['Runde','Tisch','Mitspieler','Sieger','Pausiert']);
  tournament.schedule.forEach(function(round,i){round.tables.forEach(function(m,j){rows.push([i+1,j+1,m.players.map(function(p){return tournament.players[p]}).join(' / '),m.winner===null?'':tournament.players[m.winner],round.bye===null?'':tournament.players[round.bye]])})});
  var content='\uFEFF'+rows.map(function(row){return row.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"'}).join(';')}).join('\r\n');
- var blob=new Blob([content],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='Commander_Turnier_7_Ergebnisse.csv';document.body.appendChild(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url)},10000);
+ var blob=new Blob([content],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='Commander_Turnier_8_Ergebnisse.csv';document.body.appendChild(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url)},10000);
 }
 
 function createBackup(){
@@ -648,7 +782,11 @@ el('menuReset').addEventListener('click',function(){closeGameMenu();el('reset').
 el('menuTournament').addEventListener('click',function(){closeGameMenu();setTab('tournament')});
 el('menuBackupExport').addEventListener('click',downloadBackup);
 el('menuBackupImport').addEventListener('click',function(){el('backupFile').click()});
+el('menuWake').addEventListener('click',toggleWakeLock);
 initPWA();
+initializeWakeLock();
+if('ResizeObserver' in window){new ResizeObserver(scheduleCardSizing).observe(el('board'))}else window.addEventListener('resize',scheduleCardSizing);
+window.addEventListener('orientationchange',scheduleCardSizing);
 el('tabLife').addEventListener('click',function(){setTab('life')});el('tabTournament').addEventListener('click',function(){setTab('tournament')});
 el('tournamentCount').addEventListener('input',syncNameFields);el('tournamentCount').addEventListener('change',syncNameFields);el('tournamentRounds').addEventListener('input',syncPairingPreview);el('tournamentForm').addEventListener('submit',createTournament);
 el('winnerChoices').addEventListener('click',function(e){var b=e.target.closest('button[data-winner]');if(!b)return;selectMatchWinner(Number(b.getAttribute('data-table')),Number(b.getAttribute('data-winner')))});
