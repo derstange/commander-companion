@@ -114,6 +114,19 @@ input::placeholder{color:#9b9888}
 .match-contenders .winner-choice{min-height:52px;padding:10px 12px;font-size:.95rem}
 .match-contenders .winner-choice span:first-child{overflow-wrap:anywhere}
 .match-foot{font-size:.72rem;margin-top:11px;color:#c3b495}
+.cmd-picker{margin-top:6px}
+.cmd-input{width:100%;min-height:44px;border:1px solid #8b774e94;background:#0b1718;color:#fff2d5;border-radius:12px;padding:9px 12px;font-size:.88rem}
+.cmd-results{display:grid;gap:4px;margin-top:4px}.cmd-results:empty{display:none}
+.cmd-option{display:flex;align-items:center;gap:9px;text-align:left;padding:5px 8px;border-radius:10px;background:#ffffff10;border:1px solid #ffffff1a;min-height:44px;font-size:.85rem;font-weight:650}
+.cmd-option img,.cmd-picked img{width:48px;height:35px;object-fit:cover;border-radius:6px;flex-shrink:0}
+.cmd-picked{display:flex;align-items:center;gap:9px;padding:5px;border:1px solid #d8b26a80;border-radius:12px;background:#ffffff0b}
+.cmd-picked span{flex:1;min-width:0;font-size:.85rem;font-weight:750;overflow-wrap:anywhere;line-height:1.25}.cmd-picked small{display:block;font-weight:500;color:var(--muted);font-size:.7rem}
+.cmd-clear{width:38px;height:38px;border-radius:9px;background:#ffffff19;font-size:1.25rem;flex-shrink:0}
+.cmd-msg{margin:4px 2px;font-size:.78rem;color:var(--muted)}
+.cmd-tag{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:.72rem;color:var(--muted);font-weight:600}.cmd-tag img{width:30px;height:22px;object-fit:cover;border-radius:4px;flex-shrink:0}
+.wc-art{width:40px;height:29px;object-fit:cover;border-radius:5px;vertical-align:middle;margin-right:9px}
+.tour-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.cmd-edit-row{margin:14px 0}.cmd-edit-row>strong{display:block;font-size:.86rem;margin-bottom:2px}
 .bye-card{margin:12px 0 0;border:1px dashed #c4a365b3;border-radius:13px;padding:13px;background:#e9be6810;color:#f1dfbd;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .bye-card strong{color:#ebcb8c}
 .round-saved{font-size:.8rem;color:#e5c891;min-height:17px;margin-top:10px}
@@ -384,7 +397,7 @@ body.match-focus .quick .btn{min-width:0}
   </div>
   <div id="tournamentActive" class="hidden">
     <div class="tour-card">
-      <div class="tour-head"><div><p class="eyebrow">Turnierübersicht</p><h2 id="tourTitle">Commander-Turnier</h2><p class="muted tiny" id="tourSubtitle"></p></div><button type="button" id="tourReset" class="btn warning">↻ Neues Turnier</button></div>
+      <div class="tour-head"><div><p class="eyebrow">Turnierübersicht</p><h2 id="tourTitle">Commander-Turnier</h2><p class="muted tiny" id="tourSubtitle"></p></div><div class="tour-actions"><button type="button" id="tourCommanders" class="btn">🃏 Commander</button><button type="button" id="tourReset" class="btn warning">↻ Neues Turnier</button></div></div>
       <div id="tourMetrics" class="tour-metrics"></div><div class="progress-track" aria-label="Turnierfortschritt"><div class="progress-fill" id="tourProgress"></div></div>
     </div>
     <div class="tour-card" id="roundEditorCard">
@@ -606,7 +619,7 @@ function validTournament(t){
  return true;
 }
 function loadTournament(){
- try{var raw=localStorage.getItem(TOUR_STORAGE);if(raw){var t=JSON.parse(raw);if(validTournament(t)){tournament=t;return}}}catch(e){}
+ try{var raw=localStorage.getItem(TOUR_STORAGE);if(raw){var t=JSON.parse(raw);if(validTournament(t)){tournament=normalizeCommanders(t);return}}}catch(e){}
  // Older, single-winner tournaments with at most four players can be migrated faithfully.
  try{var old=JSON.parse(localStorage.getItem(LEGACY_TOUR_STORAGE)||'null');if(!old||!Array.isArray(old.players)||old.players.length<2||old.players.length>4||!Number.isInteger(old.rounds)||old.rounds<1||old.rounds>50||!Array.isArray(old.results)||old.results.length!==old.rounds)return;
  var schedule=planTournament(old.players.length,old.rounds);
@@ -668,19 +681,62 @@ function planTournament(n,rounds){
  }
  return schedule;
 }
+// Commander search via the public Scryfall API. Only card name, artist and image URLs are stored; images load from Scryfall.
+var setupCommanders=[],cmdResults={},cmdTimers={},cmdAbort={};
+var SCRYFALL_IMG=/^https:\/\/cards\.scryfall\.io\//;
+function cmdFromCard(c){var img=c.image_uris||(c.card_faces&&c.card_faces[0]&&c.card_faces[0].image_uris)||{};return {name:String(c.name||'').slice(0,150),image:img.normal||img.large||'',art:img.art_crop||img.normal||'',artist:String(c.artist||'').slice(0,100),uri:String(c.scryfall_uri||'')}}
+function validCommander(c){return !!c&&typeof c.name==='string'&&c.name.length>0&&typeof c.image==='string'&&typeof c.art==='string'&&(!c.image||SCRYFALL_IMG.test(c.image))&&(!c.art||SCRYFALL_IMG.test(c.art))}
+function normalizeCommanders(t){var list=Array.isArray(t.commanders)&&t.commanders.length===t.players.length?t.commanders:[];t.commanders=t.players.map(function(_,i){return validCommander(list[i])?list[i]:null});return t}
+function commanderOf(idx){return tournament&&tournament.commanders&&tournament.commanders[idx]||null}
+function cmdThumb(idx){var c=commanderOf(idx);return c&&c.art?'<img class="wc-art" src="'+esc(c.art)+'" alt="" loading="lazy">':''}
+function cmdTag(idx){var c=commanderOf(idx);return c?'<span class="cmd-tag">'+(c.art?'<img src="'+esc(c.art)+'" alt="" loading="lazy">':'')+esc(c.name)+'</span>':''}
+function getSlot(key){var k=key.split(':'),i=Number(k[1]);return k[0]==='setup'?setupCommanders[i]||null:commanderOf(i)}
+function setSlot(key,value){var k=key.split(':'),i=Number(k[1]);if(k[0]==='setup'){setupCommanders[i]=value;return}if(!tournament)return;tournament.commanders[i]=value;saveTournament();renderTournament()}
+function cmdPickerHTML(key,label){
+ var c=getSlot(key),open='<div class="cmd-picker" data-slot="'+key+'" data-label="'+esc(label)+'">';
+ if(c)return open+'<div class="cmd-picked">'+(c.art?'<img src="'+esc(c.art)+'" alt="">':'')+'<span>'+esc(c.name)+(c.artist?'<small>🎨 '+esc(c.artist)+'</small>':'')+'</span><button type="button" class="cmd-clear" aria-label="Commander von '+esc(label)+' entfernen">×</button></div></div>';
+ return open+'<input type="search" class="cmd-input" maxlength="60" autocomplete="off" enterkeyhint="search" placeholder="🔍 Commander suchen …" aria-label="Commander für '+esc(label)+'"><div class="cmd-results" role="listbox"></div></div>';
+}
+function refreshPicker(picker,focus){var key=picker.getAttribute('data-slot'),tmp=document.createElement('div');tmp.innerHTML=cmdPickerHTML(key,picker.getAttribute('data-label'));var fresh=tmp.firstChild;picker.replaceWith(fresh);if(focus){var input=fresh.querySelector('.cmd-input');if(input)input.focus()}}
+function searchCommanders(input){
+ var picker=input.closest('.cmd-picker'),key=picker.getAttribute('data-slot'),box=picker.querySelector('.cmd-results'),term=input.value.trim();
+ clearTimeout(cmdTimers[key]);if(cmdAbort[key])cmdAbort[key].abort();cmdResults[key]=[];
+ if(term.length<2){box.innerHTML='';return}
+ box.innerHTML='<p class="cmd-msg">Suche …</p>';
+ cmdTimers[key]=setTimeout(function(){
+  var ctrl=window.AbortController?new AbortController():null;cmdAbort[key]=ctrl;
+  fetch('https://api.scryfall.com/cards/search?order=edhrec&unique=cards&q='+encodeURIComponent(term+' is:commander'),{headers:{Accept:'application/json'},signal:ctrl?ctrl.signal:undefined})
+  .then(function(r){if(r.status===404)return {data:[]};if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+  .then(function(d){
+   var list=(d.data||[]).map(cmdFromCard).filter(validCommander).slice(0,8);cmdResults[key]=list;
+   box.innerHTML=list.length?list.map(function(c,i){return '<button type="button" class="cmd-option" role="option" data-pick="'+i+'">'+(c.art?'<img src="'+esc(c.art)+'" alt="" loading="lazy">':'')+'<span>'+esc(c.name)+'</span></button>'}).join(''):'<p class="cmd-msg">Kein Commander gefunden.</p>';
+  })
+  .catch(function(e){if(e&&e.name==='AbortError')return;box.innerHTML='<p class="cmd-msg">Suche nicht möglich. Bist du offline?</p>'});
+ },300);
+}
+function pickCommander(picker,i){var key=picker.getAttribute('data-slot'),c=(cmdResults[key]||[])[i];if(!c)return;setSlot(key,c);refreshPicker(picker)}
+function onCommanderClick(e){
+ var option=e.target.closest('.cmd-option');if(option){pickCommander(option.closest('.cmd-picker'),Number(option.getAttribute('data-pick')));return}
+ var clear=e.target.closest('.cmd-clear');if(clear){var picker=clear.closest('.cmd-picker');setSlot(picker.getAttribute('data-slot'),null);refreshPicker(picker,true)}
+}
+function openCommanderEditor(){
+ if(!tournament)return;el('modalTitle').textContent='🃏 Commander der Teilnehmer';
+ el('modalContent').innerHTML='<p class="muted tiny">Suche über Scryfall. Änderungen werden sofort gespeichert.</p>'+tournament.players.map(function(name,i){return '<div class="cmd-edit-row"><strong>'+esc(name)+'</strong>'+cmdPickerHTML('tour:'+i,name)+'</div>'}).join('')+'<p class="notice-inline">Kartendaten und Bilder: Scryfall. Bilder brauchen eine Internetverbindung.</p><div class="modal-actions"><button class="btn primary" type="button" id="modalDone">Fertig</button></div>';
+ activeModal=null;el('modalBackdrop').classList.remove('hidden');
+}
 function setTab(which){activeTab=which==='tournament'?'tournament':'life';closeModal();closeGameMenu();el('lifePanel').classList.toggle('hidden',activeTab!=='life');el('tournamentPanel').classList.toggle('hidden',activeTab!=='tournament');el('tabLife').setAttribute('aria-selected',String(activeTab==='life'));el('tabTournament').setAttribute('aria-selected',String(activeTab==='tournament'));document.body.classList.toggle('table-mode',activeTab==='life'&&!!state&&state.mode==='table');document.body.classList.toggle('match-focus',activeTab==='life'&&!!state);if(activeTab==='tournament'){el('gameTag').textContent=tournament?'Turnier':'Turnierplanung';renderTournament()}else if(state)render();else revealSetup();window.scrollTo(0,0)}
 function syncPairingPreview(){
  var n=Number(el('tournamentCount').value),r=Number(el('tournamentRounds').value),box=el('pairingPreview');if(!Number.isInteger(n)||n<2||n>32){box.textContent='Gib eine Spieleranzahl zwischen 2 und 32 ein.';return}
  var l=getLayout(n);
  box.innerHTML='<strong>⚔ Tischaufteilung:</strong> '+l.tables+' '+(l.tables===1?'Partie':'Partien')+' mit je '+l.size+' '+(l.size===1?'Person':'Personen')+' pro Runde'+(l.bye?' · 1 Person pausiert in jeder Runde':' · keine Pausen')+'.'+(l.bye&&Number.isInteger(r)&&r>0?' Die Pausen werden über '+r+' Runden so gleichmäßig wie möglich verteilt.':'')+(l.size===2||l.size===5?' <span class="muted">Hinweis: Gleich große 3er-/4er-Tische sind bei dieser Spielerzahl rechnerisch nicht möglich.</span>':'');
 }
-function syncNameFields(){var n=Number(el('tournamentCount').value);syncPairingPreview();if(!Number.isInteger(n)||n<2||n>32)return;var container=el('tournamentNames');var old=container.querySelectorAll('input'),previous=[];for(var i=0;i<old.length;i++)previous.push(old[i].value);var html='';for(var j=0;j<n;j++)html+='<div><label for="tourPlayer'+j+'">Spieler '+(j+1)+'</label><input type="text" id="tourPlayer'+j+'" maxlength="35" autocomplete="off" placeholder="Spieler '+(j+1)+'" value="'+esc(previous[j]||'')+'"></div>';container.innerHTML=html}
+function syncNameFields(){var n=Number(el('tournamentCount').value);syncPairingPreview();if(!Number.isInteger(n)||n<2||n>32)return;var container=el('tournamentNames');var old=container.querySelectorAll('input[id^="tourPlayer"]'),previous=[];for(var i=0;i<old.length;i++)previous.push(old[i].value);var html='';for(var j=0;j<n;j++)html+='<div><label for="tourPlayer'+j+'">Spieler '+(j+1)+'</label><input type="text" id="tourPlayer'+j+'" maxlength="35" autocomplete="off" placeholder="Spieler '+(j+1)+'" value="'+esc(previous[j]||'')+'">'+cmdPickerHTML('setup:'+j,'Spieler '+(j+1))+'</div>';container.innerHTML=html}
 function createTournament(e){
  if(e)e.preventDefault();var n=Number(el('tournamentCount').value),r=Number(el('tournamentRounds').value);
  if(!Number.isInteger(n)||n<2||n>32||!Number.isInteger(r)||r<1||r>50){el('tournamentForm').reportValidity();return}
- var inputs=el('tournamentNames').querySelectorAll('input');if(inputs.length!==n){syncNameFields();inputs=el('tournamentNames').querySelectorAll('input')}
+ var inputs=el('tournamentNames').querySelectorAll('input[id^="tourPlayer"]');if(inputs.length!==n){syncNameFields();inputs=el('tournamentNames').querySelectorAll('input[id^="tourPlayer"]')}
  var names=[];for(var i=0;i<n;i++)names.push((inputs[i].value.trim().slice(0,35)||('Spieler '+(i+1))));
- tournament={version:2,players:names,rounds:r,schedule:planTournament(n,r)};editingRound=0;saveTournament();renderTournament();window.scrollTo(0,0);
+ tournament={version:2,players:names,rounds:r,schedule:planTournament(n,r),commanders:names.map(function(_,i){return setupCommanders[i]||null})};editingRound=0;saveTournament();renderTournament();window.scrollTo(0,0);
 }
 function counts(){
  var rows=tournament.players.map(function(_,i){return {idx:i,wins:0,played:0,byes:0,rounds:[]}});
@@ -699,7 +755,7 @@ function renderRoundEditor(){
  el('roundPageStatus').textContent=(r+1)+' / '+tournament.rounds;el('roundPrev').disabled=r===0;el('roundNext').disabled=r===tournament.rounds-1;
  el('roundBack').classList.toggle('hidden',nextOpenRound()===null||r===nextOpenRound());
  var html=round.tables.map(function(match,i){var won=match.winner!==null;
-  return '<section class="match-card '+(won?'done':'')+'"><div class="match-head"><span class="match-title">⚔ Tisch '+(i+1)+'</span><span class="match-status">'+(won?'✓ Ergebnis erfasst':'Noch offen')+'</span></div><div class="match-contenders">'+match.players.map(function(idx){var picked=match.winner===idx;return '<button type="button" class="winner-choice '+(picked?'selected':'')+'" data-table="'+i+'" data-winner="'+idx+'" aria-pressed="'+picked+'"><span>'+esc(tournament.players[idx])+'</span><span class="marker">'+(picked?'✓':'')+'</span></button>'}).join('')+'</div><div class="match-foot">'+(won?'🏆 Sieger: '+esc(tournament.players[match.winner]):'Berühre den Gewinner dieser Partie.')+'</div></section>';
+  return '<section class="match-card '+(won?'done':'')+'"><div class="match-head"><span class="match-title">⚔ Tisch '+(i+1)+'</span><span class="match-status">'+(won?'✓ Ergebnis erfasst':'Noch offen')+'</span></div><div class="match-contenders">'+match.players.map(function(idx){var picked=match.winner===idx;return '<button type="button" class="winner-choice '+(picked?'selected':'')+'" data-table="'+i+'" data-winner="'+idx+'" aria-pressed="'+picked+'"><span>'+cmdThumb(idx)+esc(tournament.players[idx])+'</span><span class="marker">'+(picked?'✓':'')+'</span></button>'}).join('')+'</div><div class="match-foot">'+(won?'🏆 Sieger: '+esc(tournament.players[match.winner]):'Berühre den Gewinner dieser Partie.')+'</div></section>';
  }).join('');
  if(round.bye!==null)html+='<div class="bye-card">⏳ <span><strong>Pause:</strong> '+esc(tournament.players[round.bye])+' — in dieser Runde keine Partie.</span></div>';
  el('winnerChoices').innerHTML=html;
@@ -713,7 +769,7 @@ function renderTournament(){
  el('tourMetrics').innerHTML='<span class="tour-metric"><strong>'+rDone+' / '+tournament.rounds+'</strong> Runden</span><span class="tour-metric"><strong>'+done+' / '+matches+'</strong> Partien erfasst</span>'+(l.bye?'<span class="tour-metric"><strong>1</strong> Pause / Runde</span>':'')+(finished?'<span class="tour-metric"><strong>✓</strong> Turnier abgeschlossen</span>':'');
  el('tourProgress').style.width=(done/matches*100)+'%';renderRoundEditor();
  var ranking=counts().sort(function(a,b){return b.wins-a.wins||a.idx-b.idx}),previousWins=null,place=0;
- el('rankingBody').innerHTML=ranking.map(function(row,i){if(row.wins!==previousWins)place=i+1;previousWins=row.wins;return '<tr class="'+(place===1&&row.wins>0?'leader':'')+'"><td>'+place+'.</td><td>'+esc(tournament.players[row.idx])+'</td><td>'+row.wins+'</td><td>'+row.played+'</td><td>'+row.byes+'</td><td>'+(row.rounds.length?row.rounds.map(function(v){return 'R'+v}).join(' · '):'—')+'</td></tr>'}).join('');
+ el('rankingBody').innerHTML=ranking.map(function(row,i){if(row.wins!==previousWins)place=i+1;previousWins=row.wins;return '<tr class="'+(place===1&&row.wins>0?'leader':'')+'"><td>'+place+'.</td><td>'+esc(tournament.players[row.idx])+cmdTag(row.idx)+'</td><td>'+row.wins+'</td><td>'+row.played+'</td><td>'+row.byes+'</td><td>'+(row.rounds.length?row.rounds.map(function(v){return 'R'+v}).join(' · '):'—')+'</td></tr>'}).join('');
  el('roundsList').innerHTML=tournament.schedule.map(function(round,i){var wins=round.tables.filter(function(t){return t.winner!==null}).length;
   var details=round.tables.map(function(t,j){return '<span class="table-badge">T'+(j+1)+': '+(t.winner===null?'offen':'🏆 '+esc(tournament.players[t.winner]))+'</span>'}).join('');
   return '<div class="round-item '+(wins===0?'pending':'')+'"><span class="round-label">Runde '+(i+1)+'</span><span class="round-result">'+details+(round.bye!==null?'<span class="table-badge">⏳ '+esc(tournament.players[round.bye])+'</span>':'')+'</span><button type="button" class="btn" data-edit-round="'+i+'">'+(wins===round.tables.length?'Ansehen':'Erfassen')+'</button></div>'
@@ -725,8 +781,8 @@ function selectMatchWinner(table,index){
 }
 function promptTournamentReset(){closeGameMenu();if(!tournament)return;el('modalTitle').textContent='Ein neues Turnier beginnen?';el('modalContent').innerHTML='<p class="muted">Die aktuelle Tabelle, die Tischzuordnung und alle Sieger werden aus der App entfernt. Exportiere vorher bei Bedarf die CSV-Datei.</p><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button><button class="btn warning" type="button" id="reallyResetTour">Turnier löschen</button></div>';activeModal=null;el('modalBackdrop').classList.remove('hidden')}
 function exportTournamentCsv(){
- if(!tournament)return;var rows=[['Platz','Spieler','Siege','Gespielte Partien','Geplante Pausen','Gewonnene Runden']];var ranking=counts().sort(function(a,b){return b.wins-a.wins||a.idx-b.idx}),place=0,last=null;
- ranking.forEach(function(p,i){if(p.wins!==last)place=i+1;last=p.wins;rows.push([place,tournament.players[p.idx],p.wins,p.played,p.byes,p.rounds.join(', ')])});
+ if(!tournament)return;var rows=[['Platz','Spieler','Commander','Siege','Gespielte Partien','Geplante Pausen','Gewonnene Runden']];var ranking=counts().sort(function(a,b){return b.wins-a.wins||a.idx-b.idx}),place=0,last=null;
+ ranking.forEach(function(p,i){if(p.wins!==last)place=i+1;last=p.wins;rows.push([place,tournament.players[p.idx],commanderOf(p.idx)?commanderOf(p.idx).name:'',p.wins,p.played,p.byes,p.rounds.join(', ')])});
  rows.push([]);rows.push(['Runde','Tisch','Mitspieler','Sieger','Pausiert']);
  tournament.schedule.forEach(function(round,i){round.tables.forEach(function(m,j){rows.push([i+1,j+1,m.players.map(function(p){return tournament.players[p]}).join(' / '),m.winner===null?'':tournament.players[m.winner],round.bye===null?'':tournament.players[round.bye]])})});
  var content='\uFEFF'+rows.map(function(row){return row.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"'}).join(';')}).join('\r\n');
@@ -755,7 +811,7 @@ function restoreBackup(e){
     (backup.tournament!==null&&!validTournament(backup.tournament)))throw new Error('Ungültige Sicherungsdatei');
    if(!window.confirm('Die vorhandene Partie und das vorhandene Turnier durch diese Sicherung ersetzen?'))return;
    if(backup.life===null){state=null;discard()}else{state=backup.life;state.mode=(state.mode==='table'?'table':'standard');store()}
-   if(backup.tournament===null){tournament=null;try{localStorage.removeItem(TOUR_STORAGE)}catch(e){}}else{tournament=backup.tournament;saveTournament()}
+   if(backup.tournament===null){tournament=null;try{localStorage.removeItem(TOUR_STORAGE)}catch(e){}}else{tournament=normalizeCommanders(backup.tournament);saveTournament()}
    history=[];editingRound=null;el('backupFeedback').textContent='Sicherung eingelesen.';
    setTab(activeTab);renderTournament();
   }catch(err){el('backupFeedback').textContent='Ungültige Sicherung. Keine Daten geändert.'}
@@ -791,7 +847,10 @@ el('tabLife').addEventListener('click',function(){setTab('life')});el('tabTourna
 el('tournamentCount').addEventListener('input',syncNameFields);el('tournamentCount').addEventListener('change',syncNameFields);el('tournamentRounds').addEventListener('input',syncPairingPreview);el('tournamentForm').addEventListener('submit',createTournament);
 el('winnerChoices').addEventListener('click',function(e){var b=e.target.closest('button[data-winner]');if(!b)return;selectMatchWinner(Number(b.getAttribute('data-table')),Number(b.getAttribute('data-winner')))});
 el('roundPrev').addEventListener('click',function(){showRound(editingRound-1)});el('roundNext').addEventListener('click',function(){showRound(editingRound+1)});el('roundsList').addEventListener('click',function(e){var btn=e.target.closest('button[data-edit-round]');if(btn)showRound(Number(btn.getAttribute('data-edit-round')))});
-el('roundBack').addEventListener('click',function(){var next=nextOpenRound();if(next!==null)showRound(next)});el('tourReset').addEventListener('click',promptTournamentReset);el('tourCsv').addEventListener('click',exportTournamentCsv);el('playerChoices').addEventListener('click',function(e){var b=e.target.closest('button[data-n]');if(b)setChoice(Number(b.getAttribute('data-n')))});
+el('roundBack').addEventListener('click',function(){var next=nextOpenRound();if(next!==null)showRound(next)});el('tourReset').addEventListener('click',promptTournamentReset);el('tourCsv').addEventListener('click',exportTournamentCsv);el('tourCommanders').addEventListener('click',openCommanderEditor);
+document.addEventListener('input',function(e){if(e.target.classList&&e.target.classList.contains('cmd-input'))searchCommanders(e.target)});
+document.addEventListener('click',onCommanderClick);
+document.addEventListener('keydown',function(e){if(e.key!=='Enter'||!e.target.classList||!e.target.classList.contains('cmd-input'))return;e.preventDefault();var picker=e.target.closest('.cmd-picker');if((cmdResults[picker.getAttribute('data-slot')]||[]).length)pickCommander(picker,0)});el('playerChoices').addEventListener('click',function(e){var b=e.target.closest('button[data-n]');if(b)setChoice(Number(b.getAttribute('data-n')))});
 // A real form submit works with both touch and keyboard and does not rely on click handlers.
 el('setupForm').addEventListener('submit',beginGame);
 el('board').addEventListener('click',onBoardClick);
