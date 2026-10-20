@@ -120,6 +120,21 @@ input::placeholder{color:#9b9888}
 .pairing-preview{margin:15px 0 0;border-left:3px solid #d2aa64;background:#bd9d5a15;border-radius:0 12px 12px 0;padding:11px 13px;color:#eadab8;font-size:.83rem;line-height:1.55}
 .rounds-list .round-item{align-items:flex-start;flex-wrap:wrap}.round-label{color:#f0d29c}.round-result{text-align:left!important;flex:1 1 180px!important;line-height:1.6}
 .round-item .btn{align-self:center}
+/* Round archive: every table with its players, open vs. decided */
+.rounds-list .round-item{display:grid;grid-template-columns:minmax(0,1fr);justify-content:stretch;align-items:stretch;gap:9px;opacity:1}
+.rounds-list .round-item.done{border-color:#d3ad6a9c;background:linear-gradient(145deg,#1d2e2a,#152323)}
+.round-row{display:flex;align-items:center;gap:10px}.round-row .round-label{flex:1}
+.round-state{font-size:.74rem;font-weight:750;color:#bfae8c;white-space:nowrap}.round-item.done .round-state{color:#f0cf8c}
+.round-tables{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+.mini-table{border-radius:11px;padding:8px 10px;border:1px dashed #b7a07a6b;background:#0c1818a0}
+.mini-table.done{border:1px solid #d9b06c94;background:linear-gradient(140deg,#3a32227a,#162322)}
+.mini-head{display:flex;justify-content:space-between;gap:8px;font-size:.74rem;font-weight:800;color:#d8c39b;margin-bottom:6px}
+.mini-table.open .mini-status{color:#a9b8b2}.mini-table.done .mini-status{color:#f2cd83}
+.mini-players{display:flex;flex-wrap:wrap;gap:5px}
+.mini-player{font-size:.8rem;line-height:1.3;padding:3px 8px;border-radius:999px;border:1px solid #ffffff22;background:#ffffff0c;color:#efe3cb;overflow-wrap:anywhere}
+.mini-player.winner{background:linear-gradient(125deg,#e9c47e,#a87f43);border-color:#ffe2a4;color:#1d150a;font-weight:850}
+.mini-player.beaten{opacity:.55}
+.round-bye{font-size:.78rem;color:#cbb994}
 .table-badge{display:inline-block;border:1px solid #987c486f;border-radius:7px;padding:3px 6px;margin:2px 4px 2px 0;color:#ecd6a9;line-height:1.4}
 .tour-head .btn{flex-shrink:0}
 @media(max-width:560px){.mast h1{font-size:1.05rem}.mast h1 small{font-size:.65em}.crest{font-size:2.1rem}.eyebrow{letter-spacing:.11em}.round-pager .btn{font-size:.76rem;padding:10px 8px}.match-card{padding:12px}.tour-head{align-items:center}.round-item .round-result{flex-basis:150px!important}.tour-card h2{font-size:1.4rem}}
@@ -750,8 +765,11 @@ function renderTournament(){
  var ranking=counts().sort(function(a,b){return b.wins-a.wins||a.idx-b.idx}),previousWins=null,place=0;
  el('rankingBody').innerHTML=ranking.map(function(row,i){if(row.wins!==previousWins)place=i+1;previousWins=row.wins;return '<tr class="'+(place===1&&row.wins>0?'leader':'')+'"><td>'+place+'.</td><td>'+esc(tournament.players[row.idx])+'</td><td>'+row.wins+'</td><td>'+row.played+'</td><td>'+row.byes+'</td><td>'+(row.rounds.length?row.rounds.map(function(v){return 'R'+v}).join(' · '):'—')+'</td></tr>'}).join('');
  el('roundsList').innerHTML=tournament.schedule.map(function(round,i){var wins=round.tables.filter(function(t){return t.winner!==null}).length;
-  var details=round.tables.map(function(t,j){return '<span class="table-badge">T'+(j+1)+': '+(t.winner===null?'offen':'🏆 '+esc(tournament.players[t.winner]))+'</span>'}).join('');
-  return '<div class="round-item '+(wins===0?'pending':'')+'"><span class="round-label">Runde '+(i+1)+'</span><span class="round-result">'+details+(round.bye!==null?'<span class="table-badge">⏳ '+esc(tournament.players[round.bye])+'</span>':'')+'</span><button type="button" class="btn" data-edit-round="'+i+'">'+(wins===round.tables.length?'Ansehen':'Erfassen')+'</button></div>'
+  var all=wins===round.tables.length,state=all?'done':wins===0?'pending':'partial';
+  var tables=round.tables.map(function(t,j){var open=t.winner===null;
+   var people=t.players.map(function(idx){var cls=open?'':idx===t.winner?'winner':'beaten';return '<span class="mini-player '+cls+'">'+(idx===t.winner?'🏆 ':'')+esc(tournament.players[idx])+'</span>'}).join('');
+   return '<div class="mini-table '+(open?'open':'done')+'"><div class="mini-head"><span>⚔ Tisch '+(j+1)+'</span><span class="mini-status">'+(open?'○ offen':'✓ entschieden')+'</span></div><div class="mini-players">'+people+'</div></div>'}).join('');
+  return '<div class="round-item '+state+'"><div class="round-row"><span class="round-label">Runde '+(i+1)+'</span><span class="round-state">'+(all?'✓ abgeschlossen':wins+'/'+round.tables.length+' entschieden')+'</span><button type="button" class="btn" data-edit-round="'+i+'">'+(all?'Ansehen':'Erfassen')+'</button></div><div class="round-tables">'+tables+'</div>'+(round.bye!==null?'<div class="round-bye">⏳ Pause: '+esc(tournament.players[round.bye])+'</div>':'')+'</div>'
  }).join('');
 }
 function selectMatchWinner(table,index){
