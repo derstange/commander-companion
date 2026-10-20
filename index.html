@@ -23,6 +23,22 @@ body.table-mode{overflow:hidden;background:#11121d}body.table-mode .shell{width:
 .step,.mini{-webkit-touch-callout:none}.step.holding,.mini.holding{filter:brightness(1.4);box-shadow:inset 0 0 0 2px #f5c96b,0 0 18px #f5c96b55}
 .life-display{position:relative}
 .life-delta{position:absolute;left:50%;top:0;transform:translate(-50%,-55%);padding:1px 8px;border-radius:99px;background:#000a;border:1px solid #f5c96b88;color:#ffe3a3;font-size:clamp(.7rem,2.4vw,.9rem);font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none}
+.spin-overlay{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));background:radial-gradient(circle at 50% 42%,#2a2213 0,#050b0aee 62%);backdrop-filter:blur(5px);cursor:pointer;text-align:center}
+.spin-title{margin:0;color:#f0cf8c;font-family:Georgia,serif;font-size:clamp(1.3rem,5vw,1.9rem);letter-spacing:.02em}
+.spin-card{position:relative;width:min(440px,100%);aspect-ratio:16/10;border-radius:18px;overflow:hidden;border:2px solid #d8b26a99;background:var(--spin-bg,#1b2523) center/cover no-repeat;box-shadow:0 18px 50px #000b}
+.spin-card.tick{animation:spinTick .16s ease-out}
+.spin-card.no-art::before{content:'✦';position:absolute;left:0;right:0;top:18%;font-size:clamp(3rem,12vw,4.5rem);color:#fff3d0cc;text-shadow:0 0 26px #f2cb82}
+.spin-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#000d 100%)}
+.spin-name{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:12px 14px;font-family:Georgia,serif;font-size:clamp(1.6rem,7vw,2.5rem);font-weight:700;color:#fff6df;text-shadow:0 2px 14px #000;overflow-wrap:anywhere}
+.spin-card.landed{border-color:#ffe2a0;animation:spinLand 1s cubic-bezier(.2,.8,.2,1) both}
+.spin-seats{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:460px}
+.spin-seat{padding:5px 10px;border-radius:99px;border:1px solid #ffffff26;background:#ffffff0d;color:#cfc6b0;font-size:.78rem;font-weight:700;transition:background .1s,color .1s,border-color .1s}
+.spin-seat.on{background:#e5bc6f;border-color:#ffe2a0;color:#1c1408}
+.spin-result{min-height:1.6em;margin:0;color:#ffe3a3;font-size:clamp(1rem,4vw,1.25rem);font-weight:800}
+.spin-hint{margin:0;color:#bfb49b;font-size:.75rem}
+@keyframes spinTick{0%{transform:translateY(-7%) scale(.97);filter:brightness(1.5)}100%{transform:none;filter:none}}
+@keyframes spinLand{0%{transform:scale(.94);box-shadow:0 0 0 0 #ffe2a0}40%{transform:scale(1.04);box-shadow:0 0 0 14px #ffe2a033,0 0 80px #f2cb82aa}100%{transform:none;box-shadow:0 0 0 3px #ffe2a055,0 0 60px #f2cb8277}}
+@media(prefers-reduced-motion:reduce){.spin-card.tick,.spin-card.landed{animation:none}}
 
 /* Tabs, tournament setup, rounds and rankings */
 .top-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;border:1px solid var(--line);padding:5px;border-radius:15px;background:#191928}
@@ -445,6 +461,7 @@ body.match-focus .quick .btn{min-width:0}
   </div>
 </section>
 </main>
+<div id="spinOverlay" class="spin-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="spinTitle"><h2 id="spinTitle" class="spin-title">🎲 Wer beginnt?</h2><div id="spinCard" class="spin-card"><div id="spinName" class="spin-name"></div></div><div id="spinSeats" class="spin-seats" aria-hidden="true"></div><p id="spinResult" class="spin-result" aria-live="polite"></p><p id="spinHint" class="spin-hint">Tippen zum Überspringen</p></div>
 <div id="modalBackdrop" class="modal-back hidden" role="presentation"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><h2 id="modalTitle">Zähler</h2><button id="modalClose" class="icon-btn" type="button" aria-label="Schließen">×</button></div><div id="modalContent"></div></div></div>
 <script>
 (function(){
@@ -463,7 +480,35 @@ function setChoice(n){selectedCount=n;var buttons=el('playerChoices').querySelec
 function buildChoices(){var html='';for(var i=2;i<=8;i++)html+='<button type="button" class="choice" data-n="'+i+'" aria-label="'+i+' Spieler">'+i+'</button>';el('playerChoices').innerHTML=html;setChoice(selectedCount)}
 function revealSetup(){closeModal();closeGameMenu();document.body.classList.remove('table-mode');document.body.classList.remove('match-focus');el('setup').classList.remove('hidden');el('game').classList.add('hidden');el('gameTag').textContent='Neue Partie';el('announcement').classList.add('hidden')}
 function freshState(names){var life=limit(parseInt(el('startingLife').value,10)||40,1,999),n=names.length,players=[];for(var i=0;i<n;i++){var damages=[];for(var j=0;j<n;j++)damages.push(0);players.push({name:names[i],life:life,poison:0,experience:0,commander:damages})}return {version:2,mode:'table',starter:pickRandom(n),players:players}}
-function beginGame(event){if(event)event.preventDefault();var names=[];for(var i=0;i<selectedCount;i++)names.push('Spieler '+(i+1));state=freshState(names);history=[];store();render();announce('🎲 '+state.players[state.starter].name+' beginnt!');window.scrollTo(0,0)}
+function beginGame(event){if(event)event.preventDefault();var names=[];for(var i=0;i<selectedCount;i++)names.push('Spieler '+(i+1));state=freshState(names);history=[];store();render();el('announcement').classList.add('hidden');runStarterSpin();window.scrollTo(0,0)}
+// Starting player draw: the players' cards cycle one after another, slow down and stop at the drawn starter.
+// Uses the commander art of a player if one is attached (p.art from Scryfall), otherwise the player's colour.
+var spin=null;
+function spinShow(i,landed){
+ var p=state.players[i],card=el('spinCard'),art=typeof p.art==='string'&&/^https:\/\/cards\.scryfall\.io\//.test(p.art)?p.art:'';
+ card.style.setProperty('--spin-bg',art?'url("'+art.replace(/["\\]/g,'')+'")':'radial-gradient(circle at 50% 35%,'+PALETTE[i%PALETTE.length]+' 0,#141c1b 75%)');
+ card.classList.toggle('no-art',!art);el('spinName').textContent=p.name;
+ card.classList.remove('tick','landed');void card.offsetWidth;card.classList.add(landed?'landed':'tick');
+ var seats=el('spinSeats').children;for(var k=0;k<seats.length;k++)seats[k].classList.toggle('on',k===i);
+}
+function spinFinish(){
+ if(!spin)return;clearTimeout(spin.timer);
+ if(!spin.landed){spin.landed=true;spinShow(state.starter,true);el('spinResult').textContent='★ '+state.players[state.starter].name+' beginnt!';el('spinHint').textContent='Tippen zum Weiterspielen';spin.timer=setTimeout(spinClose,2600);return}
+}
+function spinClose(){if(!spin)return;clearTimeout(spin.timer);spin=null;el('spinOverlay').classList.add('hidden');if(state)announce((state.tournamentMatch?'🏆 Runde '+(state.tournamentMatch.round+1)+' · Tisch '+(state.tournamentMatch.table+1)+' — ':'')+'🎲 '+state.players[state.starter].name+' beginnt!')}
+function runStarterSpin(){
+ if(!state)return;closeGameMenu();if(spin){clearTimeout(spin.timer);spin=null}
+ var n=state.players.length,quick=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ el('spinSeats').innerHTML=state.players.map(function(p){return '<span class="spin-seat">'+esc(p.name)+'</span>'}).join('');
+ el('spinResult').textContent='';el('spinHint').textContent='Tippen zum Überspringen';el('spinOverlay').classList.remove('hidden');
+ // Enough steps for about three laps; the last step lands exactly on the drawn starter.
+ var from=pickRandom(n),steps=3*n+((state.starter-from-3*n)%n+n)%n,delays=[];
+ for(var k=0;k<steps;k++){var t=k/Math.max(1,steps-1);delays.push(Math.round(60+520*t*t*t))}
+ spin={timer:null,landed:false};
+ if(quick||n<2){spinFinish();return}
+ var at=from,k2=0;spinShow(at,false);
+ (function step(){if(!spin)return;if(k2>=steps){spinFinish();return}spin.timer=setTimeout(function(){at=(at+1)%n;k2++;if(k2>=steps){spinFinish();return}spinShow(at,false);step()},delays[k2])})();
+}
 function announce(message){el('announcement').textContent=message;el('announcement').classList.remove('hidden')}
 function gameSummaryHTML(){
  if(!state)return '';
@@ -895,8 +940,9 @@ function renderTournament(){
 // Opens a tournament table in the life counter with the participants' names already filled in.
 function launchTournamentMatch(round,table){
  var match=tournament&&tournament.schedule[round]&&tournament.schedule[round].tables[table];if(!match)return;
- state=freshState(match.players.map(function(idx){return tournament.players[idx]}));state.tournamentMatch={round:round,table:table};history=[];store();
- setTab('life');announce('🏆 Runde '+(round+1)+' · Tisch '+(table+1)+' — 🎲 '+state.players[state.starter].name+' beginnt!');
+ state=freshState(match.players.map(function(idx){return tournament.players[idx]}));state.tournamentMatch={round:round,table:table};
+ match.players.forEach(function(idx,k){var c=commanderOf(idx);if(c&&c.art)state.players[k].art=c.art});history=[];store();
+ setTab('life');el('announcement').classList.add('hidden');runStarterSpin();
 }
 function playTournamentMatch(table){
  if(!tournament||editingRound===null)return;
@@ -991,14 +1037,15 @@ if(window.PointerEvent){
  window.addEventListener('blur',endAllHolds);document.addEventListener('visibilitychange',function(){if(document.hidden)endAllHolds()});
 }
 el('mode').addEventListener('click',function(){if(!state)return;state.mode=state.mode==='table'?'standard':'table';store();render();window.scrollTo(0,0)});
-el('pick').addEventListener('click',function(){if(!state)return;remember();state.starter=pickRandom(state.players.length);store();render();announce('🎲 '+state.players[state.starter].name+' beginnt!')});
+el('pick').addEventListener('click',function(){if(!state)return;remember();state.starter=pickRandom(state.players.length);store();render();runStarterSpin()});
+el('spinOverlay').addEventListener('click',function(){if(spin&&!spin.landed)spinFinish();else spinClose()});
 el('undo').addEventListener('click',function(){if(!history.length)return;state=JSON.parse(history.pop());store();render()});
 el('reset').addEventListener('click',newGamePrompt);
 el('modalClose').addEventListener('click',closeModal);
 el('modalBackdrop').addEventListener('click',function(e){if(e.target===el('modalBackdrop'))closeModal()});
 el('modalContent').addEventListener('click',onModalClick);
 el('modalContent').addEventListener('change',onNameChange);
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(!el('gameMenu').classList.contains('hidden'))closeGameMenu();else closeModal()}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&spin){if(!spin.landed)spinFinish();else spinClose();return}if(e.key==='Escape'){if(!el('gameMenu').classList.contains('hidden'))closeGameMenu();else closeModal()}});
 if(restore()||migrate())render();else revealSetup()}
 initialize();
 })();
