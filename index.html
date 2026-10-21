@@ -20,6 +20,25 @@ body.table-mode{overflow:hidden;background:#11121d}body.table-mode .shell{width:
 @media(max-height:670px){body.table-mode .mast{display:none}body.table-mode .toolbar .btn{min-height:32px}body.table-mode .player-top{padding-top:2px}body.table-mode .quick .btn{min-height:30px}body.table-mode .life-value{font-size:clamp(1.9rem,8vh,4rem)}}
 @media(max-width:400px){body.table-mode .toolbar .btn{font-size:.67rem}body.table-mode .quick .btn{font-size:.64rem}}
 @media(prefers-reduced-motion:no-preference){.btn,.step,.mini,.choice{transition:filter .12s,transform .12s}}
+.dice-result{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:132px;margin:4px 0 6px;border:1px solid #d8b26a66;border-radius:16px;background:radial-gradient(circle at 50% 40%,#3a2f1d 0,#121b1a 75%);perspective:600px}
+.dice-face{font-family:Georgia,serif;font-size:clamp(2.6rem,12vw,3.6rem);font-weight:700;line-height:1.1;color:#fff1c9;font-variant-numeric:tabular-nums;text-shadow:0 2px 16px #000}
+.dice-label{font-size:.8rem;color:#cdbf9f;font-weight:700}
+.dice-face.rolling{animation:diceShake .12s linear infinite}
+.dice-face.flipping{animation:coinFlip .9s cubic-bezier(.3,.7,.3,1)}
+.dice-face.settle{animation:diceSettle .45s cubic-bezier(.2,.8,.2,1)}
+.dice-face.crit{color:#ffe28a;text-shadow:0 0 22px #f2cb82,0 2px 10px #000}.dice-face.fumble{color:#ff9a8a}
+.dice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.dice-grid .btn,.dice-coin{min-height:50px;font-size:1rem;font-weight:850}
+.dice-coin{width:100%}
+.dice-custom{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:10px}
+.dice-custom label{font-weight:800;color:#e9dcc0}
+.dice-custom input{min-height:48px}
+.dice-history{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.dice-history span{padding:4px 9px;border-radius:99px;background:#ffffff0f;border:1px solid #ffffff1f;font-size:.75rem;color:#d9ceb6}
+@keyframes diceShake{0%{transform:translate(0,0) rotate(0)}25%{transform:translate(-3px,1px) rotate(-6deg)}50%{transform:translate(2px,-2px) rotate(4deg)}75%{transform:translate(-1px,2px) rotate(-3deg)}100%{transform:translate(0,0) rotate(0)}}
+@keyframes coinFlip{0%{transform:rotateX(0) scale(1)}50%{transform:rotateX(900deg) scale(1.25)}100%{transform:rotateX(1800deg) scale(1)}}
+@keyframes diceSettle{0%{transform:scale(1.35);filter:brightness(1.8)}100%{transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){.dice-face.rolling,.dice-face.flipping,.dice-face.settle{animation:none}}
 
 /* Tabs, tournament setup, rounds and rankings */
 .top-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;border:1px solid var(--line);padding:5px;border-radius:15px;background:#191928}
@@ -353,6 +372,7 @@ body.match-focus .quick .btn{min-width:0}
     <div class="game-menu-grid">
       <button id="menuMode" class="btn" type="button">↕ Ansicht wechseln</button>
       <button id="menuPick" class="btn" type="button">🎲 Startspieler neu</button>
+      <button id="menuDice" class="btn" type="button">🪙 Münze & Würfel</button>
       <button id="menuUndo" class="btn" type="button">↶ Rückgängig</button>
       <button id="menuReset" class="btn warning" type="button">↻ Neue Partie</button>
       <button id="menuTournament" class="btn" type="button">🏆 Zum Turnier</button>
@@ -420,6 +440,43 @@ function setChoice(n){selectedCount=n;var buttons=el('playerChoices').querySelec
 function buildChoices(){var html='';for(var i=2;i<=8;i++)html+='<button type="button" class="choice" data-n="'+i+'" aria-label="'+i+' Spieler">'+i+'</button>';el('playerChoices').innerHTML=html;setChoice(selectedCount)}
 function revealSetup(){closeModal();closeGameMenu();document.body.classList.remove('table-mode');document.body.classList.remove('match-focus');el('setup').classList.remove('hidden');el('game').classList.add('hidden');el('gameTag').textContent='Neue Partie';el('announcement').classList.add('hidden')}
 function beginGame(event){if(event)event.preventDefault();var life=limit(parseInt(el('startingLife').value,10)||40,1,999);var n=selectedCount;var players=[];for(var i=0;i<n;i++){var damages=[];for(var j=0;j<n;j++)damages.push(0);players.push({name:'Spieler '+(i+1),life:life,poison:0,experience:0,commander:damages})}state={version:2,mode:'table',starter:pickRandom(n),players:players};history=[];store();render();announce('🎲 '+state.players[state.starter].name+' beginnt!');window.scrollTo(0,0)}
+// Coin flip and dice with any number of sides (W2–W1000), with a short roll animation and a small history for this session.
+var diceHistory=[],diceSides=100,diceTimer=null;
+function openDice(){
+ closeGameMenu();el('modalTitle').textContent='🪙 Münze & Würfel';
+ el('modalContent').innerHTML='<div class="dice-result"><span id="diceFace" class="dice-face">?</span><span id="diceLabel" class="dice-label" aria-live="polite">Wirf eine Münze oder einen Würfel.</span></div>'+
+ '<h3 class="section-label">Münze</h3><button type="button" class="btn primary dice-coin" data-roll="coin">🪙 Münze werfen</button>'+
+ '<h3 class="section-label">Würfel</h3><div class="dice-grid">'+[4,6,8,10,12,20].map(function(n){return '<button type="button" class="btn" data-roll="die" data-sides="'+n+'">W'+n+'</button>'}).join('')+'</div>'+
+ '<div class="dice-custom"><label for="diceSides">Eigener W</label><input id="diceSides" type="number" min="2" max="1000" step="1" inputmode="numeric" value="'+diceSides+'" aria-label="Anzahl der Seiten (2 bis 1000)"><button type="button" class="btn" data-roll="custom">Würfeln</button></div>'+
+ '<div id="diceHistory" class="dice-history" aria-label="Letzte Würfe"></div><div class="modal-actions"><button class="btn primary" type="button" id="modalDone">Fertig</button></div>';
+ activeModal=null;el('modalBackdrop').classList.remove('hidden');renderDiceHistory();
+}
+function renderDiceHistory(){var box=el('diceHistory');if(box)box.innerHTML=diceHistory.map(function(h){return '<span>'+esc(h)+'</span>'}).join('')}
+function rollDice(kind,sides){
+ var face=el('diceFace'),label=el('diceLabel');if(!face)return;clearInterval(diceTimer);
+ var coin=kind==='coin',result=coin?pickRandom(2):pickRandom(sides)+1,name=coin?'Münze':'W'+sides;
+ var text=coin?(result===0?'Kopf':'Zahl'):String(result),quick=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ function done(){
+  clearInterval(diceTimer);diceTimer=null;face.textContent=text;face.className='dice-face';void face.offsetWidth;
+  var crit=!coin&&sides>=6&&result===sides,fumble=!coin&&sides>=6&&result===1;
+  face.classList.add('settle');if(crit)face.classList.add('crit');if(fumble)face.classList.add('fumble');
+  label.textContent=name+(coin?'':' · 1–'+sides)+(crit?' · Höchstwurf!':fumble?' · Eins!':'');
+  diceHistory.unshift(name+': '+text);diceHistory=diceHistory.slice(0,10);renderDiceHistory();
+ }
+ face.className='dice-face';void face.offsetWidth;label.textContent=coin?'Die Münze fliegt …':name+' rollt …';
+ if(quick){done();return}
+ if(coin){face.textContent='🪙';face.classList.add('flipping');diceTimer=setTimeout(done,900);return}
+ face.classList.add('rolling');var ticks=0;
+ diceTimer=setInterval(function(){face.textContent=String(pickRandom(sides)+1);if(++ticks>=12)done()},60);
+}
+function onDiceClick(e){
+ var b=e.target.closest('button[data-roll]');if(!b)return;var kind=b.getAttribute('data-roll');
+ if(kind==='coin'){rollDice('coin');return}
+ if(kind==='die'){rollDice('die',Number(b.getAttribute('data-sides')));return}
+ var input=el('diceSides'),n=parseInt(input.value,10);
+ if(!Number.isInteger(n)||n<2||n>1000){input.reportValidity();return}
+ diceSides=n;rollDice('die',n);
+}
 function announce(message){el('announcement').textContent=message;el('announcement').classList.remove('hidden')}
 function gameSummaryHTML(){
  if(!state)return '';
@@ -569,7 +626,7 @@ function render(){
 }
 function adjust(i,key,d,source){if(!state||!state.players[i]||!Number.isFinite(d))return;var p=state.players[i];remember();if(key==='life')p.life=limit(p.life+d,-999,999);else if(key==='commander'){if(!Number.isInteger(source)||source<0||source>=state.players.length||source===i){history.pop();return}p.commander[source]=limit(p.commander[source]+d,0,999)}else if(key==='poison'||key==='experience')p[key]=limit(p[key]+d,0,999);else{history.pop();return}store();render()}
 function openModal(i){if(!state||!state.players[i])return;closeGameMenu();activeModal=i;el('modalBackdrop').classList.remove('hidden');renderModal()}
-function closeModal(){activeModal=null;el('modalBackdrop').classList.add('hidden')}
+function closeModal(){clearInterval(diceTimer);clearTimeout(diceTimer);diceTimer=null;activeModal=null;el('modalBackdrop').classList.add('hidden')}
 function counterHTML(title,i,key,value,source){var extra=typeof source==='number'?' data-source="'+source+'"':'';return '<div class="counter-row"><span class="who">'+esc(title)+'</span><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="-1"'+extra+' aria-label="'+esc(title)+' reduzieren">−</button><output>'+value+'</output><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="1"'+extra+' aria-label="'+esc(title)+' erhöhen">+</button></div>'}
 function renderModal(){if(activeModal===null||!state||!state.players[activeModal])return;var i=activeModal,p=state.players[i];el('modalTitle').textContent=p.name+' · Zähler';var html='<div class="field"><label for="editName">Spielername</label><input id="editName" type="text" maxlength="35" autocomplete="off" value="'+esc(p.name)+'"></div>';
 html+='<h3 class="section-label">Status & Marken</h3>'+counterHTML('☠ Giftmarken',i,'poison',p.poison)+counterHTML('✦ Erfahrungsmarken',i,'experience',p.experience);
@@ -777,6 +834,9 @@ el('menuClosePrimary').addEventListener('click',closeGameMenu);
 el('gameMenuBackdrop').addEventListener('click',closeGameMenu);
 el('menuMode').addEventListener('click',function(){el('mode').click();renderGameMenu()});
 el('menuPick').addEventListener('click',function(){el('pick').click();renderGameMenu()});
+el('menuDice').addEventListener('click',openDice);
+el('modalContent').addEventListener('click',onDiceClick);
+el('modalContent').addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.id==='diceSides'){e.preventDefault();var b=el('modalContent').querySelector('button[data-roll="custom"]');if(b)b.click()}});
 el('menuUndo').addEventListener('click',function(){el('undo').click();renderGameMenu()});
 el('menuReset').addEventListener('click',function(){closeGameMenu();el('reset').click()});
 el('menuTournament').addEventListener('click',function(){closeGameMenu();setTab('tournament')});
