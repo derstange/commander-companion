@@ -504,7 +504,7 @@ function freshState(names){var life=limit(parseInt(el('startingLife').value,10)|
 function beginGame(event){if(event)event.preventDefault();var names=[];for(var i=0;i<selectedCount;i++)names.push('Spieler '+(i+1));state=freshState(names);history=[];store();render();el('announcement').classList.add('hidden');runStarterSpin();window.scrollTo(0,0)}
 // Starting player draw: the players' cards cycle one after another, slow down and stop at the drawn starter.
 // Uses the commander art of a player if one is attached (p.art from Scryfall), otherwise the player's colour.
-var spin=null,SPIN_MS=5700;
+var spin=null,SPIN_MS=3500;
 function spinShow(i,landed){
  var p=state.players[i],card=el('spinCard'),art=typeof p.art==='string'&&/^https:\/\/cards\.scryfall\.io\//.test(p.art)?p.art:'';
  card.style.setProperty('--spin-bg',art?'url("'+art.replace(/["\\]/g,'')+'")':'radial-gradient(circle at 50% 35%,'+PALETTE[i%PALETTE.length]+' 0,#141c1b 75%)');
