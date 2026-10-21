@@ -458,14 +458,15 @@ function runStarterSpin(){
  el('spinSeats').innerHTML=state.players.map(function(p){return '<span class="spin-seat">'+esc(p.name)+'</span>'}).join('');
  el('spinResult').textContent='';el('spinHint').textContent='Tippen zum Überspringen';el('spinOverlay').classList.remove('hidden');
  // At least three laps and about 24 cards; the last step lands exactly on the drawn starter.
- // The steps slow down (cubic) and are scaled so the draw takes SPIN_MS regardless of the player count.
+ // The steps slow down (cubic) and are scaled so the draw takes SPIN_MS regardless of the player count;
+ // each change is scheduled against the start time so timer delays do not add up.
  var laps=Math.max(3,Math.ceil(24/n)),from=pickRandom(n),steps=laps*n+((state.starter-from-laps*n)%n+n)%n,raw=[],sum=0,delays=[];
  for(var k=0;k<steps;k++){var t=k/Math.max(1,steps-1);raw.push(1+9*t*t*t);sum+=raw[k]}
  for(k=0;k<steps;k++)delays.push(Math.round(raw[k]*SPIN_MS/sum));
  spin={timer:null,landed:false};
  if(quick||n<2){spinFinish();return}
- var at=from,k2=0;spinShow(at,false);
- (function step(){if(!spin)return;if(k2>=steps){spinFinish();return}spin.timer=setTimeout(function(){at=(at+1)%n;k2++;if(k2>=steps){spinFinish();return}spinShow(at,false);step()},delays[k2])})();
+ var at=from,k2=0,t0=Date.now(),due=0;spinShow(at,false);
+ (function step(){if(!spin)return;if(k2>=steps){spinFinish();return}due+=delays[k2];spin.timer=setTimeout(function(){at=(at+1)%n;k2++;if(k2>=steps){spinFinish();return}spinShow(at,false);step()},Math.max(0,t0+due-Date.now()))})();
 }
 function announce(message){el('announcement').textContent=message;el('announcement').classList.remove('hidden')}
 function gameSummaryHTML(){
