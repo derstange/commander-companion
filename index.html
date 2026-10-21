@@ -76,7 +76,7 @@ body:not(.table-mode):before,body:not(.table-mode):after{content:"✧";pointer-e
 body:not(.table-mode):before{top:6%;left:-27px}body:not(.table-mode):after{right:-15px;bottom:-20px;transform:rotate(25deg)}
 .shell{position:relative;z-index:1}
 .mast{padding:11px 9px 16px;border-bottom:1px solid #a7835136}
-.crest{font:2.9rem Georgia,serif;color:var(--gold);text-shadow:0 0 23px #d4b77866}
+.crest{display:block;flex:0 0 auto;width:auto;height:56px;filter:drop-shadow(0 0 12px #d4b77840)}
 .mast h1,.setup h2,.tour-card h2,.tour-card h3,.modal h2{font-family:Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:.008em;color:#f7e8c3}
 .mast h1 small{font:600 .56em Georgia,serif;color:var(--gold)}
 .eyebrow{color:#cba96e;letter-spacing:.21em}
@@ -137,7 +137,7 @@ input::placeholder{color:#9b9888}
 .round-bye{font-size:.78rem;color:#cbb994}
 .table-badge{display:inline-block;border:1px solid #987c486f;border-radius:7px;padding:3px 6px;margin:2px 4px 2px 0;color:#ecd6a9;line-height:1.4}
 .tour-head .btn{flex-shrink:0}
-@media(max-width:560px){.mast h1{font-size:1.05rem}.mast h1 small{font-size:.65em}.crest{font-size:2.1rem}.eyebrow{letter-spacing:.11em}.round-pager .btn{font-size:.76rem;padding:10px 8px}.match-card{padding:12px}.tour-head{align-items:center}.round-item .round-result{flex-basis:150px!important}.tour-card h2{font-size:1.4rem}}
+@media(max-width:560px){.mast h1{font-size:1.05rem}.mast h1 small{font-size:.65em}.crest{height:44px}.eyebrow{letter-spacing:.11em}.round-pager .btn{font-size:.76rem;padding:10px 8px}.match-card{padding:12px}.tour-head{align-items:center}.round-item .round-result{flex-basis:150px!important}.tour-card h2{font-size:1.4rem}}
 @media(max-width:375px){.top-tabs .tab{font-size:.85rem}.round-pager{gap:4px}.round-pager span{font-size:.66rem}.round-pager .btn{padding:10px 5px}.mast .chip{font-size:.57rem}}
 /* In tabletop mode keep every player's panel as the only focus. */
 body.table-mode{background:#07110e}body.table-mode .mast{padding:0;border:none}body.table-mode .tab{font-family:system-ui,sans-serif}body.table-mode .player:before{display:none}
@@ -315,10 +315,13 @@ body.match-focus .bottom-status{flex:0 0 auto}
 /* Center orb sits in the gap between opponent zones, never in a header. */
 .menu-fab{position:fixed;z-index:18;top:50%;left:50%;bottom:auto;width:44px;height:44px;min-height:44px;padding:0;transform:translate(-50%,-50%);border-radius:50%;font-size:1.2rem;line-height:1;box-shadow:0 0 0 3px #09130f,0 8px 22px #000c;}
 .menu-fab:active{transform:translate(-50%,-50%) scale(.95)}
+/* The guild crest itself is the button; a drop shadow lifts it off the player zones. */
+.menu-fab{width:auto;height:auto;min-height:0;padding:0;background:none;border:0;border-radius:0;box-shadow:none}
+.menu-fab-crest{display:block;width:auto;height:54px;pointer-events:none;filter:drop-shadow(0 0 1.5px #000) drop-shadow(0 4px 8px #000b)}
 .game-menu-sheet{max-height:calc(100dvh - 14px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;overscroll-behavior:contain}
 .menu-wake-status{margin:10px 0 0;color:#ded3b5;font-size:.76rem;line-height:1.4}
 .menu-wake-status.warning{color:#f5c47f}
-@media(max-width:520px){.game-menu-sheet{padding:14px}.menu-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.game-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.menu-fab{width:40px;height:40px;min-height:40px;font-size:1.08rem}}
+@media(max-width:520px){.game-menu-sheet{padding:14px}.menu-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.game-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.menu-fab-crest{height:48px}}
 @media(max-width:380px){.menu-summary,.game-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-height:640px){.game-menu-head{margin-bottom:5px}.menu-summary{margin-bottom:7px}.game-menu-grid .btn{min-height:40px;padding:7px 5px}}
 
@@ -337,7 +340,7 @@ body.match-focus .quick .btn{min-width:0}
 </head>
 <body>
 <main class="shell">
-<header class="mast"><div class="brand"><span class="crest" aria-hidden="true">✦</span><div><p class="eyebrow">✧ Das Archiv der Ebenenwandler ✧</p><h1>Commander Companion <small>VIII.2</small></h1></div></div><span id="gameTag" class="chip">Neue Partie</span></header>
+<header class="mast"><div class="brand"><img class="crest" src="./crest-1x.webp" srcset="./crest-1x.webp 1x, ./crest-2x.webp 2x, ./crest-3x.webp 3x" width="43" height="56" alt=""><div><p class="eyebrow">✧ Das Archiv der Ebenenwandler ✧</p><h1>Commander Companion <small>VIII.2</small></h1></div></div><span id="gameTag" class="chip">Neue Partie</span></header>
 <nav class="top-tabs" aria-label="Bereiche"><button id="tabLife" class="tab" type="button" aria-selected="true" aria-controls="lifePanel">⚔ Lebenszähler</button><button id="tabTournament" class="tab" type="button" aria-selected="false" aria-controls="tournamentPanel">🏆 Turnier</button></nav>
 <section class="backup-tools" aria-label="Spielstand sichern und wiederherstellen">
 <button id="backupExport" class="btn" type="button">⇩ Spielstand sichern</button>
@@ -359,7 +362,7 @@ body.match-focus .quick .btn{min-width:0}
 <div id="announcement" class="notice hidden" role="status" aria-live="polite"></div>
 <div id="board" class="board"></div>
 <p class="footnote">Tipp: Auf „☠ Gift“ oder „⚔ Schaden“ tippen, um die Spezialzähler zu öffnen. Commander-Schaden wird nach verursachendem Commander erfasst; Lebenspunkte werden dabei nicht automatisch verändert.</p>
-<button id="menuFab" class="menu-fab hidden" type="button" aria-haspopup="dialog" aria-controls="gameMenu" aria-expanded="false" aria-label="Zentrales Spielmenü öffnen">☰</button>
+<button id="menuFab" class="menu-fab hidden" type="button" aria-haspopup="dialog" aria-controls="gameMenu" aria-expanded="false" aria-label="Zentrales Spielmenü öffnen"><img class="menu-fab-crest" src="./crest-1x.webp" srcset="./crest-1x.webp 1x, ./crest-2x.webp 2x, ./crest-3x.webp 3x" width="26" height="34" alt=""></button>
 <div id="gameMenu" class="game-menu hidden" role="presentation">
   <button id="gameMenuBackdrop" class="game-menu-backdrop" type="button" aria-label="Menü schließen"></button>
   <section class="game-menu-sheet" role="dialog" aria-modal="true" aria-labelledby="gameMenuTitle">
