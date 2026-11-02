@@ -553,6 +553,15 @@ button.fs-node.center:hover,button.fs-node.center:focus-visible{background:linea
 .link-btn{background:none;border:0;padding:6px 4px;color:var(--gold);font-weight:700;font-size:.82rem;text-decoration:underline;text-underline-offset:3px}
 .link-btn:hover,.link-btn:focus-visible{color:#fff1c9}
 .backup-feedback{margin:8px 0 0;min-height:1em}
+.spin-artist{position:absolute;top:8px;right:10px;z-index:1;padding:2px 8px;border-radius:999px;background:#000a;color:#f3e7c9;font-size:.72rem}
+.spin-artist:empty{display:none}
+.legal{margin:26px auto 8px;max-width:760px;text-align:center;color:var(--muted);font-size:.72rem;line-height:1.45;opacity:.8}
+.legal p{margin:4px 0}
+.legal a{color:inherit}
+body.table-mode .legal{display:none}
+.art-credits:empty,.fs-credits:empty{display:none}
+.fs-credits{position:relative;z-index:1;margin:0;text-align:center;color:var(--muted);font-size:.72rem;opacity:.8}
+.cmd-option small{display:block;color:var(--muted);font-size:.72rem}
 </style>
 </head>
 <body>
@@ -636,11 +645,13 @@ button.fs-node.center:hover,button.fs-node.center:focus-visible{background:linea
       <p class="notice-inline">Rangfolge nach Siegen. Bei Gleichstand teilen sich die Spieler denselben Platz. Betrifft ein Gleichstand die Plätze 1–3, entscheidet nach der letzten Runde eine Finalrunde. „Gespielt“ zählt dokumentierte Partien; „Pausen“ zeigt die Pausen im gesamten Turnierplan.</p>
     </div>
     <div class="tour-card"><div class="tour-head"><div><p class="eyebrow">Ergebnisarchiv</p><h2>Alle Runden</h2></div></div><div id="roundsList" class="rounds-list"></div><p class="notice-inline">Alle Paarungen sind vorab festgelegt. Über „Ansehen“ kannst du Rundensieger jederzeit nachtragen oder ändern. Die Durchmischung ist heuristisch optimiert. Ausnahme bei 7 Spielern: Dort ist garantiert, dass in je 7 Runden jeder genau einmal pausiert und auf jeden anderen genau zweimal trifft.</p></div>
+    <p id="tourCredits" class="notice-inline tiny art-credits"></p>
   </div>
 </section>
+<footer class="legal"><p>Commander Companion ist inoffizieller Fan-Content gemäß der Fan Content Policy von Wizards of the Coast. Nicht von Wizards genehmigt oder unterstützt. Teile der verwendeten Materialien sind Eigentum von Wizards of the Coast. ©Wizards of the Coast LLC.</p><p>Kartendaten und -bilder: <a href="https://scryfall.com" target="_blank" rel="noopener">Scryfall</a>. Illustrationen © der jeweiligen Künstler und Wizards of the Coast.</p></footer>
 </main>
-<div id="fsView" class="fs-view hidden" role="dialog" aria-modal="true" aria-labelledby="fsTitle"><img class="fs-crest-bg" src="./crest-3x.webp" alt=""><header class="fs-head"><div class="fs-brand"><img src="./crest-1x.webp" srcset="./crest-1x.webp 1x, ./crest-2x.webp 2x, ./crest-3x.webp 3x" alt=""><div><p class="eyebrow">✧ Turnierübersicht ✧</p><h2 id="fsTitle">Commander-Turnier</h2></div></div><div class="fs-progress"><div id="fsMetrics" class="tour-metrics"></div><div class="progress-track"><div class="progress-fill" id="fsProgressFill"></div></div></div><button type="button" id="fsClose" class="btn fs-close">✕ Vollbild beenden</button></header><div class="fs-body"><section class="fs-col" aria-label="Rangliste"><h3>🏅 Rangliste</h3><div id="fsRanking" class="fs-rank"></div></section><section class="fs-col" aria-label="Begegnungen"><div class="fs-tabs" role="tablist" aria-label="Ansicht"><button type="button" role="tab" data-fs-tab="round">⚔ Runde</button><button type="button" role="tab" data-fs-tab="pairs">🕸 Paarungen</button></div><div id="fsRound"></div><div id="fsPairs" hidden></div></section><section class="fs-col" aria-label="Alle Runden"><h3>📜 Alle Runden</h3><div id="fsRounds" class="fs-rounds"></div></section></div></div>
-<div id="spinOverlay" class="spin-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="spinTitle"><h2 id="spinTitle" class="spin-title">🎲 Wer beginnt?</h2><div id="spinCard" class="spin-card"><div id="spinName" class="spin-name"></div></div><div id="spinSeats" class="spin-seats" aria-hidden="true"></div><p id="spinResult" class="spin-result" aria-live="polite"></p><p id="spinHint" class="spin-hint">Tippen zum Überspringen</p></div>
+<div id="fsView" class="fs-view hidden" role="dialog" aria-modal="true" aria-labelledby="fsTitle"><img class="fs-crest-bg" src="./crest-3x.webp" alt=""><header class="fs-head"><div class="fs-brand"><img src="./crest-1x.webp" srcset="./crest-1x.webp 1x, ./crest-2x.webp 2x, ./crest-3x.webp 3x" alt=""><div><p class="eyebrow">✧ Turnierübersicht ✧</p><h2 id="fsTitle">Commander-Turnier</h2></div></div><div class="fs-progress"><div id="fsMetrics" class="tour-metrics"></div><div class="progress-track"><div class="progress-fill" id="fsProgressFill"></div></div></div><button type="button" id="fsClose" class="btn fs-close">✕ Vollbild beenden</button></header><div class="fs-body"><section class="fs-col" aria-label="Rangliste"><h3>🏅 Rangliste</h3><div id="fsRanking" class="fs-rank"></div></section><section class="fs-col" aria-label="Begegnungen"><div class="fs-tabs" role="tablist" aria-label="Ansicht"><button type="button" role="tab" data-fs-tab="round">⚔ Runde</button><button type="button" role="tab" data-fs-tab="pairs">🕸 Paarungen</button></div><div id="fsRound"></div><div id="fsPairs" hidden></div></section><section class="fs-col" aria-label="Alle Runden"><h3>📜 Alle Runden</h3><div id="fsRounds" class="fs-rounds"></div></section></div><p id="fsCredits" class="fs-credits"></p></div>
+<div id="spinOverlay" class="spin-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="spinTitle"><h2 id="spinTitle" class="spin-title">🎲 Wer beginnt?</h2><div id="spinCard" class="spin-card"><div id="spinName" class="spin-name"></div><div id="spinArtist" class="spin-artist"></div></div><div id="spinSeats" class="spin-seats" aria-hidden="true"></div><p id="spinResult" class="spin-result" aria-live="polite"></p><p id="spinHint" class="spin-hint">Tippen zum Überspringen</p></div>
 <div id="modalBackdrop" class="modal-back hidden" role="presentation"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><h2 id="modalTitle">Zähler</h2><button id="modalClose" class="icon-btn" type="button" aria-label="Schließen">×</button></div><div id="modalContent"></div></div></div>
 <script>
 (function(){
@@ -681,7 +692,7 @@ var spin=null,SPIN_MS=3500;
 function spinShow(i,landed){
  var p=state.players[i],card=el('spinCard'),art=typeof p.art==='string'&&/^https:\/\/cards\.scryfall\.io\//.test(p.art)?p.art:'';
  card.style.setProperty('--spin-bg',art?'url("'+art.replace(/["\\]/g,'')+'")':'radial-gradient(circle at 50% 35%,'+PALETTE[i%PALETTE.length]+' 0,#141c1b 75%)');
- card.classList.toggle('no-art',!art);el('spinName').textContent=p.name;
+ card.classList.toggle('no-art',!art);el('spinName').textContent=p.name;el('spinArtist').textContent=art&&p.artist?'🎨 '+p.artist:'';
  card.classList.remove('tick','landed');void card.offsetWidth;card.classList.add(landed?'landed':'tick');
  var seats=el('spinSeats').children;for(var k=0;k<seats.length;k++)seats[k].classList.toggle('on',k===i);
 }
@@ -1137,7 +1148,7 @@ function searchCommanders(input){
   .then(function(r){if(r.status===404)return {data:[]};if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
   .then(function(d){
    var list=(d.data||[]).map(cmdFromCard).filter(validCommander).slice(0,8);cmdResults[key]=list;
-   box.innerHTML=list.length?list.map(function(c,i){return '<button type="button" class="cmd-option" role="option" data-pick="'+i+'">'+(c.art?'<img src="'+esc(c.art)+'" alt="" loading="lazy">':'')+'<span>'+esc(c.name)+'</span></button>'}).join(''):'<p class="cmd-msg">Kein Commander gefunden.</p>';
+   box.innerHTML=list.length?list.map(function(c,i){return '<button type="button" class="cmd-option" role="option" data-pick="'+i+'">'+(c.art?'<img src="'+esc(c.art)+'" alt="" loading="lazy">':'')+'<span>'+esc(c.name)+(c.artist?'<small>🎨 '+esc(c.artist)+'</small>':'')+'</span></button>'}).join(''):'<p class="cmd-msg">Kein Commander gefunden.</p>';
   })
   .catch(function(e){if(e&&e.name==='AbortError')return;box.innerHTML='<p class="cmd-msg">Suche nicht möglich. Bist du offline?</p>'});
  },300);
@@ -1268,7 +1279,10 @@ function renderRoundEditor(){
  if(veiled){el('revealStage').innerHTML='<button type="button" class="btn primary reveal-go" id="revealGo">✨ Tische enthüllen</button>';el('roundHint').textContent='Die Tische dieser Runde sind noch verdeckt.'}
  el('roundStatus').textContent=done+' von '+round.tables.length+' '+(round.tables.length===1?'Partie':'Partien')+' abgeschlossen. Änderungen werden sofort gespeichert.';
 }
+// Scryfall asks to credit the artist wherever only the cropped artwork (no card frame) is shown.
+function artCredits(){if(!tournament)return '';var seen={},names=[];tournament.players.forEach(function(_,i){cmdCards(commanderOf(i)).forEach(function(x){if(x.art&&x.artist&&!seen[x.artist]){seen[x.artist]=true;names.push(x.artist)}})});return names.length?'🎨 Illustrationen: '+names.join(', ')+' · Kartenbilder via Scryfall · Magic: The Gathering ©Wizards of the Coast':''}
 function renderTournament(){
+ el('tourCredits').textContent=artCredits();
  syncTourChoice();var started=!!tournament;el('tournamentSetup').classList.toggle('hidden',started);el('tournamentActive').classList.toggle('hidden',!started);if(!started){syncPairingPreview();return}
  syncFinals();var total=visibleRounds(),finals=total-tournament.rounds;
  var matches=0,done=0,rDone=0;for(var r=0;r<total;r++){var completed=true;for(var j=0;j<tournament.schedule[r].tables.length;j++){matches++;if(tournament.schedule[r].tables[j].winner!==null)done++;else completed=false}if(completed&&r<tournament.rounds)rDone++}
@@ -1292,7 +1306,7 @@ function renderTournament(){
 function launchTournamentMatch(round,table){
  var match=tournament&&tournament.schedule[round]&&tournament.schedule[round].tables[table];if(!match)return;
  state=freshState(match.players.map(function(idx){return tournament.players[idx]}));state.tournamentMatch={round:round,table:table,label:roundLabel(round)};
- match.players.forEach(function(idx,k){var c=commanderOf(idx);if(c&&c.art)state.players[k].art=c.art});history=[];store();
+ match.players.forEach(function(idx,k){var c=commanderOf(idx);if(c&&c.art){state.players[k].art=c.art;if(c.artist)state.players[k].artist=c.artist}});history=[];store();
  setTab('life');el('announcement').classList.add('hidden');runStarterSpin();
 }
 function playTournamentMatch(table){
@@ -1429,6 +1443,7 @@ function boardRound(){var total=visibleRounds();if(fsRound!==null&&fsRound<total
 function artBox(idx){var c=commanderOf(idx),imgs=cmdArtImgs(c);return imgs?'<span class="fs-art'+(c.partner&&c.partner.art&&c.art?' duo':'')+'">'+imgs+'</span>':'<span class="fs-art none">🃏</span>'}
 function renderBoard(){
  if(!tournament){closeBoard();return}
+ el('fsCredits').textContent=artCredits();
  var total=visibleRounds(),r=boardRound(),open=nextOpenRound(),round=tournament.schedule[r];
  el('fsTitle').textContent=el('tourTitle').textContent;el('fsMetrics').innerHTML=el('tourMetrics').innerHTML;el('fsProgressFill').style.width=el('tourProgress').style.width;
  if(fsPlayer!==null&&!tournament.players[fsPlayer])fsPlayer=null;
