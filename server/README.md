@@ -1,0 +1,79 @@
+# Lokaler Turnier-Server (optional)
+
+Die App läuft normalerweise nur im Browser (GitHub Pages, auf dem iPhone installierbar). Dieser kleine
+Python-Server ist **optional**. Für einen Turnierabend auf Laptop oder Raspberry Pi starten:
+
+- Alle Handys im WLAN öffnen die App per QR-Code und sehen **dasselbe Turnier**.
+- Die Handys starten Tische („Tisch starten“) und tragen Sieger ein.
+- Laptop/Beamer zeigt die Vollbild-Übersicht (`⛶ Vollbild`). Sie aktualisiert sich live und zeigt oben rechts den QR-Code.
+
+Der Lebenszähler bleibt auf jedem Gerät für sich. Ohne Server verhält sich die App genau wie bisher.
+
+## Einrichten (einmalig)
+
+Python 3.8 oder neuer. Im Repository-Ordner ausführen:
+
+**Windows (PowerShell)**
+```powershell
+python -m venv server\.venv
+server\.venv\Scripts\python -m pip install -r server\requirements.txt
+```
+
+**Raspberry Pi / Linux / macOS**
+```bash
+python3 -m venv server/.venv
+server/.venv/bin/pip install -r server/requirements.txt
+```
+
+## Starten
+
+```powershell
+server\.venv\Scripts\python server\serve.py          # Windows
+```
+```bash
+server/.venv/bin/python server/serve.py              # Pi / Linux / macOS
+```
+
+Im Terminal erscheinen die Adresse (z.B. `http://192.168.1.20:8000/`) und ein QR-Code.
+
+- **Großer Bildschirm:** auf dem Server-Rechner `http://localhost:8000/` öffnen → Turnier → `⛶ Vollbild`.
+- **Handys:** QR-Code oben rechts in der Vollbild-Übersicht scannen (öffnet in Safari/Chrome).
+- Auf der Turnierseite zeigt `● Live über …` die Verbindung an.
+
+Optionen: `--port 8080`, `--host 192.168.1.20` (Adresse im QR-Code, falls die automatisch erkannte nicht passt).
+Windows fragt beim ersten Start evtl., ob Python ins Netzwerk darf: **private Netzwerke** erlauben.
+
+Das Turnier liegt in `server/data/tournament.json` (nicht in git) und übersteht einen Neustart.
+„Neues Turnier“ in der App löscht es für alle.
+
+## Gut zu wissen
+
+- Über die lokale Adresse (`http://…`) läuft die App als normaler Browser-Tab, nicht installierbar und nicht offline.
+  Dafür weiterhin die GitHub-Adresse nutzen. Die von GitHub installierte App erreicht den lokalen Server nicht.
+- Lokale Adresse und GitHub-App haben getrennte Daten. Ein Turnier überträgst du mit „Turnier sichern“ auf
+  dem einen und „Turnier laden“ auf dem anderen Gerät. Hat ein Gerät schon ein Turnier und der Server noch keins,
+  fragt die App, ob es geteilt werden soll.
+- Speichern zwei Handys gleichzeitig, bleiben beide Änderungen erhalten (z.B. Sieger an verschiedenen Tischen).
+- Der Server liefert nur die App-Dateien aus, nicht `server/`, `tests/` oder `.git`. Er hat kein Passwort:
+  nur in einem vertrauenswürdigen WLAN betreiben.
+
+## Raspberry Pi: automatisch starten (optional)
+
+`/etc/systemd/system/commander.service` (Pfad und Benutzer anpassen):
+```ini
+[Unit]
+Description=Commander Companion
+After=network-online.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/commander-companion
+ExecStart=/home/pi/commander-companion/server/.venv/bin/python server/serve.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+```bash
+sudo systemctl enable --now commander
+```

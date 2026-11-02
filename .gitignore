@@ -1,3 +1,8 @@
 # GIMP-Arbeitsdateien und alte Wappen-Versionen (zu groß fürs Repo)
 *.xcf
 gilden_wappen/superseded/
+
+# Lokaler Turnier-Server: virtuelle Umgebung und gespeicherter Turnierstand
+server/.venv/
+server/data/
+__pycache__/
