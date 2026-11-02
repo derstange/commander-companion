@@ -464,6 +464,25 @@ body.match-focus .quick .btn{min-width:0}
 .fs-round-tables{margin-top:5px;display:grid;gap:3px;font-size:.76rem;color:var(--muted)}
 .fs-round-tables b{color:#fff1c9}
 body.fs-open{overflow:hidden}
+/* Life counter setup: pick a tournament table instead of a player count */
+.tour-choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:1.05rem;border-style:dashed;border-color:#d8b26a99}
+.tour-choice[hidden]{display:none}
+.tour-choice small{font-size:.66rem;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.05em}
+.pick-rounds{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px;margin-top:8px;scrollbar-width:thin}
+.pick-round{flex:0 0 auto;padding:6px 11px;border-radius:99px;background:#ffffff0b;border:1px solid #ffffff22;font-weight:800;font-size:.82rem;color:var(--muted)}
+.pick-round.done{color:var(--gold)}
+.pick-round.selected{background:linear-gradient(135deg,#5e4a31,#3d3829);border-color:#f2cb82;color:#fff1c9}
+.pick-matches{display:grid;gap:9px}
+.pick-match{display:block;width:100%;text-align:left;padding:10px 11px;border-radius:14px;background:#ffffff0b;border:1px solid #9f7c4a82;color:var(--ink)}
+.pick-match:hover,.pick-match:focus-visible{background:#ffffff16;border-color:#f2cb82}
+.pick-match.done{opacity:.7}
+.pick-match-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:.88rem}
+.pick-match-head span{color:var(--muted);font-weight:700;font-size:.8rem}
+.pick-match.done .pick-match-head span{color:var(--gold)}
+.pick-match-players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.pick-player{display:flex;align-items:center;gap:7px;min-width:0;font-size:.85rem;font-weight:700}
+.pick-player .fs-art{flex:0 0 auto;width:40px;height:30px}
+.pick-player>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* Fullscreen board is desktop-only: wide screen with mouse/trackpad. Must match DESKTOP_QUERY in the script. */
 #tourBoard{display:none}
 @media(min-width:901px) and (hover:hover) and (pointer:fine){#tourBoard{display:inline-flex}}
@@ -538,7 +557,7 @@ button.fs-node.center:hover,button.fs-node.center:focus-visible{background:linea
 </head>
 <body>
 <main class="shell">
-<header class="mast"><div class="brand"><img class="crest" src="./crest-1x.webp" srcset="./crest-1x.webp 1x, ./crest-2x.webp 2x, ./crest-3x.webp 3x" width="43" height="56" alt=""><div><p class="eyebrow">✧ Das Archiv der Ebenenwandler ✧</p><h1>Commander Companion <small>VIII.2</small></h1></div></div><span id="gameTag" class="chip">Neue Partie</span></header>
+<header class="mast"><div class="brand"><img class="crest" src="./crest-1x.webp" srcset="./crest-1x.webp 1x, ./crest-2x.webp 2x, ./crest-3x.webp 3x" width="43" height="56" alt=""><div><p class="eyebrow">✧ Das Archiv der Ebenenwandler ✧</p><h1>Commander Companion <small>VIII.2</small></h1></div></div></header>
 <nav class="top-tabs" aria-label="Bereiche"><button id="tabLife" class="tab" type="button" aria-selected="true" aria-controls="lifePanel">⚔ Lebenszähler</button><button id="tabTournament" class="tab" type="button" aria-selected="false" aria-controls="tournamentPanel">🏆 Turnier</button></nav>
 <input id="gameFile" class="hidden" type="file" accept=".json,application/json" aria-label="Gespeichertes Spiel auswählen">
 <input id="tourFile" class="hidden" type="file" accept=".json,application/json" aria-label="Gespeichertes Turnier auswählen">
@@ -637,8 +656,23 @@ function store(){try{window.localStorage.setItem(STORAGE,JSON.stringify(state))}
 function discard(){try{window.localStorage.removeItem(STORAGE)}catch(e){}}
 function remember(){if(!state)return;history.push(JSON.stringify(state));if(history.length>120)history.shift()}
 function setChoice(n){selectedCount=n;var buttons=el('playerChoices').querySelectorAll('button');for(var i=0;i<buttons.length;i++){var chosen=Number(buttons[i].getAttribute('data-n'))===n;buttons[i].classList.toggle('selected',chosen);buttons[i].setAttribute('aria-pressed',chosen?'true':'false')}}
-function buildChoices(){var html='';for(var i=2;i<=8;i++)html+='<button type="button" class="choice" data-n="'+i+'" aria-label="'+i+' Spieler">'+i+'</button>';el('playerChoices').innerHTML=html;setChoice(selectedCount)}
-function revealSetup(){closeModal();closeGameMenu();document.body.classList.remove('table-mode');document.body.classList.remove('match-focus');el('setup').classList.remove('hidden');el('game').classList.add('hidden');el('gameTag').textContent='Neue Partie';el('announcement').classList.add('hidden')}
+function buildChoices(){var html='';for(var i=2;i<=8;i++)html+='<button type="button" class="choice" data-n="'+i+'" aria-label="'+i+' Spieler">'+i+'</button>';html+='<button type="button" class="choice tour-choice" id="choiceTour" hidden aria-label="Partie aus dem Turnier wählen">🏆<small>Turnier</small></button>';el('playerChoices').innerHTML=html;setChoice(selectedCount);syncTourChoice()}
+// "Turnier" in the player count grid: only offered while a tournament exists; opens the match picker.
+function syncTourChoice(){var b=el('choiceTour');if(b)b.hidden=!tournament}
+var pickRound=null;
+function openMatchPicker(r){
+ if(!tournament)return;var total=visibleRounds();
+ if(!Number.isInteger(r)||r<0||r>=total){r=nextOpenRound();if(r===null)r=total-1}
+ pickRound=r;var round=tournament.schedule[r],life=limit(parseInt(el('startingLife').value,10)||40,1,999);
+ var rounds='<div class="pick-rounds" role="tablist" aria-label="Runde">'+tournament.schedule.slice(0,total).map(function(rd,i){var all=rd.tables.every(function(t){return t.winner!==null});return '<button type="button" role="tab" class="pick-round'+(i===r?' selected':'')+(all?' done':'')+'" data-pick-round="'+i+'" aria-selected="'+(i===r)+'">'+(rd.final?'🏆 ':'')+shortRoundLabel(i)+(all?' ✓':'')+'</button>'}).join('')+'</div>';
+ var body;
+ if(isVeiled(r))body='<p class="muted">Die Tische von '+roundLabel(r)+' sind noch verdeckt. Enthülle sie zuerst im Turnier-Tab.</p>';
+ else body=round.tables.map(function(m,t){var won=m.winner!==null;return '<button type="button" class="pick-match'+(won?' done':'')+'" data-pick-table="'+t+'"><span class="pick-match-head"><strong>⚔ Tisch '+(t+1)+(round.final&&m.place?' · um Platz '+m.place:'')+'</strong><span>'+(won?'✓ '+esc(tournament.players[m.winner]):'offen')+'</span></span><span class="pick-match-players">'+m.players.map(function(idx){return '<span class="pick-player">'+artBox(idx)+'<span>'+esc(tournament.players[idx])+'</span></span>'}).join('')+'</span></button>'}).join('')+(round.bye!==null?'<p class="muted tiny">⏳ Pause: '+esc(tournament.players[round.bye])+'</p>':'');
+ el('modalTitle').textContent='Partie aus dem Turnier';
+ el('modalContent').innerHTML='<p class="muted tiny">Wähle deinen Tisch. '+roundLabel(r)+' · '+life+' Startlebenspunkte · Commander-Bilder werden übernommen.</p>'+rounds+'<div class="pick-matches">'+body+'</div><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button></div>';
+ activeModal=null;el('modalBackdrop').classList.remove('hidden');el('modalBackdrop').firstChild.classList.remove('wide');
+}
+function revealSetup(){closeModal();closeGameMenu();document.body.classList.remove('table-mode');document.body.classList.remove('match-focus');el('setup').classList.remove('hidden');el('game').classList.add('hidden');el('announcement').classList.add('hidden');syncTourChoice()}
 function freshState(names){var life=limit(parseInt(el('startingLife').value,10)||40,1,999),n=names.length,players=[];for(var i=0;i<n;i++){var damages=[];for(var j=0;j<n;j++)damages.push(0);players.push({name:names[i],life:life,poison:0,experience:0,commander:damages})}return {version:2,mode:'table',starter:pickRandom(n),players:players}}
 function beginGame(event){if(event)event.preventDefault();var names=[];for(var i=0;i<selectedCount;i++)names.push('Spieler '+(i+1));state=freshState(names);history=[];store();render();el('announcement').classList.add('hidden');runStarterSpin();window.scrollTo(0,0)}
 // Starting player draw: the players' cards cycle one after another, slow down and stop at the drawn starter.
@@ -843,7 +877,7 @@ function render(){
  document.body.classList.toggle('match-focus',activeTab==='life');
  el('setup').classList.add('hidden');
  el('game').classList.remove('hidden');
- el('gameTag').textContent=state.players.length+' Spieler';
+ 
  el('mode').textContent=state.mode==='table'?'▦ Standardansicht':'↕ Tabletop-Modus';
  el('mode').classList.toggle('active',state.mode==='table');
  el('undo').disabled=history.length===0;
@@ -916,7 +950,7 @@ function endHold(id,cancelled){
 }
 function endAllHolds(){Object.keys(holds).forEach(function(id){endHold(id)})}
 function onBoardClick(e){var node=e.target.closest('button[data-act]');if(!node)return;var i=parseInt(node.getAttribute('data-i'),10);var action=node.getAttribute('data-act');if(action==='life'&&window.PointerEvent&&Date.now()-lastHoldEnd<700)return;if(action==='life')adjust(i,'life',Number(node.getAttribute('data-d')));else if(action==='modal')openModal(i)}
-function onModalClick(e){var btn=e.target.closest('button');if(!btn)return;if(btn.id==='modalDone'||btn.id==='keepGame'){closeModal();return}if(btn.id==='reallyResetTour'){closeModal();tournament=null;editingRound=null;try{window.localStorage.removeItem(TOUR_STORAGE)}catch(e){}renderTournament();return}if(btn.id==='reallyPlayMatch'){closeModal();launchTournamentMatch(Number(btn.getAttribute('data-round')),Number(btn.getAttribute('data-table')));return}if(btn.id==='reallyReset'){closeModal();state=null;history=[];discard();revealSetup();window.scrollTo(0,0);return}if(btn.getAttribute('data-act')==='adjust'){if(window.PointerEvent&&Date.now()-lastHoldEnd<700)return;var i=Number(btn.getAttribute('data-i')),key=btn.getAttribute('data-key'),d=Number(btn.getAttribute('data-d')),source=btn.hasAttribute('data-source')?Number(btn.getAttribute('data-source')):undefined;adjust(i,key,d,source)}}
+function onModalClick(e){var btn=e.target.closest('button');if(!btn)return;if(btn.id==='modalDone'||btn.id==='keepGame'){closeModal();return}if(btn.id==='reallyResetTour'){closeModal();tournament=null;editingRound=null;try{window.localStorage.removeItem(TOUR_STORAGE)}catch(e){}renderTournament();return}if(btn.hasAttribute('data-pick-round')){openMatchPicker(Number(btn.getAttribute('data-pick-round')));return}if(btn.hasAttribute('data-pick-table')){var pr=pickRound;closeModal();launchTournamentMatch(pr,Number(btn.getAttribute('data-pick-table')));window.scrollTo(0,0);return}if(btn.id==='reallyPlayMatch'){closeModal();launchTournamentMatch(Number(btn.getAttribute('data-round')),Number(btn.getAttribute('data-table')));return}if(btn.id==='reallyReset'){closeModal();state=null;history=[];discard();revealSetup();window.scrollTo(0,0);return}if(btn.getAttribute('data-act')==='adjust'){if(window.PointerEvent&&Date.now()-lastHoldEnd<700)return;var i=Number(btn.getAttribute('data-i')),key=btn.getAttribute('data-key'),d=Number(btn.getAttribute('data-d')),source=btn.hasAttribute('data-source')?Number(btn.getAttribute('data-source')):undefined;adjust(i,key,d,source)}}
 function onNameChange(e){if(e.target.id!=='editName'||activeModal===null||!state)return;var name=e.target.value.trim().slice(0,35)||'Spieler '+(activeModal+1);if(state.players[activeModal].name===name)return;remember();state.players[activeModal].name=name;store();render();el('modalTitle').textContent=name+' · Zähler'}
 
 
@@ -1143,7 +1177,7 @@ function revealRound(){
  }
  next();
 }
-function setTab(which){activeTab=which==='tournament'?'tournament':'life';closeModal();closeGameMenu();el('lifePanel').classList.toggle('hidden',activeTab!=='life');el('tournamentPanel').classList.toggle('hidden',activeTab!=='tournament');el('tabLife').setAttribute('aria-selected',String(activeTab==='life'));el('tabTournament').setAttribute('aria-selected',String(activeTab==='tournament'));document.body.classList.toggle('table-mode',activeTab==='life'&&!!state&&state.mode==='table');document.body.classList.toggle('match-focus',activeTab==='life'&&!!state);if(activeTab==='tournament'){el('gameTag').textContent=tournament?'Turnier':'Turnierplanung';renderTournament()}else if(state)render();else revealSetup();window.scrollTo(0,0)}
+function setTab(which){activeTab=which==='tournament'?'tournament':'life';closeModal();closeGameMenu();el('lifePanel').classList.toggle('hidden',activeTab!=='life');el('tournamentPanel').classList.toggle('hidden',activeTab!=='tournament');el('tabLife').setAttribute('aria-selected',String(activeTab==='life'));el('tabTournament').setAttribute('aria-selected',String(activeTab==='tournament'));document.body.classList.toggle('table-mode',activeTab==='life'&&!!state&&state.mode==='table');document.body.classList.toggle('match-focus',activeTab==='life'&&!!state);if(activeTab==='tournament'){renderTournament()}else if(state)render();else revealSetup();window.scrollTo(0,0)}
 function syncPairingPreview(){
  var n=Number(el('tournamentCount').value),r=Number(el('tournamentRounds').value),box=el('pairingPreview');if(!Number.isInteger(n)||n<2||n>32){box.textContent='Gib eine Spieleranzahl zwischen 2 und 32 ein.';return}
  var l=getLayout(n);
@@ -1235,7 +1269,7 @@ function renderRoundEditor(){
  el('roundStatus').textContent=done+' von '+round.tables.length+' '+(round.tables.length===1?'Partie':'Partien')+' abgeschlossen. Änderungen werden sofort gespeichert.';
 }
 function renderTournament(){
- var started=!!tournament;el('tournamentSetup').classList.toggle('hidden',started);el('tournamentActive').classList.toggle('hidden',!started);if(!started){syncPairingPreview();return}
+ syncTourChoice();var started=!!tournament;el('tournamentSetup').classList.toggle('hidden',started);el('tournamentActive').classList.toggle('hidden',!started);if(!started){syncPairingPreview();return}
  syncFinals();var total=visibleRounds(),finals=total-tournament.rounds;
  var matches=0,done=0,rDone=0;for(var r=0;r<total;r++){var completed=true;for(var j=0;j<tournament.schedule[r].tables.length;j++){matches++;if(tournament.schedule[r].tables[j].winner!==null)done++;else completed=false}if(completed&&r<tournament.rounds)rDone++}
  var l=getLayout(tournament.players.length),finished=done===matches;
@@ -1327,7 +1361,7 @@ function initPWA(){
   window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){})});
  }
 }
-function initialize(){buildChoices();syncNameFields();loadTournament();
+function initialize(){buildChoices();syncNameFields();loadTournament();syncTourChoice();
 el('gameFile').addEventListener('change',loadGameFile);
 el('tourFile').addEventListener('change',loadTournamentFile);
 el('setupGameImport').addEventListener('click',function(){el('gameFile').click()});
@@ -1361,7 +1395,7 @@ el('roundBack').addEventListener('click',function(){var next=nextOpenRound();if(
 el('revealStage').addEventListener('click',function(e){if(e.target.closest('#revealGo'))revealRound();else if(e.target.closest('#revealSkip')){stopReveal();renderTournament()}});
 document.addEventListener('input',function(e){if(e.target.classList&&e.target.classList.contains('cmd-input'))searchCommanders(e.target)});
 document.addEventListener('click',onCommanderClick);
-document.addEventListener('keydown',function(e){if(e.key!=='Enter'||!e.target.classList||!e.target.classList.contains('cmd-input'))return;e.preventDefault();var picker=e.target.closest('.cmd-picker');if((cmdResults[picker.getAttribute('data-slot')]||[]).length)pickCommander(picker,0)});el('playerChoices').addEventListener('click',function(e){var b=e.target.closest('button[data-n]');if(b)setChoice(Number(b.getAttribute('data-n')))});
+document.addEventListener('keydown',function(e){if(e.key!=='Enter'||!e.target.classList||!e.target.classList.contains('cmd-input'))return;e.preventDefault();var picker=e.target.closest('.cmd-picker');if((cmdResults[picker.getAttribute('data-slot')]||[]).length)pickCommander(picker,0)});el('playerChoices').addEventListener('click',function(e){if(e.target.closest('#choiceTour')){openMatchPicker();return}var b=e.target.closest('button[data-n]');if(b)setChoice(Number(b.getAttribute('data-n')))});
 // A real form submit works with both touch and keyboard and does not rely on click handlers.
 el('setupForm').addEventListener('submit',beginGame);
 el('board').addEventListener('click',onBoardClick);
