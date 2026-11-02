@@ -4,8 +4,8 @@
 // the app keeps the tournament in this browser exactly as before. With the server, the tournament is shared by all
 // devices on the network (phones start tables and pick winners, the laptop shows the fullscreen board). The life
 // counter always stays on the device.
-// rev: last server revision this device knows; base: that revision's tournament as JSON (for merging conflicts).
-var sync={on:false,rev:0,base:'null',dirty:false,busy:false,hold:false,joined:false,connected:false,url:'',qr:false,source:null};
+// rev: last server revision this device knows; seen: newest revision the server announced; base: that revision's tournament as JSON (for merging conflicts).
+var sync={on:false,rev:0,seen:0,base:'null',dirty:false,busy:false,hold:false,joined:false,connected:false,url:'',qr:false,source:null};
 function syncJSON(t){return JSON.stringify(t===undefined?null:t)}
 function syncApi(path,opts){
  return fetch('./api/'+path,Object.assign({cache:'no-store'},opts||{})).then(function(r){
@@ -51,14 +51,16 @@ function syncFlush(){
   sync.rev=res.rev;sync.base=syncJSON(res.tournament);syncShow(merged);
   if(syncJSON(tournament)!==sync.base)sync.dirty=true;
  }).catch(function(){sync.dirty=true;syncStatus(false)}).then(function(){
-  sync.busy=false;if(sync.dirty&&sync.connected)syncFlush();
+  // Changes announced while this save was on its way are fetched now; otherwise they would be missed.
+  sync.busy=false;if(sync.dirty&&sync.connected)syncFlush();else if(sync.seen>sync.rev)syncPull();
  });
 }
 function syncPull(){
  if(sync.busy)return;
  if(sync.dirty){syncFlush();return}
  syncApi('tournament').then(function(res){
-  if(sync.busy||sync.dirty){syncPull();return}
+  if(sync.busy)return; // a save started meanwhile; it pulls again when done
+  if(sync.dirty){syncFlush();return}
   var first=!sync.joined;sync.joined=true;sync.rev=res.rev;sync.base=syncJSON(res.tournament);syncStatus(true);
   if(first&&res.tournament===null&&tournament){syncOfferUpload();return}
   if(sync.hold){sync.hold=res.tournament===null;if(!sync.hold&&el('syncUpload'))closeModal();if(sync.hold)return}
@@ -86,7 +88,7 @@ function syncConnect(){
  if(sync.source)sync.source.close();
  if(!('EventSource' in window)){setInterval(syncPull,3000);syncPull();return}
  sync.source=new EventSource('./api/events');
- sync.source.onmessage=function(e){var rev=Number(e.data);if(!sync.connected||rev!==sync.rev||sync.dirty)syncPull()};
+ sync.source.onmessage=function(e){var rev=Number(e.data);sync.seen=Math.max(sync.seen,rev);if(!sync.connected||rev!==sync.rev||sync.dirty)syncPull()};
  sync.source.onerror=function(){syncStatus(false)};
 }
 function syncStart(){
