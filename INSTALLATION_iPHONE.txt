@@ -41,8 +41,16 @@ C) SPIELSTÄNDE, SICHERUNGEN, UPDATES
 - Lebenspunkte und Turnier werden ausschließlich lokal auf dem Gerät im
   Browser gespeichert (kein Konto, kein Cloud-Sync). Der Dienst GitHub
   hostet nur den Code, NICHT deine Spielstände.
-- Über "Spielstand sichern" wird eine JSON-Datei erstellt. Mit
-  "Sicherung laden" lässt sich diese z.B. vom PC zum iPhone übertragen.
+- Spiel und Turnier werden getrennt gesichert, jeweils als JSON-Datei:
+  * Laufendes Spiel: im Spiel auf das Wappen tippen -> "Spiel sichern".
+    Laden über "Spiel laden" im selben Menü oder über "Gespeichertes
+    Spiel laden" auf dem Startbildschirm.
+  * Turnier: in der Turnierübersicht "Turnier sichern" bzw.
+    "Turnier laden"; vor dem ersten Turnier über "Gespeichertes Turnier
+    laden" unter dem Formular.
+  So lassen sich die Daten z.B. vom PC zum iPhone übertragen. Ältere
+  Sicherungen (Spiel und Turnier in einer Datei) können weiterhin
+  geladen werden; dabei wird jeweils nur der passende Teil übernommen.
 - Eine frühere lokal geöffnete HTML-Datei teilt ihren lokalen Speicher
   nicht automatisch mit der neuen Internetadresse. Auf dem alten Gerät
   eine neue Sicherung machen, wenn die Version die Sicherung unterstützt.

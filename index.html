@@ -245,17 +245,11 @@ body.table-mode .player-inner::-webkit-scrollbar{display:none}
 @media(max-width:680px){.commander-chips{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-height:670px){body.table-mode .commander-chip{min-height:17px;padding:1px 2px}body.table-mode .commander-direct-title{margin-bottom:1px}}
 
-/* PWA: Backup tools remain accessible in both sections, but not on the crowded shared-table view. */
-.backup-tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 13px}
-.backup-tools .btn{font-size:.77rem;min-height:39px;padding:9px 10px;background:#25332e;border-color:#b995565e;color:#ffe1a7}
-.backup-tools span{flex:1 1 170px}
-body.table-mode .backup-tools{display:none}
-@media(max-width:520px){.backup-tools{display:grid;grid-template-columns:1fr 1fr}.backup-tools .btn{font-size:.69rem;min-height:43px;padding:7px 4px}.backup-tools span{grid-column:1/-1;font-size:.72rem}}
 
 
 /* Commander Companion VII: immersive match view with centered menu and edge-oriented tabletop mode. */
 body.match-focus{overflow:hidden;background:#06110e}
-body.match-focus .mast,body.match-focus .top-tabs,body.match-focus .backup-tools{display:none!important}
+body.match-focus .mast,body.match-focus .top-tabs{display:none!important}
 body.match-focus .shell{width:100%;max-width:none;min-height:100vh;min-height:100dvh;padding:calc(4px + env(safe-area-inset-top)) calc(4px + env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) calc(4px + env(safe-area-inset-left));display:flex;flex-direction:column}
 body.match-focus #lifePanel,body.match-focus .game{flex:1;min-height:0}
 body.match-focus .game{display:flex;flex-direction:column;gap:0}
@@ -492,18 +486,20 @@ body.fs-open{overflow:hidden}
 .modal.wide{width:min(820px,100%)}
 .cmd-info-grid.duo{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 @media(max-width:620px){.cmd-info-grid.duo{grid-template-columns:1fr}}
+
+/* Save files: game in the game menu / new-game screen, tournament in the tournament card / setup */
+.backup-line{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 12px;margin-top:12px;text-align:center}
+.link-btn{background:none;border:0;padding:6px 4px;color:var(--gold);font-weight:700;font-size:.82rem;text-decoration:underline;text-underline-offset:3px}
+.link-btn:hover,.link-btn:focus-visible{color:#fff1c9}
+.backup-feedback{margin:8px 0 0;min-height:1em}
 </style>
 </head>
 <body>
 <main class="shell">
 <header class="mast"><div class="brand"><img class="crest" src="./crest-1x.webp" srcset="./crest-1x.webp 1x, ./crest-2x.webp 2x, ./crest-3x.webp 3x" width="43" height="56" alt=""><div><p class="eyebrow">✧ Das Archiv der Ebenenwandler ✧</p><h1>Commander Companion <small>VIII.2</small></h1></div></div><span id="gameTag" class="chip">Neue Partie</span></header>
 <nav class="top-tabs" aria-label="Bereiche"><button id="tabLife" class="tab" type="button" aria-selected="true" aria-controls="lifePanel">⚔ Lebenszähler</button><button id="tabTournament" class="tab" type="button" aria-selected="false" aria-controls="tournamentPanel">🏆 Turnier</button></nav>
-<section class="backup-tools" aria-label="Spielstand sichern und wiederherstellen">
-<button id="backupExport" class="btn" type="button">⇩ Spielstand sichern</button>
-<button id="backupImport" class="btn" type="button">⇧ Sicherung laden</button>
-<input id="backupFile" class="hidden" type="file" accept=".json,application/json" aria-label="Gesicherten Spielstand auswählen">
-<span id="backupFeedback" role="status" aria-live="polite" class="tiny muted"></span>
-</section>
+<input id="gameFile" class="hidden" type="file" accept=".json,application/json" aria-label="Gespeichertes Spiel auswählen">
+<input id="tourFile" class="hidden" type="file" accept=".json,application/json" aria-label="Gespeichertes Turnier auswählen">
 <div id="lifePanel">
 <section id="setup" class="setup">
 <p class="eyebrow">✧ Die nächste Schlacht ✧</p><h2>Eine neue Partie.</h2><p class="muted">Lebenspunkte, Giftmarken und Commander-Schaden für euren Spieltisch. Ohne Anmeldung, ohne Internet.</p>
@@ -512,6 +508,7 @@ body.fs-open{overflow:hidden}
 <div class="field"><label for="startingLife">Startlebenspunkte</label><input id="startingLife" type="number" min="1" max="999" value="40" inputmode="numeric" required></div>
 <button id="begin" class="btn primary full" type="submit">⚔ Partie starten</button>
 </form><p class="hint">🎲 Startspieler wird automatisch ausgelost.</p>
+<div class="backup-line"><button id="setupGameImport" class="link-btn" type="button">📂 Gespeichertes Spiel laden</button><span id="setupGameFeedback" class="tiny muted" role="status" aria-live="polite"></span></div>
 </section>
 <section id="game" class="game hidden">
 <nav class="toolbar" aria-label="Spielsteuerung"><button id="mode" class="btn" type="button">↕ Tabletop-Modus</button><button id="pick" class="btn" type="button">🎲 Startspieler</button><button id="undo" class="btn" type="button">↶ Rückgängig</button><button id="reset" class="btn" type="button">↻ Neu</button></nav>
@@ -531,12 +528,13 @@ body.fs-open{overflow:hidden}
       <button id="menuDice" class="btn" type="button">🪙 Münze & Würfel</button>
       <button id="menuUndo" class="btn" type="button">↶ Rückgängig</button>
       <button id="menuReset" class="btn warning" type="button">↻ Neue Partie</button>
-      <button id="menuBackupExport" class="btn" type="button">⇩ Sichern</button>
-      <button id="menuBackupImport" class="btn" type="button">⇧ Laden</button>
+      <button id="menuBackupExport" class="btn" type="button">💾 Spiel sichern</button>
+      <button id="menuBackupImport" class="btn" type="button">📂 Spiel laden</button>
       <button id="menuWake" class="btn" type="button">☀ Bildschirm wachhalten</button>
       <button id="menuClosePrimary" class="btn primary" type="button">Weiter spielen</button>
     </div>
     <p class="menu-wake-status" id="wakeStatus" role="status" aria-live="polite">Bildschirmstatus wird geprüft.</p>
+    <p class="menu-wake-status" id="gameBackupFeedback" role="status" aria-live="polite"></p>
   </section>
 </div>
 </section>
@@ -557,11 +555,12 @@ body.fs-open{overflow:hidden}
       <button id="tournamentSubmit" class="btn primary full" type="submit">⚔ Turnierplan schmieden</button>
       <p id="planningNote" class="round-saved hidden" role="status" aria-live="polite">✧ Die Gelehrten erstellen den Turnierplan … ✧</p>
     </form>
+    <div class="backup-line"><button id="setupTourImport" class="link-btn" type="button">📂 Gespeichertes Turnier laden</button><span id="setupTourFeedback" class="tiny muted" role="status" aria-live="polite"></span></div>
   </div>
   <div id="tournamentActive" class="hidden">
     <div class="tour-card">
-      <div class="tour-head"><div><p class="eyebrow">Turnierübersicht</p><h2 id="tourTitle">Commander-Turnier</h2><p class="muted tiny" id="tourSubtitle"></p></div><div class="tour-actions"><button type="button" id="tourBoard" class="btn primary">⛶ Vollbild</button><button type="button" id="tourCommanders" class="btn">🃏 Commander</button><button type="button" id="tourReveal" class="btn" aria-pressed="true">✨ Enthüllung: AN</button><button type="button" id="tourReset" class="btn warning">↻ Neues Turnier</button></div></div>
-      <div id="tourMetrics" class="tour-metrics"></div><div class="progress-track" aria-label="Turnierfortschritt"><div class="progress-fill" id="tourProgress"></div></div>
+      <div class="tour-head"><div><p class="eyebrow">Turnierübersicht</p><h2 id="tourTitle">Commander-Turnier</h2><p class="muted tiny" id="tourSubtitle"></p></div><div class="tour-actions"><button type="button" id="tourBoard" class="btn primary">⛶ Vollbild</button><button type="button" id="tourCommanders" class="btn">🃏 Commander</button><button type="button" id="tourReveal" class="btn" aria-pressed="true">✨ Enthüllung: AN</button><button type="button" id="tourExport" class="btn">💾 Turnier sichern</button><button type="button" id="tourImport" class="btn">📂 Turnier laden</button><button type="button" id="tourReset" class="btn warning">↻ Neues Turnier</button></div></div>
+      <div id="tourMetrics" class="tour-metrics"></div><div class="progress-track" aria-label="Turnierfortschritt"><div class="progress-fill" id="tourProgress"></div></div><p id="tourBackupFeedback" class="tiny muted backup-feedback" role="status" aria-live="polite"></p>
     </div>
     <div class="tour-card" id="roundEditorCard">
       <div class="round-top"><div><p class="eyebrow" id="roundEyebrow">✧ Die Begegnungen</p><h2 id="roundHeading">Runde 1</h2></div><button id="roundBack" type="button" class="btn">Aktuelle Runde ↗</button></div>
@@ -1241,44 +1240,58 @@ function exportTournamentCsv(){
  var blob=new Blob([content],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='Commander_Turnier_8_Ergebnisse.csv';document.body.appendChild(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url)},10000);
 }
 
-function createBackup(){
- return {format:'commander-companion-backup',version:1,created:new Date().toISOString(),life:state,tournament:tournament};
+// Two separate save files: the running life-counter game and the tournament.
+// Older combined backups (format commander-companion-backup) still load: each side takes only its own part.
+function downloadJSON(data,name){var file=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},15000)}
+function fileDate(){return new Date().toISOString().slice(0,10)}
+function say(ids,msg){ids.forEach(function(id){var n=el(id);if(n)n.textContent=msg})}
+var GAME_FEEDBACK=['gameBackupFeedback','setupGameFeedback'],TOUR_FEEDBACK=['tourBackupFeedback','setupTourFeedback'];
+function saveGameFile(){
+ if(!state){say(GAME_FEEDBACK,'Es läuft keine Partie, die gesichert werden kann.');return}
+ downloadJSON({format:'commander-companion-game',version:1,created:new Date().toISOString(),life:state},'Commander_Companion_Spiel_'+fileDate()+'.json');
+ say(GAME_FEEDBACK,'Spiel gesichert.');
 }
-function downloadBackup(){
- var file=new Blob([JSON.stringify(createBackup(),null,2)],{type:'application/json;charset=utf-8'});
- var url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download='Commander_Companion_Sicherung_'+new Date().toISOString().slice(0,10)+'.json';
- document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},15000);
- el('backupFeedback').textContent='Sicherungsdatei erstellt. Bitte sicher aufbewahren.';
+function saveTournamentFile(){
+ if(!tournament)return;
+ downloadJSON({format:'commander-companion-tournament',version:1,created:new Date().toISOString(),tournament:tournament},'Commander_Companion_Turnier_'+fileDate()+'.json');
+ say(TOUR_FEEDBACK,'Turnier gesichert. Bitte die Datei gut aufbewahren.');
 }
-function restoreBackup(e){
+function readJSONFile(e,feedback,apply){
  var f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
- if(f.size>1024*1024){el('backupFeedback').textContent='Sicherung zu groß (maximal 1 MB).';return}
- var reader=new FileReader();reader.onerror=function(){el('backupFeedback').textContent='Datei konnte nicht gelesen werden.'};
- reader.onload=function(){
-  try{
-   var backup=JSON.parse(String(reader.result));
-   if(!backup||backup.format!=='commander-companion-backup'||backup.version!==1||
-    !Object.prototype.hasOwnProperty.call(backup,'life')||!Object.prototype.hasOwnProperty.call(backup,'tournament')||
-    (backup.life!==null&&!validate(backup.life)) ||
-    (backup.tournament!==null&&!validTournament(backup.tournament)))throw new Error('Ungültige Sicherungsdatei');
-   if(!window.confirm('Die vorhandene Partie und das vorhandene Turnier durch diese Sicherung ersetzen?'))return;
-   if(backup.life===null){state=null;discard()}else{state=backup.life;state.mode=(state.mode==='table'?'table':'standard');store()}
-   if(backup.tournament===null){tournament=null;try{localStorage.removeItem(TOUR_STORAGE)}catch(e){}}else{tournament=normalizeCommanders(backup.tournament);saveTournament()}
-   history=[];editingRound=null;el('backupFeedback').textContent='Sicherung eingelesen.';
-   setTab(activeTab);renderTournament();
-  }catch(err){el('backupFeedback').textContent='Ungültige Sicherung. Keine Daten geändert.'}
- };
+ if(f.size>1024*1024){say(feedback,'Datei zu groß (maximal 1 MB).');return}
+ var reader=new FileReader();reader.onerror=function(){say(feedback,'Datei konnte nicht gelesen werden.')};
+ reader.onload=function(){var data;try{data=JSON.parse(String(reader.result))}catch(err){say(feedback,'Ungültige Datei. Keine Daten geändert.');return}apply(data)};
  reader.readAsText(f,'UTF-8');
 }
+function partOf(data,kind,key){return data&&data.version===1&&(data.format==='commander-companion-'+kind||data.format==='commander-companion-backup')?data[key]:undefined}
+function loadGameFile(e){readJSONFile(e,GAME_FEEDBACK,function(data){
+ var life=partOf(data,'game','life');
+ if(life===null){say(GAME_FEEDBACK,'Diese Sicherung enthält kein laufendes Spiel. Keine Daten geändert.');return}
+ if(!life||!validate(life)){say(GAME_FEEDBACK,'Keine gültige Spieldatei. Keine Daten geändert.');return}
+ if(state&&!window.confirm('Die laufende Partie durch das gespeicherte Spiel ersetzen?'))return;
+ state=life;state.mode=state.mode==='table'?'table':'standard';store();history=[];closeGameMenu();setTab('life');
+ say(GAME_FEEDBACK,'Spiel geladen.');
+})}
+function loadTournamentFile(e){readJSONFile(e,TOUR_FEEDBACK,function(data){
+ var t=partOf(data,'tournament','tournament');
+ if(t===null){say(TOUR_FEEDBACK,'Diese Sicherung enthält kein Turnier. Keine Daten geändert.');return}
+ if(!t||!validTournament(t)){say(TOUR_FEEDBACK,'Keine gültige Turnierdatei. Keine Daten geändert.');return}
+ if(tournament&&!window.confirm('Das aktuelle Turnier durch das gespeicherte Turnier ersetzen?'))return;
+ tournament=normalizeCommanders(t);saveTournament();editingRound=null;setTab('tournament');
+ say(TOUR_FEEDBACK,'Turnier geladen.');
+})}
 function initPWA(){
  if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){
   window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){})});
  }
 }
 function initialize(){buildChoices();syncNameFields();loadTournament();
-el('backupExport').addEventListener('click',downloadBackup);
-el('backupImport').addEventListener('click',function(){el('backupFile').click()});
-el('backupFile').addEventListener('change',restoreBackup);
+el('gameFile').addEventListener('change',loadGameFile);
+el('tourFile').addEventListener('change',loadTournamentFile);
+el('setupGameImport').addEventListener('click',function(){el('gameFile').click()});
+el('setupTourImport').addEventListener('click',function(){el('tourFile').click()});
+el('tourExport').addEventListener('click',saveTournamentFile);
+el('tourImport').addEventListener('click',function(){el('tourFile').click()});
 el('menuFab').addEventListener('click',toggleGameMenu);
 el('menuClose').addEventListener('click',closeGameMenu);
 el('menuClosePrimary').addEventListener('click',closeGameMenu);
@@ -1291,8 +1304,8 @@ el('modalContent').addEventListener('keydown',function(e){if(e.key==='Enter'&&e.
 el('menuUndo').addEventListener('click',function(){el('undo').click();renderGameMenu()});
 el('menuReset').addEventListener('click',function(){closeGameMenu();el('reset').click()});
 el('menuTournament').addEventListener('click',function(){closeGameMenu();setTab('tournament')});
-el('menuBackupExport').addEventListener('click',downloadBackup);
-el('menuBackupImport').addEventListener('click',function(){el('backupFile').click()});
+el('menuBackupExport').addEventListener('click',saveGameFile);
+el('menuBackupImport').addEventListener('click',function(){el('gameFile').click()});
 el('menuWake').addEventListener('click',toggleWakeLock);
 initPWA();
 initializeWakeLock();
