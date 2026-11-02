@@ -1487,7 +1487,7 @@ function renderPairs(){
 }
 function pickPlayer(i){if(!tournament||!tournament.players[i])return;fsPlayer=i;fsTab='pairs';renderBoard()}
 function boardGo(i){if(!tournament)return;if(i<0||i>=visibleRounds())return;fsRound=i===nextOpenRound()?null:i;fsTab='round';renderBoard()}
-function onBoardClick(e){
+function onFsClick(e){
  var b=e.target.closest('button');if(!b||!tournament)return;
  if(b.id==='fsClose'){closeBoard();return}
  if(b.hasAttribute('data-fs-tab')){fsTab=b.getAttribute('data-fs-tab')==='pairs'?'pairs':'round';renderBoard();return}
@@ -1522,7 +1522,7 @@ function openCommanderInfo(idx){
 }
 el('tourBoard').addEventListener('click',openBoard);
 if(DESKTOP_QUERY){var onDesktopChange=function(){if(!isDesktop())closeBoard()};if(DESKTOP_QUERY.addEventListener)DESKTOP_QUERY.addEventListener('change',onDesktopChange);else if(DESKTOP_QUERY.addListener)DESKTOP_QUERY.addListener(onDesktopChange)}
-el('fsView').addEventListener('click',onBoardClick);
+el('fsView').addEventListener('click',onFsClick);
 el('rankingBody').addEventListener('click',function(e){var b=e.target.closest('button[data-player]');if(b)openCommanderInfo(Number(b.getAttribute('data-player')))});
 document.addEventListener('fullscreenchange',function(){if(!document.fullscreenElement&&fsOpen&&el('modalBackdrop').classList.contains('hidden'))closeBoard()});
 // Capture phase: runs before the global Escape handler closes a dialog, so Escape closes the dialog first and the board second.
