@@ -33,7 +33,7 @@ var spin=null,SPIN_MS=3500;
 function spinShow(i,landed){
  var p=state.players[i],card=el('spinCard'),art=typeof p.art==='string'&&/^https:\/\/cards\.scryfall\.io\//.test(p.art)?p.art:'';
  card.style.setProperty('--spin-bg',art?'url("'+art.replace(/["\\]/g,'')+'")':'radial-gradient(circle at 50% 35%,'+PALETTE[i%PALETTE.length]+' 0,#141c1b 75%)');
- card.classList.toggle('no-art',!art);el('spinName').textContent=p.name;
+ card.classList.toggle('no-art',!art);el('spinName').textContent=p.name;el('spinArtist').textContent=art&&p.artist?'🎨 '+p.artist:'';
  card.classList.remove('tick','landed');void card.offsetWidth;card.classList.add(landed?'landed':'tick');
  var seats=el('spinSeats').children;for(var k=0;k<seats.length;k++)seats[k].classList.toggle('on',k===i);
 }

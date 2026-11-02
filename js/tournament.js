@@ -82,7 +82,7 @@ function searchCommanders(input){
   .then(function(r){if(r.status===404)return {data:[]};if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
   .then(function(d){
    var list=(d.data||[]).map(cmdFromCard).filter(validCommander).slice(0,8);cmdResults[key]=list;
-   box.innerHTML=list.length?list.map(function(c,i){return '<button type="button" class="cmd-option" role="option" data-pick="'+i+'">'+(c.art?'<img src="'+esc(c.art)+'" alt="" loading="lazy">':'')+'<span>'+esc(c.name)+'</span></button>'}).join(''):'<p class="cmd-msg">Kein Commander gefunden.</p>';
+   box.innerHTML=list.length?list.map(function(c,i){return '<button type="button" class="cmd-option" role="option" data-pick="'+i+'">'+(c.art?'<img src="'+esc(c.art)+'" alt="" loading="lazy">':'')+'<span>'+esc(c.name)+(c.artist?'<small>🎨 '+esc(c.artist)+'</small>':'')+'</span></button>'}).join(''):'<p class="cmd-msg">Kein Commander gefunden.</p>';
   })
   .catch(function(e){if(e&&e.name==='AbortError')return;box.innerHTML='<p class="cmd-msg">Suche nicht möglich. Bist du offline?</p>'});
  },300);
@@ -213,7 +213,10 @@ function renderRoundEditor(){
  if(veiled){el('revealStage').innerHTML='<button type="button" class="btn primary reveal-go" id="revealGo">✨ Tische enthüllen</button>';el('roundHint').textContent='Die Tische dieser Runde sind noch verdeckt.'}
  el('roundStatus').textContent=done+' von '+round.tables.length+' '+(round.tables.length===1?'Partie':'Partien')+' abgeschlossen. Änderungen werden sofort gespeichert.';
 }
+// Scryfall asks to credit the artist wherever only the cropped artwork (no card frame) is shown.
+function artCredits(){if(!tournament)return '';var seen={},names=[];tournament.players.forEach(function(_,i){cmdCards(commanderOf(i)).forEach(function(x){if(x.art&&x.artist&&!seen[x.artist]){seen[x.artist]=true;names.push(x.artist)}})});return names.length?'🎨 Illustrationen: '+names.join(', ')+' · Kartenbilder via Scryfall · Magic: The Gathering ©Wizards of the Coast':''}
 function renderTournament(){
+ el('tourCredits').textContent=artCredits();
  syncTourChoice();var started=!!tournament;el('tournamentSetup').classList.toggle('hidden',started);el('tournamentActive').classList.toggle('hidden',!started);if(!started){syncPairingPreview();return}
  syncFinals();var total=visibleRounds(),finals=total-tournament.rounds;
  var matches=0,done=0,rDone=0;for(var r=0;r<total;r++){var completed=true;for(var j=0;j<tournament.schedule[r].tables.length;j++){matches++;if(tournament.schedule[r].tables[j].winner!==null)done++;else completed=false}if(completed&&r<tournament.rounds)rDone++}
@@ -237,7 +240,7 @@ function renderTournament(){
 function launchTournamentMatch(round,table){
  var match=tournament&&tournament.schedule[round]&&tournament.schedule[round].tables[table];if(!match)return;
  state=freshState(match.players.map(function(idx){return tournament.players[idx]}));state.tournamentMatch={round:round,table:table,label:roundLabel(round)};
- match.players.forEach(function(idx,k){var c=commanderOf(idx);if(c&&c.art)state.players[k].art=c.art});undoStack=[];store();
+ match.players.forEach(function(idx,k){var c=commanderOf(idx);if(c&&c.art){state.players[k].art=c.art;if(c.artist)state.players[k].artist=c.artist}});undoStack=[];store();
  setTab('life');el('announcement').classList.add('hidden');runStarterSpin();
 }
 function playTournamentMatch(table){

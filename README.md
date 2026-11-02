@@ -33,3 +33,9 @@ server\.venv\Scripts\python -m pip install -r server\requirements.txt
 
 Hinweise: Über den QR-Code läuft die App als normaler Browser-Tab (nicht offline). Windows beim ersten Start
 den Netzwerkzugriff für **private Netzwerke** erlauben. Mehr in [server/README.md](server/README.md).
+
+## Rechtliches
+
+Commander Companion ist inoffizieller Fan-Content gemäß der Fan Content Policy von Wizards of the Coast.
+Nicht von Wizards genehmigt oder unterstützt. Teile der verwendeten Materialien sind Eigentum von Wizards of the Coast.
+©Wizards of the Coast LLC. Kartendaten und -bilder: [Scryfall](https://scryfall.com).

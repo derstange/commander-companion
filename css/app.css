@@ -539,6 +539,15 @@ button.fs-node.center:hover,button.fs-node.center:focus-visible{background:linea
 .link-btn{background:none;border:0;padding:6px 4px;color:var(--gold);font-weight:700;font-size:.82rem;text-decoration:underline;text-underline-offset:3px}
 .link-btn:hover,.link-btn:focus-visible{color:#fff1c9}
 .backup-feedback{margin:8px 0 0;min-height:1em}
+.spin-artist{position:absolute;top:8px;right:10px;z-index:1;padding:2px 8px;border-radius:999px;background:#000a;color:#f3e7c9;font-size:.72rem}
+.spin-artist:empty{display:none}
+.legal{margin:26px auto 8px;max-width:760px;text-align:center;color:var(--muted);font-size:.72rem;line-height:1.45;opacity:.8}
+.legal p{margin:4px 0}
+.legal a{color:inherit}
+body.table-mode .legal{display:none}
+.art-credits:empty,.fs-credits:empty{display:none}
+.fs-credits{position:relative;z-index:1;margin:0;text-align:center;color:var(--muted);font-size:.72rem;opacity:.8}
+.cmd-option small{display:block;color:var(--muted);font-size:.72rem}
 /* Optional local tournament server (server/serve.py): live badge and join QR code on the fullscreen board. */
 .sync-badge{margin:4px 0 0;color:#8fd3a8}
 .sync-badge.off{color:var(--muted)}

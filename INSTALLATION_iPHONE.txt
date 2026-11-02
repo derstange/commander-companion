@@ -86,6 +86,18 @@ apple-touch-icon.png    iPhone-Symbol 180x180
 .nojekyll               Deaktiviert Jekyll in GitHub Pages
 server/                 Optionaler lokaler Turnier-Server (nicht nötig für GitHub Pages)
 
+RECHTLICHES
+-----------
+Commander Companion ist inoffizieller Fan-Content gemäß der Fan Content
+Policy von Wizards of the Coast. Nicht von Wizards genehmigt oder
+unterstützt. Teile der verwendeten Materialien sind Eigentum von Wizards
+of the Coast. ©Wizards of the Coast LLC.
+Kartendaten und -bilder kommen von Scryfall (https://scryfall.com) und
+werden nicht im Repository gespeichert. Die App ist kostenlos und ohne
+Anmeldung nutzbar; das muss so bleiben (kein Verkauf, keine Paywall).
+Wo nur der Bildausschnitt einer Karte erscheint, nennt die App den
+Künstler.
+
 OFFIZIELLE HILFE
 ----------------
 GitHub Pages: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site

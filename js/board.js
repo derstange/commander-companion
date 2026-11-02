@@ -12,6 +12,7 @@ function boardRound(){var total=visibleRounds();if(fsRound!==null&&fsRound<total
 function artBox(idx){var c=commanderOf(idx),imgs=cmdArtImgs(c);return imgs?'<span class="fs-art'+(c.partner&&c.partner.art&&c.art?' duo':'')+'">'+imgs+'</span>':'<span class="fs-art none">🃏</span>'}
 function renderBoard(){
  if(!tournament){closeBoard();return}
+ el('fsCredits').textContent=artCredits();
  var total=visibleRounds(),r=boardRound(),open=nextOpenRound(),round=tournament.schedule[r];
  el('fsTitle').textContent=el('tourTitle').textContent;el('fsMetrics').innerHTML=el('tourMetrics').innerHTML;el('fsProgressFill').style.width=el('tourProgress').style.width;
  if(fsPlayer!==null&&!tournament.players[fsPlayer])fsPlayer=null;
