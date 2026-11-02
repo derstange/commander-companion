@@ -20,6 +20,44 @@ body.table-mode{overflow:hidden;background:#11121d}body.table-mode .shell{width:
 @media(max-height:670px){body.table-mode .mast{display:none}body.table-mode .toolbar .btn{min-height:32px}body.table-mode .player-top{padding-top:2px}body.table-mode .quick .btn{min-height:30px}body.table-mode .life-value{font-size:clamp(1.9rem,8vh,4rem)}}
 @media(max-width:400px){body.table-mode .toolbar .btn{font-size:.67rem}body.table-mode .quick .btn{font-size:.64rem}}
 @media(prefers-reduced-motion:no-preference){.btn,.step,.mini,.choice{transition:filter .12s,transform .12s}}
+.step,.mini{-webkit-touch-callout:none}.step.holding,.mini.holding{filter:brightness(1.4);box-shadow:inset 0 0 0 2px #f5c96b,0 0 18px #f5c96b55}
+.life-display{position:relative}
+.life-delta{position:absolute;left:50%;top:0;transform:translate(-50%,-55%);padding:1px 8px;border-radius:99px;background:#000a;border:1px solid #f5c96b88;color:#ffe3a3;font-size:clamp(.7rem,2.4vw,.9rem);font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none}
+.spin-overlay{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));background:radial-gradient(circle at 50% 42%,#2a2213 0,#050b0aee 62%);backdrop-filter:blur(5px);cursor:pointer;text-align:center}
+.spin-title{margin:0;color:#f0cf8c;font-family:Georgia,serif;font-size:clamp(1.3rem,5vw,1.9rem);letter-spacing:.02em}
+.spin-card{position:relative;width:min(440px,100%);aspect-ratio:16/10;border-radius:18px;overflow:hidden;border:2px solid #d8b26a99;background:var(--spin-bg,#1b2523) center/cover no-repeat;box-shadow:0 18px 50px #000b}
+.spin-card.tick{animation:spinTick .16s ease-out}
+.spin-card.no-art::before{content:'✦';position:absolute;left:0;right:0;top:18%;font-size:clamp(3rem,12vw,4.5rem);color:#fff3d0cc;text-shadow:0 0 26px #f2cb82}
+.spin-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#000d 100%)}
+.spin-name{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:12px 14px;font-family:Georgia,serif;font-size:clamp(1.6rem,7vw,2.5rem);font-weight:700;color:#fff6df;text-shadow:0 2px 14px #000;overflow-wrap:anywhere}
+.spin-card.landed{border-color:#ffe2a0;animation:spinLand 1s cubic-bezier(.2,.8,.2,1) both}
+.spin-seats{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;max-width:460px}
+.spin-seat{padding:5px 10px;border-radius:99px;border:1px solid #ffffff26;background:#ffffff0d;color:#cfc6b0;font-size:.78rem;font-weight:700;transition:background .1s,color .1s,border-color .1s}
+.spin-seat.on{background:#e5bc6f;border-color:#ffe2a0;color:#1c1408}
+.spin-result{min-height:1.6em;margin:0;color:#ffe3a3;font-size:clamp(1rem,4vw,1.25rem);font-weight:800}
+.spin-hint{margin:0;color:#bfb49b;font-size:.75rem}
+@keyframes spinTick{0%{transform:translateY(-7%) scale(.97);filter:brightness(1.5)}100%{transform:none;filter:none}}
+@keyframes spinLand{0%{transform:scale(.94);box-shadow:0 0 0 0 #ffe2a0}40%{transform:scale(1.04);box-shadow:0 0 0 14px #ffe2a033,0 0 80px #f2cb82aa}100%{transform:none;box-shadow:0 0 0 3px #ffe2a055,0 0 60px #f2cb8277}}
+@media(prefers-reduced-motion:reduce){.spin-card.tick,.spin-card.landed{animation:none}}
+.dice-result{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:132px;margin:4px 0 6px;border:1px solid #d8b26a66;border-radius:16px;background:radial-gradient(circle at 50% 40%,#3a2f1d 0,#121b1a 75%);perspective:600px}
+.dice-face{font-family:Georgia,serif;font-size:clamp(2.6rem,12vw,3.6rem);font-weight:700;line-height:1.1;color:#fff1c9;font-variant-numeric:tabular-nums;text-shadow:0 2px 16px #000}
+.dice-label{font-size:.8rem;color:#cdbf9f;font-weight:700}
+.dice-face.rolling{animation:diceShake .12s linear infinite}
+.dice-face.flipping{animation:coinFlip .9s cubic-bezier(.3,.7,.3,1)}
+.dice-face.settle{animation:diceSettle .45s cubic-bezier(.2,.8,.2,1)}
+.dice-face.crit{color:#ffe28a;text-shadow:0 0 22px #f2cb82,0 2px 10px #000}.dice-face.fumble{color:#ff9a8a}
+.dice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.dice-grid .btn,.dice-coin{min-height:50px;font-size:1rem;font-weight:850}
+.dice-coin{width:100%}
+.dice-custom{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:10px}
+.dice-custom label{font-weight:800;color:#e9dcc0}
+.dice-custom input{min-height:48px}
+.dice-history{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.dice-history span{padding:4px 9px;border-radius:99px;background:#ffffff0f;border:1px solid #ffffff1f;font-size:.75rem;color:#d9ceb6}
+@keyframes diceShake{0%{transform:translate(0,0) rotate(0)}25%{transform:translate(-3px,1px) rotate(-6deg)}50%{transform:translate(2px,-2px) rotate(4deg)}75%{transform:translate(-1px,2px) rotate(-3deg)}100%{transform:translate(0,0) rotate(0)}}
+@keyframes coinFlip{0%{transform:rotateX(0) scale(1)}50%{transform:rotateX(900deg) scale(1.25)}100%{transform:rotateX(1800deg) scale(1)}}
+@keyframes diceSettle{0%{transform:scale(1.35);filter:brightness(1.8)}100%{transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){.dice-face.rolling,.dice-face.flipping,.dice-face.settle{animation:none}}
 
 /* Tabs, tournament setup, rounds and rankings */
 .top-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;border:1px solid var(--line);padding:5px;border-radius:15px;background:#191928}
@@ -114,6 +152,41 @@ input::placeholder{color:#9b9888}
 .match-contenders .winner-choice{min-height:52px;padding:10px 12px;font-size:.95rem}
 .match-contenders .winner-choice span:first-child{overflow-wrap:anywhere}
 .match-foot{font-size:.72rem;margin-top:11px;color:#c3b495}
+.cmd-picker{margin-top:6px}
+.cmd-input{width:100%;min-height:44px;border:1px solid #8b774e94;background:#0b1718;color:#fff2d5;border-radius:12px;padding:9px 12px;font-size:.88rem}
+.cmd-results{display:grid;gap:4px;margin-top:4px}.cmd-results:empty{display:none}
+.cmd-option{display:flex;align-items:center;gap:9px;text-align:left;padding:5px 8px;border-radius:10px;background:#ffffff10;border:1px solid #ffffff1a;min-height:44px;font-size:.85rem;font-weight:650}
+.cmd-option img,.cmd-picked img{width:48px;height:35px;object-fit:cover;border-radius:6px;flex-shrink:0}
+.cmd-picked{display:flex;align-items:center;gap:9px;padding:5px;border:1px solid #d8b26a80;border-radius:12px;background:#ffffff0b}
+.cmd-picked span{flex:1;min-width:0;font-size:.85rem;font-weight:750;overflow-wrap:anywhere;line-height:1.25}.cmd-picked small{display:block;font-weight:500;color:var(--muted);font-size:.7rem}
+.cmd-clear{width:38px;height:38px;border-radius:9px;background:#ffffff19;font-size:1.25rem;flex-shrink:0}
+.cmd-msg{margin:4px 2px;font-size:.78rem;color:var(--muted)}
+.cmd-tag{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:.72rem;color:var(--muted);font-weight:600}.cmd-tag img{width:30px;height:22px;object-fit:cover;border-radius:4px;flex-shrink:0}
+.wc-art{width:40px;height:29px;object-fit:cover;border-radius:5px;vertical-align:middle;margin-right:9px}
+.tour-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.reveal-stage{margin:0 0 14px;display:grid;gap:9px;justify-items:center;text-align:center}
+.reveal-go{min-height:58px;padding:12px 24px;font-size:1.06rem}
+.reveal-skip{min-height:40px;padding:8px 14px;font-size:.8rem}
+.stage-card{position:relative;width:100%;max-width:520px;aspect-ratio:16/10;border-radius:18px;overflow:hidden;border:1px solid #f2cb82;background:#0b1718 center/cover no-repeat;box-shadow:0 18px 50px #000a,0 0 60px #e5bc6f40;animation:stageIn .9s cubic-bezier(.2,.8,.2,1) both}
+.stage-card.no-art{background:radial-gradient(circle at 50% 38%,#6d5230 0,#1b2523 62%)}
+.stage-card.no-art::before{content:'✦';position:absolute;left:0;right:0;top:20%;font-size:4rem;color:#f2cb82;text-shadow:0 0 30px #f2cb82}
+.stage-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 38%,#000d 100%)}
+.stage-text{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:14px 16px;text-align:center}
+.stage-label{color:#f0cf8c;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;font-weight:800}
+.stage-name{font-family:Georgia,serif;font-size:clamp(1.5rem,6vw,2.3rem);font-weight:700;color:#fff6df;text-shadow:0 2px 14px #000;overflow-wrap:anywhere}
+.stage-cmd{color:#e9dcc0;font-size:.85rem;margin-top:2px}
+.stage-shine{position:absolute;inset:0;z-index:2;background:linear-gradient(105deg,transparent 35%,#fff7 50%,transparent 65%);transform:translateX(-120%);animation:stageShine 1.1s .3s ease-out both;pointer-events:none}
+@keyframes stageIn{0%{opacity:0;transform:perspective(900px) rotateY(-80deg) scale(.82);filter:brightness(2.4) blur(6px)}60%{opacity:1;filter:brightness(1.3) blur(0)}100%{transform:none;filter:none}}
+@keyframes stageShine{to{transform:translateX(120%)}}
+.match-grid.veiled .winner-choice:not(.shown),.match-grid.veiled .bye-card:not(.shown){position:relative;pointer-events:none}
+.match-grid.veiled .winner-choice:not(.shown)>*,.match-grid.veiled .bye-card:not(.shown)>*{visibility:hidden}
+.match-grid.veiled .winner-choice:not(.shown)::after,.match-grid.veiled .bye-card:not(.shown)::after{content:'✦';position:absolute;inset:-1px;display:grid;place-items:center;border-radius:inherit;color:#e5bc6f;font-size:1.15rem;background:repeating-linear-gradient(45deg,#2b2014 0 8px,#35281a 8px 16px);border:1px solid #c4a36573}
+.match-grid.veiled .shown{animation:slotIn .75s cubic-bezier(.2,.8,.2,1) both}
+@keyframes slotIn{0%{transform:perspective(600px) rotateX(90deg);filter:brightness(2.6)}100%{transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){.stage-card,.match-grid.veiled .shown{animation:none}.stage-shine{display:none}}
+.cmd-edit-row{margin:14px 0}.cmd-edit-row>strong{display:block;font-size:.86rem;margin-bottom:2px}
+.match-play{width:100%;margin-top:10px;font-size:.85rem}
+.match-grid.veiled .match-play{display:none}
 .bye-card{margin:12px 0 0;border:1px dashed #c4a365b3;border-radius:13px;padding:13px;background:#e9be6810;color:#f1dfbd;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .bye-card strong{color:#ebcb8c}
 .round-saved{font-size:.8rem;color:#e5c891;min-height:17px;margin-top:10px}
@@ -245,6 +318,11 @@ body.table-mode.match-focus .bottom-status{padding:0 4px 4px;font-size:.5rem}
 .menu-note{grid-column:1/-1;margin:2px 0 0;color:#ffe5b2;font-size:.78rem;line-height:1.45;padding:10px 12px;border-radius:12px;background:#5d43201f;border:1px solid #b58a4560}
 .game-menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .game-menu-grid .btn{min-height:48px;padding:10px 8px}
+.menu-exit{display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;min-height:58px;margin:0 0 12px;padding:10px 14px;text-align:left;border:1px solid #f2cb82;background:linear-gradient(135deg,#5e4a31,#2a2a1d)}
+.menu-exit-title{font-size:1rem;font-weight:850;color:#fff1c9}
+.menu-exit-sub{font-size:.72rem;font-weight:600;color:#e1cfa6}
+.menu-exit:active{transform:none;filter:brightness(1.25)}
+#menuClosePrimary{grid-column:1/-1}
 body.menu-open{overflow:hidden}
 @media(max-width:520px){
  body.match-focus .player-name{font-size:.96rem}
@@ -336,6 +414,84 @@ body.match-focus .quick .btn{min-width:0}
  body.match-focus:not(.table-mode) .commander-chip{min-height:32px;padding:4px 4px}
  body.match-focus:not(.table-mode) .quick .btn{font-size:.8rem;min-height:40px}
 }
+
+/* Fullscreen tournament board (laptop / projector): standings left, current round middle, all rounds right. */
+.fs-view{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;gap:14px;padding:18px 22px;background:radial-gradient(ellipse at 50% -10%,#28443d 0%,transparent 55%),#0a1312;color:var(--ink);overflow:hidden}
+.fs-crest-bg{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);height:min(92vh,1100px);width:auto;opacity:.12;pointer-events:none;user-select:none;filter:saturate(.8)}
+.fs-head,.fs-body{position:relative;z-index:1}
+.fs-head{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.fs-brand{display:flex;align-items:center;gap:12px;min-width:0}
+.fs-brand img{height:64px;width:auto;filter:drop-shadow(0 0 12px #d4b77840)}
+.fs-brand h2{margin:0;font:700 clamp(1.3rem,2.2vw,2rem) Georgia,serif;color:#f7e8c3}
+.fs-progress{flex:1 1 320px;min-width:220px}
+.fs-progress .tour-metrics{margin:0}
+.fs-progress .progress-track{margin-top:9px}
+.fs-close{margin-left:auto}
+.fs-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(250px,1fr) minmax(0,2.3fr) minmax(250px,1fr);gap:16px}
+.fs-col{min-height:0;overflow-y:auto;overscroll-behavior:contain;background:#0d1a1acc;border:1px solid #9f7c4a66;border-radius:18px;padding:14px}
+.fs-col h3{margin:0 0 10px;font:700 1.1rem Georgia,serif;color:#f7e8c3}
+.fs-rank{display:grid;gap:6px}
+.fs-rank-row{display:grid;grid-template-columns:34px 54px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;text-align:left;padding:7px 9px;border-radius:12px;background:#ffffff0b;border:1px solid #ffffff14}
+.fs-rank-row:hover,.fs-rank-row:focus-visible{background:#ffffff18;border-color:#d8b67980}
+.fs-rank-row.leader{background:linear-gradient(135deg,#5e4a3155,#3d382955);border-color:#f2cb8299}
+.fs-place{font:700 1.15rem Georgia,serif;color:var(--gold);text-align:right}
+.fs-art{width:54px;height:40px;border-radius:7px;object-fit:cover;background:#ffffff12;display:block}
+.fs-art.none{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.1rem}
+.fs-who{min-width:0}.fs-who strong,.fs-who small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fs-who strong{font-size:1rem}.fs-who small{color:var(--muted);font-size:.74rem;margin-top:2px}
+.fs-wins{font:700 1.45rem Georgia,serif;color:var(--gold);text-align:center;line-height:1}.fs-wins small{display:block;font:600 .58rem system-ui,sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.fs-round-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.fs-round-head h3{margin:0;font-size:clamp(1.3rem,2vw,1.8rem);flex:1}
+.fs-round-head .btn{min-height:40px;padding:8px 12px}
+.fs-tables{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
+.fs-table{border:1px solid #9f7c4a82;border-radius:16px;padding:12px;background:linear-gradient(148deg,#1d2d2bee 0%,#121c1dee 100%)}
+.fs-table.done{border-color:#f2cb82aa}
+.fs-table-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:9px;font-weight:800}
+.fs-table-head span:last-child{color:var(--muted);font-weight:650;font-size:.82rem}
+.fs-table.done .fs-table-head span:last-child{color:var(--gold)}
+.fs-player{display:grid;grid-template-columns:72px minmax(0,1fr) 26px;align-items:center;gap:10px;width:100%;text-align:left;margin-top:7px;padding:6px;border-radius:12px;background:#2c2b4255;border:2px solid #ffffff1f}
+.fs-player .fs-art{width:72px;height:52px}
+.fs-player .marker{width:24px;height:24px;border:2px solid #ad9cbd;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.95rem}
+.fs-player.selected{border-color:#f2cb82;background:linear-gradient(135deg,#5e4a31,#3d3829)}
+.fs-player.selected .marker{border-color:var(--gold);background:var(--gold);color:#241a0e}
+.fs-player.beaten{opacity:.55}
+.fs-bye{margin-top:12px;padding:10px 13px;border:1px dashed #d8b67966;border-radius:12px;color:var(--muted)}
+.fs-veil{display:grid;justify-items:center;gap:14px;padding:40px 10px;text-align:center;color:var(--muted)}
+.fs-veil .btn{min-height:58px;padding:12px 26px;font-size:1.1rem}
+.fs-rounds{display:grid;gap:8px}
+.fs-round{display:block;width:100%;text-align:left;padding:9px 11px;border-radius:12px;background:#ffffff0b;border:1px solid #ffffff16}
+.fs-round:hover,.fs-round:focus-visible{border-color:#d8b67980}
+.fs-round.current{border-color:#f2cb82;box-shadow:0 0 0 1px #f2cb8255}
+.fs-round.viewing{background:#98743e2e}
+.fs-round.pending{opacity:.72}
+.fs-round-top{display:flex;justify-content:space-between;gap:8px;font-weight:800;font-size:.9rem}
+.fs-round-top span:last-child{font-weight:650;color:var(--muted);font-size:.76rem}
+.fs-round.done .fs-round-top span:last-child{color:var(--gold)}
+.fs-round-tables{margin-top:5px;display:grid;gap:3px;font-size:.76rem;color:var(--muted)}
+.fs-round-tables b{color:#fff1c9}
+body.fs-open{overflow:hidden}
+@media(max-width:900px){.fs-view{overflow-y:auto}.fs-body{grid-template-columns:1fr}.fs-col{overflow:visible}}
+/* Commander info dialog (rankings and fullscreen board) */
+.rank-player{background:none;border:0;padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.rank-player>span:first-child{text-decoration:underline dotted #d8b67999;text-underline-offset:3px}
+.cmd-info-stats{margin:6px 0 12px;color:var(--gold);font-weight:700;font-size:.88rem}
+.cmd-info-card{display:block;width:min(100%,340px);margin:0 auto 14px;border-radius:4.5%/3.3%;box-shadow:0 10px 30px #000a}
+.cmd-info h3{margin:0 0 6px;font:700 1.2rem Georgia,serif;color:#f7e8c3}
+.cmd-oracle{line-height:1.5;font-size:.92rem}.cmd-oracle p{margin:0 0 7px}
+.oracle-type{color:var(--gold);font-weight:700}
+.oracle-pt{font-weight:800;text-align:right}
+.oracle-face+.oracle-face{border-top:1px solid var(--line);padding-top:9px;margin-top:9px}
+.cmd-info a{color:var(--gold)}
+
+/* Partner commanders */
+.cmd-picker.partner{margin-top:6px}
+.cmd-add-partner{margin-top:6px;background:none;border:1px dashed #d8b26a80;border-radius:10px;padding:7px 11px;font-size:.78rem;font-weight:700;color:var(--gold)}
+.cmd-add-partner:hover,.cmd-add-partner:focus-visible{background:#ffffff0b}
+.fs-art.duo{display:grid;grid-template-columns:1fr 1fr;gap:2px;overflow:hidden;background:none}.fs-art.duo img{width:100%;height:100%;object-fit:cover;display:block}
+.fs-art:not(.duo):not(.none){overflow:hidden}.fs-art:not(.duo)>img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
+.modal.wide{width:min(820px,100%)}
+.cmd-info-grid.duo{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:620px){.cmd-info-grid.duo{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -367,13 +523,14 @@ body.match-focus .quick .btn{min-width:0}
   <button id="gameMenuBackdrop" class="game-menu-backdrop" type="button" aria-label="Menü schließen"></button>
   <section class="game-menu-sheet" role="dialog" aria-modal="true" aria-labelledby="gameMenuTitle">
     <div class="game-menu-head"><div><p class="eyebrow">✧ Schlachtmenü ✧</p><h2 id="gameMenuTitle">Partie-Steuerung</h2></div><button id="menuClose" class="icon-btn" type="button" aria-label="Menü schließen">×</button></div>
+    <button id="menuTournament" class="btn menu-exit" type="button"><span class="menu-exit-title">🏆 Turnierübersicht</span><span class="menu-exit-sub">Lebenszähler verlassen · Partie bleibt gespeichert</span></button>
     <div id="menuSummary" class="menu-summary"></div>
     <div class="game-menu-grid">
       <button id="menuMode" class="btn" type="button">↕ Ansicht wechseln</button>
       <button id="menuPick" class="btn" type="button">🎲 Startspieler neu</button>
+      <button id="menuDice" class="btn" type="button">🪙 Münze & Würfel</button>
       <button id="menuUndo" class="btn" type="button">↶ Rückgängig</button>
       <button id="menuReset" class="btn warning" type="button">↻ Neue Partie</button>
-      <button id="menuTournament" class="btn" type="button">🏆 Zum Turnier</button>
       <button id="menuBackupExport" class="btn" type="button">⇩ Sichern</button>
       <button id="menuBackupImport" class="btn" type="button">⇧ Laden</button>
       <button id="menuWake" class="btn" type="button">☀ Bildschirm wachhalten</button>
@@ -403,24 +560,27 @@ body.match-focus .quick .btn{min-width:0}
   </div>
   <div id="tournamentActive" class="hidden">
     <div class="tour-card">
-      <div class="tour-head"><div><p class="eyebrow">Turnierübersicht</p><h2 id="tourTitle">Commander-Turnier</h2><p class="muted tiny" id="tourSubtitle"></p></div><button type="button" id="tourReset" class="btn warning">↻ Neues Turnier</button></div>
+      <div class="tour-head"><div><p class="eyebrow">Turnierübersicht</p><h2 id="tourTitle">Commander-Turnier</h2><p class="muted tiny" id="tourSubtitle"></p></div><div class="tour-actions"><button type="button" id="tourBoard" class="btn primary">⛶ Vollbild</button><button type="button" id="tourCommanders" class="btn">🃏 Commander</button><button type="button" id="tourReveal" class="btn" aria-pressed="true">✨ Enthüllung: AN</button><button type="button" id="tourReset" class="btn warning">↻ Neues Turnier</button></div></div>
       <div id="tourMetrics" class="tour-metrics"></div><div class="progress-track" aria-label="Turnierfortschritt"><div class="progress-fill" id="tourProgress"></div></div>
     </div>
     <div class="tour-card" id="roundEditorCard">
       <div class="round-top"><div><p class="eyebrow" id="roundEyebrow">✧ Die Begegnungen</p><h2 id="roundHeading">Runde 1</h2></div><button id="roundBack" type="button" class="btn">Aktuelle Runde ↗</button></div>
       <p class="muted tiny" id="roundHint">Berühre bei jedem Tisch den Sieger. Die Ergebnisse werden sofort gespeichert.</p>
       <div class="round-pager"><button id="roundPrev" type="button" class="btn">← Vorherige</button><span id="roundPageStatus" class="tiny muted"></span><button id="roundNext" type="button" class="btn">Nächste →</button></div>
+      <div id="revealStage" class="reveal-stage hidden" aria-live="polite"></div>
       <div id="winnerChoices" class="match-grid" aria-label="Begegnungen und Sieger"></div>
       <div id="roundStatus" class="round-saved" role="status" aria-live="polite"></div>
     </div>
     <div class="tour-card" id="rankingCard"><div class="tour-head"><div><p class="eyebrow">Live-Auswertung</p><h2>🏅 Rangliste</h2></div><button type="button" id="tourCsv" class="btn">↓ CSV exportieren</button></div>
       <div class="rank-scroll"><table class="rank-table"><thead><tr><th>Rang</th><th>Spieler</th><th>Siege</th><th>Gespielt</th><th>Pausen (Plan)</th><th>Siege in Runde</th></tr></thead><tbody id="rankingBody"></tbody></table></div>
-      <p class="notice-inline">Rangfolge nach Siegen. Bei Gleichstand teilen sich die Spieler denselben Platz. „Gespielt“ zählt dokumentierte Partien; „Pausen“ zeigt die Pausen im gesamten Turnierplan.</p>
+      <p class="notice-inline">Rangfolge nach Siegen. Bei Gleichstand teilen sich die Spieler denselben Platz. Betrifft ein Gleichstand die Plätze 1–3, entscheidet nach der letzten Runde eine Finalrunde. „Gespielt“ zählt dokumentierte Partien; „Pausen“ zeigt die Pausen im gesamten Turnierplan.</p>
     </div>
-    <div class="tour-card"><div class="tour-head"><div><p class="eyebrow">Ergebnisarchiv</p><h2>Alle Runden</h2></div></div><div id="roundsList" class="rounds-list"></div><p class="notice-inline">Alle Paarungen sind vorab festgelegt. Über „Ansehen“ kannst du Rundensieger jederzeit nachtragen oder ändern. Die Durchmischung ist heuristisch optimiert und nicht mathematisch garantiert perfekt.</p></div>
+    <div class="tour-card"><div class="tour-head"><div><p class="eyebrow">Ergebnisarchiv</p><h2>Alle Runden</h2></div></div><div id="roundsList" class="rounds-list"></div><p class="notice-inline">Alle Paarungen sind vorab festgelegt. Über „Ansehen“ kannst du Rundensieger jederzeit nachtragen oder ändern. Die Durchmischung ist heuristisch optimiert. Ausnahme bei 7 Spielern: Dort ist garantiert, dass in je 7 Runden jeder genau einmal pausiert und auf jeden anderen genau zweimal trifft.</p></div>
   </div>
 </section>
 </main>
+<div id="fsView" class="fs-view hidden" role="dialog" aria-modal="true" aria-labelledby="fsTitle"><img class="fs-crest-bg" src="./crest-3x.webp" alt=""><header class="fs-head"><div class="fs-brand"><img src="./crest-1x.webp" srcset="./crest-1x.webp 1x, ./crest-2x.webp 2x, ./crest-3x.webp 3x" alt=""><div><p class="eyebrow">✧ Turnierübersicht ✧</p><h2 id="fsTitle">Commander-Turnier</h2></div></div><div class="fs-progress"><div id="fsMetrics" class="tour-metrics"></div><div class="progress-track"><div class="progress-fill" id="fsProgressFill"></div></div></div><button type="button" id="fsClose" class="btn fs-close">✕ Vollbild beenden</button></header><div class="fs-body"><section class="fs-col" aria-label="Rangliste"><h3>🏅 Rangliste</h3><div id="fsRanking" class="fs-rank"></div></section><section class="fs-col" aria-label="Begegnungen"><div id="fsRound"></div></section><section class="fs-col" aria-label="Alle Runden"><h3>📜 Alle Runden</h3><div id="fsRounds" class="fs-rounds"></div></section></div></div>
+<div id="spinOverlay" class="spin-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="spinTitle"><h2 id="spinTitle" class="spin-title">🎲 Wer beginnt?</h2><div id="spinCard" class="spin-card"><div id="spinName" class="spin-name"></div></div><div id="spinSeats" class="spin-seats" aria-hidden="true"></div><p id="spinResult" class="spin-result" aria-live="polite"></p><p id="spinHint" class="spin-hint">Tippen zum Überspringen</p></div>
 <div id="modalBackdrop" class="modal-back hidden" role="presentation"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><h2 id="modalTitle">Zähler</h2><button id="modalClose" class="icon-btn" type="button" aria-label="Schließen">×</button></div><div id="modalContent"></div></div></div>
 <script>
 (function(){
@@ -438,7 +598,77 @@ function remember(){if(!state)return;history.push(JSON.stringify(state));if(hist
 function setChoice(n){selectedCount=n;var buttons=el('playerChoices').querySelectorAll('button');for(var i=0;i<buttons.length;i++){var chosen=Number(buttons[i].getAttribute('data-n'))===n;buttons[i].classList.toggle('selected',chosen);buttons[i].setAttribute('aria-pressed',chosen?'true':'false')}}
 function buildChoices(){var html='';for(var i=2;i<=8;i++)html+='<button type="button" class="choice" data-n="'+i+'" aria-label="'+i+' Spieler">'+i+'</button>';el('playerChoices').innerHTML=html;setChoice(selectedCount)}
 function revealSetup(){closeModal();closeGameMenu();document.body.classList.remove('table-mode');document.body.classList.remove('match-focus');el('setup').classList.remove('hidden');el('game').classList.add('hidden');el('gameTag').textContent='Neue Partie';el('announcement').classList.add('hidden')}
-function beginGame(event){if(event)event.preventDefault();var life=limit(parseInt(el('startingLife').value,10)||40,1,999);var n=selectedCount;var players=[];for(var i=0;i<n;i++){var damages=[];for(var j=0;j<n;j++)damages.push(0);players.push({name:'Spieler '+(i+1),life:life,poison:0,experience:0,commander:damages})}state={version:2,mode:'table',starter:pickRandom(n),players:players};history=[];store();render();announce('🎲 '+state.players[state.starter].name+' beginnt!');window.scrollTo(0,0)}
+function freshState(names){var life=limit(parseInt(el('startingLife').value,10)||40,1,999),n=names.length,players=[];for(var i=0;i<n;i++){var damages=[];for(var j=0;j<n;j++)damages.push(0);players.push({name:names[i],life:life,poison:0,experience:0,commander:damages})}return {version:2,mode:'table',starter:pickRandom(n),players:players}}
+function beginGame(event){if(event)event.preventDefault();var names=[];for(var i=0;i<selectedCount;i++)names.push('Spieler '+(i+1));state=freshState(names);history=[];store();render();el('announcement').classList.add('hidden');runStarterSpin();window.scrollTo(0,0)}
+// Starting player draw: the players' cards cycle one after another, slow down and stop at the drawn starter.
+// Uses the commander art of a player if one is attached (p.art from Scryfall), otherwise the player's colour.
+var spin=null,SPIN_MS=3500;
+function spinShow(i,landed){
+ var p=state.players[i],card=el('spinCard'),art=typeof p.art==='string'&&/^https:\/\/cards\.scryfall\.io\//.test(p.art)?p.art:'';
+ card.style.setProperty('--spin-bg',art?'url("'+art.replace(/["\\]/g,'')+'")':'radial-gradient(circle at 50% 35%,'+PALETTE[i%PALETTE.length]+' 0,#141c1b 75%)');
+ card.classList.toggle('no-art',!art);el('spinName').textContent=p.name;
+ card.classList.remove('tick','landed');void card.offsetWidth;card.classList.add(landed?'landed':'tick');
+ var seats=el('spinSeats').children;for(var k=0;k<seats.length;k++)seats[k].classList.toggle('on',k===i);
+}
+function spinFinish(){
+ if(!spin)return;clearTimeout(spin.timer);
+ if(!spin.landed){spin.landed=true;spinShow(state.starter,true);el('spinResult').textContent='★ '+state.players[state.starter].name+' beginnt!';el('spinHint').textContent='Tippen zum Weiterspielen';spin.timer=setTimeout(spinClose,2600);return}
+}
+function matchRoundLabel(){var m=state&&state.tournamentMatch;return !m?'':typeof m.label==='string'?m.label:'Runde '+(m.round+1)}
+function spinClose(){if(!spin)return;clearTimeout(spin.timer);spin=null;el('spinOverlay').classList.add('hidden');if(state)announce((state.tournamentMatch?'🏆 '+matchRoundLabel()+' · Tisch '+(state.tournamentMatch.table+1)+' — ':'')+'🎲 '+state.players[state.starter].name+' beginnt!')}
+function runStarterSpin(){
+ if(!state)return;closeGameMenu();if(spin){clearTimeout(spin.timer);spin=null}
+ var n=state.players.length,quick=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ el('spinSeats').innerHTML=state.players.map(function(p){return '<span class="spin-seat">'+esc(p.name)+'</span>'}).join('');
+ el('spinResult').textContent='';el('spinHint').textContent='Tippen zum Überspringen';el('spinOverlay').classList.remove('hidden');
+ // At least three laps and about 24 cards; the last step lands exactly on the drawn starter.
+ // The steps slow down (cubic) and are scaled so the draw takes SPIN_MS regardless of the player count;
+ // each change is scheduled against the start time so timer delays do not add up.
+ var laps=Math.max(3,Math.ceil(24/n)),from=pickRandom(n),steps=laps*n+((state.starter-from-laps*n)%n+n)%n,raw=[],sum=0,delays=[];
+ for(var k=0;k<steps;k++){var t=k/Math.max(1,steps-1);raw.push(1+9*t*t*t);sum+=raw[k]}
+ for(k=0;k<steps;k++)delays.push(Math.round(raw[k]*SPIN_MS/sum));
+ spin={timer:null,landed:false};
+ if(quick||n<2){spinFinish();return}
+ var at=from,k2=0,t0=Date.now(),due=0;spinShow(at,false);
+ (function step(){if(!spin)return;if(k2>=steps){spinFinish();return}due+=delays[k2];spin.timer=setTimeout(function(){at=(at+1)%n;k2++;if(k2>=steps){spinFinish();return}spinShow(at,false);step()},Math.max(0,t0+due-Date.now()))})();
+}
+// Coin flip and dice with any number of sides (W2–W1000), with a short roll animation and a small history for this session.
+var diceHistory=[],diceSides=100,diceTimer=null;
+function openDice(){
+ closeGameMenu();el('modalTitle').textContent='🪙 Münze & Würfel';
+ el('modalContent').innerHTML='<div class="dice-result"><span id="diceFace" class="dice-face">?</span><span id="diceLabel" class="dice-label" aria-live="polite">Wirf eine Münze oder einen Würfel.</span></div>'+
+ '<h3 class="section-label">Münze</h3><button type="button" class="btn primary dice-coin" data-roll="coin">🪙 Münze werfen</button>'+
+ '<h3 class="section-label">Würfel</h3><div class="dice-grid">'+[4,6,8,10,12,20].map(function(n){return '<button type="button" class="btn" data-roll="die" data-sides="'+n+'">W'+n+'</button>'}).join('')+'</div>'+
+ '<div class="dice-custom"><label for="diceSides">Eigener W</label><input id="diceSides" type="number" min="2" max="1000" step="1" inputmode="numeric" value="'+diceSides+'" aria-label="Anzahl der Seiten (2 bis 1000)"><button type="button" class="btn" data-roll="custom">Würfeln</button></div>'+
+ '<div id="diceHistory" class="dice-history" aria-label="Letzte Würfe"></div><div class="modal-actions"><button class="btn primary" type="button" id="modalDone">Fertig</button></div>';
+ activeModal=null;el('modalBackdrop').classList.remove('hidden');renderDiceHistory();
+}
+function renderDiceHistory(){var box=el('diceHistory');if(box)box.innerHTML=diceHistory.map(function(h){return '<span>'+esc(h)+'</span>'}).join('')}
+function rollDice(kind,sides){
+ var face=el('diceFace'),label=el('diceLabel');if(!face)return;clearInterval(diceTimer);
+ var coin=kind==='coin',result=coin?pickRandom(2):pickRandom(sides)+1,name=coin?'Münze':'W'+sides;
+ var text=coin?(result===0?'Kopf':'Zahl'):String(result),quick=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+ function done(){
+  clearInterval(diceTimer);diceTimer=null;face.textContent=text;face.className='dice-face';void face.offsetWidth;
+  var crit=!coin&&sides>=6&&result===sides,fumble=!coin&&sides>=6&&result===1;
+  face.classList.add('settle');if(crit)face.classList.add('crit');if(fumble)face.classList.add('fumble');
+  label.textContent=name+(coin?'':' · 1–'+sides)+(crit?' · Höchstwurf!':fumble?' · Eins!':'');
+  diceHistory.unshift(name+': '+text);diceHistory=diceHistory.slice(0,10);renderDiceHistory();
+ }
+ face.className='dice-face';void face.offsetWidth;label.textContent=coin?'Die Münze fliegt …':name+' rollt …';
+ if(quick){done();return}
+ if(coin){face.textContent='🪙';face.classList.add('flipping');diceTimer=setTimeout(done,900);return}
+ face.classList.add('rolling');var ticks=0;
+ diceTimer=setInterval(function(){face.textContent=String(pickRandom(sides)+1);if(++ticks>=12)done()},60);
+}
+function onDiceClick(e){
+ var b=e.target.closest('button[data-roll]');if(!b)return;var kind=b.getAttribute('data-roll');
+ if(kind==='coin'){rollDice('coin');return}
+ if(kind==='die'){rollDice('die',Number(b.getAttribute('data-sides')));return}
+ var input=el('diceSides'),n=parseInt(input.value,10);
+ if(!Number.isInteger(n)||n<2||n>1000){input.reportValidity();return}
+ diceSides=n;rollDice('die',n);
+}
 function announce(message){el('announcement').textContent=message;el('announcement').classList.remove('hidden')}
 function gameSummaryHTML(){
  if(!state)return '';
@@ -446,6 +676,7 @@ function gameSummaryHTML(){
  return '<div class="menu-stat"><span>Spieler</span><strong>'+state.players.length+'</strong></div>'+
  '<div class="menu-stat"><span>Startspieler</span><strong>'+esc(starter)+'</strong></div>'+
  '<div class="menu-stat"><span>Ansicht</span><strong>'+(state.mode==='table'?'Tabletop':'Standard')+'</strong></div>'+
+ (state.tournamentMatch?'<div class="menu-stat"><span>Turnier</span><strong>'+esc(matchRoundLabel())+' · Tisch '+(state.tournamentMatch.table+1)+'</strong></div>':'')+
  '<div class="menu-stat"><span>Rückgängig</span><strong>'+(history.length?history.length+' Schritte':'leer')+'</strong></div>'+
  (el('announcement').textContent?'<p class="menu-note">'+esc(el('announcement').textContent)+'</p>':'');
 }
@@ -588,7 +819,7 @@ function render(){
 }
 function adjust(i,key,d,source){if(!state||!state.players[i]||!Number.isFinite(d))return;var p=state.players[i];remember();if(key==='life')p.life=limit(p.life+d,-999,999);else if(key==='commander'){if(!Number.isInteger(source)||source<0||source>=state.players.length||source===i){history.pop();return}p.commander[source]=limit(p.commander[source]+d,0,999)}else if(key==='poison'||key==='experience')p[key]=limit(p[key]+d,0,999);else{history.pop();return}store();render()}
 function openModal(i){if(!state||!state.players[i])return;closeGameMenu();activeModal=i;el('modalBackdrop').classList.remove('hidden');renderModal()}
-function closeModal(){activeModal=null;el('modalBackdrop').classList.add('hidden')}
+function closeModal(){el('modalBackdrop').firstChild.classList.remove('wide');clearInterval(diceTimer);clearTimeout(diceTimer);diceTimer=null;activeModal=null;el('modalBackdrop').classList.add('hidden')}
 function counterHTML(title,i,key,value,source){var extra=typeof source==='number'?' data-source="'+source+'"':'';return '<div class="counter-row"><span class="who">'+esc(title)+'</span><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="-1"'+extra+' aria-label="'+esc(title)+' reduzieren">−</button><output>'+value+'</output><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="1"'+extra+' aria-label="'+esc(title)+' erhöhen">+</button></div>'}
 function renderModal(){if(activeModal===null||!state||!state.players[activeModal])return;var i=activeModal,p=state.players[i];el('modalTitle').textContent=p.name+' · Zähler';var html='<div class="field"><label for="editName">Spielername</label><input id="editName" type="text" maxlength="35" autocomplete="off" value="'+esc(p.name)+'"></div>';
 html+='<h3 class="section-label">Status & Marken</h3>'+counterHTML('☠ Giftmarken',i,'poison',p.poison)+counterHTML('✦ Erfahrungsmarken',i,'experience',p.experience);
@@ -598,8 +829,53 @@ function newGamePrompt(){closeGameMenu();el('modalTitle').textContent='Neue Part
 function validate(s){if(!s||!Array.isArray(s.players)||s.players.length<2||s.players.length>8)return false;var n=s.players.length;if(!Number.isInteger(s.starter)||s.starter<0||s.starter>=n)return false;for(var i=0;i<n;i++){var p=s.players[i];if(!p||typeof p.name!=='string'||!Number.isFinite(p.life)||!Number.isFinite(p.poison)||!Number.isFinite(p.experience)||!Array.isArray(p.commander)||p.commander.length!==n)return false;for(var j=0;j<n;j++)if(!Number.isFinite(p.commander[j]))return false}return true}
 function restore(){try{var raw=window.localStorage.getItem(STORAGE);if(raw){var candidate=JSON.parse(raw);if(validate(candidate)){state=candidate;state.mode=(state.mode==='table'?'table':'standard');return true}}}catch(e){}return false}
 function migrate(){try{var raw=window.localStorage.getItem('commander-life-tracker-v1');if(!raw)return false;var s=JSON.parse(raw);if(!validate(s))return false;state={version:2,mode:'standard',starter:s.starter,players:s.players};store();return true}catch(e){return false}}
-function onBoardClick(e){var node=e.target.closest('button[data-act]');if(!node)return;var i=parseInt(node.getAttribute('data-i'),10);var action=node.getAttribute('data-act');if(action==='life')adjust(i,'life',Number(node.getAttribute('data-d')));else if(action==='modal')openModal(i)}
-function onModalClick(e){var btn=e.target.closest('button');if(!btn)return;if(btn.id==='modalDone'||btn.id==='keepGame'){closeModal();return}if(btn.id==='reallyResetTour'){closeModal();tournament=null;editingRound=null;try{window.localStorage.removeItem(TOUR_STORAGE)}catch(e){}renderTournament();return}if(btn.id==='reallyReset'){closeModal();state=null;history=[];discard();revealSetup();window.scrollTo(0,0);return}if(btn.getAttribute('data-act')==='adjust'){var i=Number(btn.getAttribute('data-i')),key=btn.getAttribute('data-key'),d=Number(btn.getAttribute('data-d')),source=btn.hasAttribute('data-source')?Number(btn.getAttribute('data-source')):undefined;adjust(i,key,d,source)}}
+// Press and hold on any − / + (life on the board, poison, experience and commander damage in the counter dialog):
+// the value keeps changing until release and speeds up the longer the button is held.
+// Only the number is updated while holding; everything is redrawn on release, and a whole hold is one undo step.
+var holds={},lastHoldEnd=0,HOLD_BUTTONS='.step[data-act="life"],.mini[data-act="adjust"]';
+function holdButton(h){
+ if(h.key==='life')return el('board').querySelector('.step[data-act="life"][data-i="'+h.i+'"][data-d="'+h.d+'"]');
+ if(activeModal!==h.i)return null;
+ return el('modalContent').querySelector('.mini[data-key="'+h.key+'"][data-d="'+h.d+'"]'+(h.key==='commander'?'[data-source="'+h.source+'"]':''));
+}
+function holdStep(h){
+ var p=state.players[h.i];
+ if(h.key==='life'){var before=p.life;p.life=limit(p.life+h.d,-999,999);return {value:p.life,change:p.life-before}}
+ if(h.key==='commander'){var c=p.commander[h.source];p.commander[h.source]=limit(c+h.d,0,999);return {value:p.commander[h.source],change:p.commander[h.source]-c}}
+ var old=p[h.key];p[h.key]=limit(old+h.d,0,999);return {value:p[h.key],change:p[h.key]-old};
+}
+function holdTick(id){
+ var h=holds[id];if(!h||!state||!state.players[h.i])return;
+ var step=holdStep(h);h.total+=step.change;
+ var btn=holdButton(h);
+ if(btn){
+  btn.classList.add('holding');
+  if(h.key==='life'){
+   var box=btn.closest('.life-controls');box.querySelector('.life-value').textContent=step.value;
+   var badge=box.querySelector('.life-delta');if(!badge){badge=document.createElement('span');badge.className='life-delta';badge.setAttribute('aria-hidden','true');box.querySelector('.life-display').appendChild(badge)}
+   badge.textContent=(h.total>0?'+':h.total<0?'−':'±')+Math.abs(h.total);
+  }else btn.closest('.counter-row').querySelector('output').textContent=step.value;
+ }
+ h.count++;
+ h.timer=setTimeout(function(){holdTick(id)},h.count===1?450:Math.max(35,Math.round(170*Math.pow(.86,h.count-2))));
+}
+function startHold(e){
+ var btn=e.target.closest(HOLD_BUTTONS);if(!btn||!state||(e.pointerType==='mouse'&&e.button!==0))return;
+ var h={i:parseInt(btn.getAttribute('data-i'),10),key:btn.getAttribute('data-act')==='life'?'life':btn.getAttribute('data-key'),d:Number(btn.getAttribute('data-d')),source:btn.hasAttribute('data-source')?Number(btn.getAttribute('data-source')):null,count:0,total:0};
+ var p=state.players[h.i];if(!p||!Number.isFinite(h.d)||['life','poison','experience','commander'].indexOf(h.key)<0)return;
+ if(h.key==='commander'&&(!Number.isInteger(h.source)||h.source<0||h.source>=state.players.length||h.source===h.i))return;
+ endHold(e.pointerId);remember();holds[e.pointerId]=h;holdTick(e.pointerId);
+}
+function endHold(id,cancelled){
+ var h=holds[id];if(!h)return;clearTimeout(h.timer);delete holds[id];lastHoldEnd=Date.now();
+ var others=Object.keys(holds).length>0;
+ // A cancelled short touch (e.g. the page or dialog started scrolling) should not change anything.
+ if((cancelled&&h.count<=1)||h.total===0){if(state&&state.players[h.i]){h.d=-h.total;if(h.d)holdStep(h)}if(!others)history.pop()}
+ store();if(!others)render();
+}
+function endAllHolds(){Object.keys(holds).forEach(function(id){endHold(id)})}
+function onBoardClick(e){var node=e.target.closest('button[data-act]');if(!node)return;var i=parseInt(node.getAttribute('data-i'),10);var action=node.getAttribute('data-act');if(action==='life'&&window.PointerEvent&&Date.now()-lastHoldEnd<700)return;if(action==='life')adjust(i,'life',Number(node.getAttribute('data-d')));else if(action==='modal')openModal(i)}
+function onModalClick(e){var btn=e.target.closest('button');if(!btn)return;if(btn.id==='modalDone'||btn.id==='keepGame'){closeModal();return}if(btn.id==='reallyResetTour'){closeModal();tournament=null;editingRound=null;try{window.localStorage.removeItem(TOUR_STORAGE)}catch(e){}renderTournament();return}if(btn.id==='reallyPlayMatch'){closeModal();launchTournamentMatch(Number(btn.getAttribute('data-round')),Number(btn.getAttribute('data-table')));return}if(btn.id==='reallyReset'){closeModal();state=null;history=[];discard();revealSetup();window.scrollTo(0,0);return}if(btn.getAttribute('data-act')==='adjust'){if(window.PointerEvent&&Date.now()-lastHoldEnd<700)return;var i=Number(btn.getAttribute('data-i')),key=btn.getAttribute('data-key'),d=Number(btn.getAttribute('data-d')),source=btn.hasAttribute('data-source')?Number(btn.getAttribute('data-source')):undefined;adjust(i,key,d,source)}}
 function onNameChange(e){if(e.target.id!=='editName'||activeModal===null||!state)return;var name=e.target.value.trim().slice(0,35)||'Spieler '+(activeModal+1);if(state.players[activeModal].name===name)return;remember();state.players[activeModal].name=name;store();render();el('modalTitle').textContent=name+' · Zähler'}
 
 
@@ -608,24 +884,25 @@ var TOUR_STORAGE='commander-companion-tournament-v2',LEGACY_TOUR_STORAGE='comman
 var tournament=null,editingRound=null,planningTournament=false,PLAN_BUDGET_MS=1500;
 function saveTournament(){try{localStorage.setItem(TOUR_STORAGE,JSON.stringify(tournament))}catch(e){}}
 function validTournament(t){
- if(!t||t.version!==2||!Array.isArray(t.players)||t.players.length<2||t.players.length>32||!Number.isInteger(t.rounds)||t.rounds<1||t.rounds>50||!Array.isArray(t.schedule)||t.schedule.length!==t.rounds)return false;
+ if(!t||t.version!==2||!Array.isArray(t.players)||t.players.length<2||t.players.length>32||!Number.isInteger(t.rounds)||t.rounds<1||t.rounds>50||!Array.isArray(t.schedule)||t.schedule.length<t.rounds||t.schedule.length>t.rounds+MAX_FINALS)return false;
  var n=t.players.length;
  for(var i=0;i<n;i++)if(typeof t.players[i]!=='string')return false;
- for(var r=0;r<t.rounds;r++){
-  var round=t.schedule[r],seen=new Set();if(!round||!Array.isArray(round.tables)||round.tables.length<1||!(round.bye===null||(Number.isInteger(round.bye)&&round.bye>=0&&round.bye<n)))return false;
+ for(var r=0;r<t.schedule.length;r++){
+  var round=t.schedule[r],fin=r>=t.rounds,seen=new Set();if(!round||!Array.isArray(round.tables)||round.tables.length<1||!(round.bye===null||(Number.isInteger(round.bye)&&round.bye>=0&&round.bye<n)))return false;
+  if(fin&&(round.final!==true||round.bye!==null))return false;
   if(round.bye!==null)seen.add(round.bye);
   var size=round.tables[0].players.length;
   for(var j=0;j<round.tables.length;j++){
-   var m=round.tables[j];if(!m||!Array.isArray(m.players)||m.players.length!==size||size<2||m.players.length>n)return false;
+   var m=round.tables[j];if(!m||!Array.isArray(m.players)||(!fin&&m.players.length!==size)||m.players.length<2||m.players.length>n)return false;
    for(var k=0;k<m.players.length;k++){var idx=m.players[k];if(!Number.isInteger(idx)||idx<0||idx>=n||seen.has(idx))return false;seen.add(idx)}
    if(m.winner!==null&&!m.players.includes(m.winner))return false;
   }
-  if(seen.size!==n)return false;
+  if(!fin&&seen.size!==n)return false;
  }
  return true;
 }
 function loadTournament(){
- try{var raw=localStorage.getItem(TOUR_STORAGE);if(raw){var t=JSON.parse(raw);if(validTournament(t)){tournament=t;return}}}catch(e){}
+ try{var raw=localStorage.getItem(TOUR_STORAGE);if(raw){var t=JSON.parse(raw);if(validTournament(t)){tournament=normalizeCommanders(t);return}}}catch(e){}
  // Older, single-winner tournaments with at most four players can be migrated faithfully.
  try{var old=JSON.parse(localStorage.getItem(LEGACY_TOUR_STORAGE)||'null');if(!old||!Array.isArray(old.players)||old.players.length<2||old.players.length>4||!Number.isInteger(old.rounds)||old.rounds<1||old.rounds>50||!Array.isArray(old.results)||old.results.length!==old.rounds)return;
  var schedule=planTournament(old.players.length,old.rounds);
@@ -671,7 +948,23 @@ function optimizeGroups(active,size,hist,previous,n){
  }
  return best;
 }
-function planTournament(n,rounds){
+// 7 players (2 tables of 3, 1 bye): cyclic design over Z7 with base tables {1,2,4} and {3,5,6}.
+// Every block of 7 rounds: each player sits out exactly once and meets every other player exactly twice.
+function planSeven(rounds){
+ var schedule=[],perm,order;
+ for(var r=0;r<rounds;r++){
+  if(r%7===0){perm=shuffleCopy([0,1,2,3,4,5,6]);order=shuffleCopy([0,1,2,3,4,5,6]);
+   // New block: never let the first bye repeat the last bye of the previous block.
+   if(r>0&&perm[order[0]]===schedule[r-1].bye){var tmp=order[0];order[0]=order[1];order[1]=tmp}}
+  var k=order[r%7],at=function(d){return perm[(k+d)%7]};
+  var tables=shuffleCopy([[at(1),at(2),at(4)],[at(3),at(5),at(6)]]).map(function(m){return {players:shuffleCopy(m),winner:null}});
+  schedule.push({bye:at(0),tables:tables});
+ }
+ return schedule;
+}
+// general=true skips the fixed 7-player design so the optimizer can compare it with the general planner.
+function planTournament(n,rounds,general){
+ if(n===7&&!general)return planSeven(rounds);
  var layout=getLayout(n),hist=new Uint16Array(n*n),schedule=[],previous=null;
  var byeOrder=shuffleCopy(Array.from({length:n},function(_,i){return i}));
  for(var r=0;r<rounds;r++){
@@ -706,15 +999,108 @@ function scheduleCost(schedule,n){
 function betterCost(a,b){for(var i=0;i<a.key.length;i++)if(a.key[i]!==b.key[i])return a.key[i]<b.key[i];return false}
 // Plans repeatedly within a time budget and keeps the best schedule; yields between attempts so the page stays responsive.
 function planBestTournament(n,rounds,done){
- var deadline=Date.now()+PLAN_BUDGET_MS,best=planTournament(n,rounds);
+ var deadline=Date.now()+PLAN_BUDGET_MS,best=planTournament(n,rounds),attempt=0;
  if(getLayout(n).tables===1){done(best);return}
  var bestCost=scheduleCost(best,n);
  (function step(){
   if(bestCost.ideal||Date.now()>=deadline){done(best);return}
-  var trial=planTournament(n,rounds),cost=scheduleCost(trial,n);
+  // For 7 players, alternate between Sven's fixed design and the general planner; the better schedule wins.
+  attempt++;var trial=planTournament(n,rounds,n===7&&attempt%2===1),cost=scheduleCost(trial,n);
   if(betterCost(cost,bestCost)){best=trial;bestCost=cost}
   setTimeout(step,0);
  })();
+}
+// Commander search via the public Scryfall API. Only card name, artist and image URLs are stored; images load from Scryfall.
+var setupCommanders=[],cmdResults={},cmdTimers={},cmdAbort={};
+var SCRYFALL_IMG=/^https:\/\/cards\.scryfall\.io\//;
+function cmdFromCard(c){var img=c.image_uris||(c.card_faces&&c.card_faces[0]&&c.card_faces[0].image_uris)||{};return {name:String(c.name||'').slice(0,150),image:img.normal||img.large||'',art:img.art_crop||img.normal||'',artist:String(c.artist||'').slice(0,100),uri:String(c.scryfall_uri||'')}}
+function validCommander(c){return !!c&&typeof c.name==='string'&&c.name.length>0&&typeof c.image==='string'&&typeof c.art==='string'&&(!c.image||SCRYFALL_IMG.test(c.image))&&(!c.art||SCRYFALL_IMG.test(c.art))}
+// A commander may carry a second commander in c.partner (Partner, Friends forever, Background, Doctor's companion). Invalid or nested partners are dropped.
+function cleanCommander(c){if(!validCommander(c))return null;var out={name:c.name,image:c.image,art:c.art,artist:typeof c.artist==='string'?c.artist:'',uri:typeof c.uri==='string'?c.uri:''};if(c.partner&&validCommander(c.partner))out.partner={name:c.partner.name,image:c.partner.image,art:c.partner.art,artist:typeof c.partner.artist==='string'?c.partner.artist:'',uri:typeof c.partner.uri==='string'?c.partner.uri:''};return out}
+function normalizeCommanders(t){var list=Array.isArray(t.commanders)&&t.commanders.length===t.players.length?t.commanders:[];t.commanders=t.players.map(function(_,i){return cleanCommander(list[i])});return t}
+function cmdCards(c){return c?(c.partner?[c,c.partner]:[c]):[]}
+function cmdName(c){return cmdCards(c).map(function(x){return x.name}).join(' + ')}
+function cmdArtImgs(c,cls){return cmdCards(c).filter(function(x){return x.art}).map(function(x){return '<img'+(cls?' class="'+cls+'"':'')+' src="'+esc(x.art)+'" alt="" loading="lazy">'}).join('')}
+function commanderOf(idx){return tournament&&tournament.commanders&&tournament.commanders[idx]||null}
+function cmdThumb(idx){var c=commanderOf(idx);return c?cmdArtImgs(c,'wc-art'):''}
+function cmdTag(idx){var c=commanderOf(idx);return c?'<span class="cmd-tag">'+cmdArtImgs(c)+esc(cmdName(c))+'</span>':''}
+// Slot keys: "setup:3" / "tour:3" is the commander of player 3, a trailing ":p" addresses the partner.
+function mainSlot(key){var k=key.split(':');return k[0]+':'+k[1]}
+function isPartnerSlot(key){return key.split(':')[2]==='p'}
+function getSlot(key){var k=key.split(':'),i=Number(k[1]),c=k[0]==='setup'?setupCommanders[i]||null:commanderOf(i);return isPartnerSlot(key)?(c&&c.partner)||null:c}
+function setSlot(key,value){
+ var k=key.split(':'),i=Number(k[1]),old=getSlot(mainSlot(key)),next;
+ if(isPartnerSlot(key)){if(!old)return;next=cleanCommander(old);if(value)next.partner=cleanCommander(value);else delete next.partner}
+ else{next=value?cleanCommander(value):null;if(next&&old&&old.partner)next.partner=old.partner}
+ if(k[0]==='setup'){setupCommanders[i]=next;return}if(!tournament)return;tournament.commanders[i]=next;saveTournament();renderTournament();
+}
+var partnerOpen={};
+function slotHTML(key,label){
+ var c=getSlot(key),partner=isPartnerSlot(key),open='<div class="cmd-picker'+(partner?' partner':'')+'" data-slot="'+key+'" data-label="'+esc(label)+'">';
+ if(c)return open+'<div class="cmd-picked">'+(c.art?'<img src="'+esc(c.art)+'" alt="">':'')+'<span>'+esc(c.name)+(c.artist?'<small>🎨 '+esc(c.artist)+'</small>':'')+'</span><button type="button" class="cmd-clear" aria-label="'+(partner?'Partner':'Commander')+' von '+esc(label)+' entfernen">×</button></div></div>';
+ return open+'<input type="search" class="cmd-input" maxlength="60" autocomplete="off" enterkeyhint="search" placeholder="'+(partner?'🔍 Partner / Background suchen …':'🔍 Commander suchen …')+'" aria-label="'+(partner?'Partner':'Commander')+' für '+esc(label)+'"><div class="cmd-results" role="listbox"></div></div>';
+}
+function cmdPickerHTML(key,label){
+ var c=getSlot(key),html='<div class="cmd-pair" data-pair="'+key+'" data-label="'+esc(label)+'">'+slotHTML(key,label);
+ if(c&&(c.partner||partnerOpen[key]))html+=slotHTML(key+':p',label);
+ else if(c)html+='<button type="button" class="cmd-add-partner" data-add-partner="'+key+'">+ Partner-Commander</button>';
+ return html+'</div>';
+}
+function refreshPicker(picker,focus){
+ var pair=picker.closest('.cmd-pair'),key=pair.getAttribute('data-pair'),focusSlot=picker.getAttribute&&picker.getAttribute('data-slot'),tmp=document.createElement('div');
+ tmp.innerHTML=cmdPickerHTML(key,pair.getAttribute('data-label'));var fresh=tmp.firstChild;pair.replaceWith(fresh);
+ if(focus){var target=fresh.querySelector('.cmd-picker[data-slot="'+(focusSlot||key)+'"] .cmd-input')||fresh.querySelector('.cmd-input');if(target)target.focus()}
+}
+function searchCommanders(input){
+ var picker=input.closest('.cmd-picker'),key=picker.getAttribute('data-slot'),box=picker.querySelector('.cmd-results'),term=input.value.trim();
+ clearTimeout(cmdTimers[key]);if(cmdAbort[key])cmdAbort[key].abort();cmdResults[key]=[];
+ if(term.length<2){box.innerHTML='';return}
+ box.innerHTML='<p class="cmd-msg">Suche …</p>';
+ cmdTimers[key]=setTimeout(function(){
+  var ctrl=window.AbortController?new AbortController():null;cmdAbort[key]=ctrl;
+  fetch('https://api.scryfall.com/cards/search?order=edhrec&unique=cards&q='+encodeURIComponent(term+' is:commander'+(isPartnerSlot(key)?' (o:partner or o:"friends forever" or o:"doctor\'s companion" or o:"choose a background" or t:background or t:"time lord")':'')),{headers:{Accept:'application/json'},signal:ctrl?ctrl.signal:undefined})
+  .then(function(r){if(r.status===404)return {data:[]};if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+  .then(function(d){
+   var list=(d.data||[]).map(cmdFromCard).filter(validCommander).slice(0,8);cmdResults[key]=list;
+   box.innerHTML=list.length?list.map(function(c,i){return '<button type="button" class="cmd-option" role="option" data-pick="'+i+'">'+(c.art?'<img src="'+esc(c.art)+'" alt="" loading="lazy">':'')+'<span>'+esc(c.name)+'</span></button>'}).join(''):'<p class="cmd-msg">Kein Commander gefunden.</p>';
+  })
+  .catch(function(e){if(e&&e.name==='AbortError')return;box.innerHTML='<p class="cmd-msg">Suche nicht möglich. Bist du offline?</p>'});
+ },300);
+}
+function pickCommander(picker,i){var key=picker.getAttribute('data-slot'),c=(cmdResults[key]||[])[i];if(!c)return;setSlot(key,c);refreshPicker(picker)}
+function onCommanderClick(e){
+ var add=e.target.closest('.cmd-add-partner');if(add){var key=add.getAttribute('data-add-partner');partnerOpen[key]=true;var pair=add.closest('.cmd-pair'),tmp=document.createElement('div');tmp.innerHTML=cmdPickerHTML(key,pair.getAttribute('data-label'));var fresh=tmp.firstChild;pair.replaceWith(fresh);var input=fresh.querySelector('.cmd-picker.partner .cmd-input');if(input)input.focus();return}
+ var option=e.target.closest('.cmd-option');if(option){pickCommander(option.closest('.cmd-picker'),Number(option.getAttribute('data-pick')));return}
+ var clear=e.target.closest('.cmd-clear');if(clear){var picker=clear.closest('.cmd-picker'),slot=picker.getAttribute('data-slot');if(isPartnerSlot(slot))partnerOpen[mainSlot(slot)]=false;else partnerOpen[slot]=false;setSlot(slot,null);refreshPicker(picker,true)}
+}
+function openCommanderEditor(){
+ if(!tournament)return;el('modalTitle').textContent='🃏 Commander der Teilnehmer';
+ el('modalContent').innerHTML='<p class="muted tiny">Suche über Scryfall. Änderungen werden sofort gespeichert.</p>'+tournament.players.map(function(name,i){return '<div class="cmd-edit-row"><strong>'+esc(name)+'</strong>'+cmdPickerHTML('tour:'+i,name)+'</div>'}).join('')+'<p class="notice-inline">Kartendaten und Bilder: Scryfall. Bilder brauchen eine Internetverbindung.</p><div class="modal-actions"><button class="btn primary" type="button" id="modalDone">Fertig</button></div>';
+ activeModal=null;el('modalBackdrop').classList.remove('hidden');
+}
+// Round reveal: tables of a new round stay covered until someone presses the button; then the players appear one by one with their commander art.
+var REVEAL_KEY='commander-companion-reveal',revealEnabled=true,revealTimer=null;
+try{revealEnabled=localStorage.getItem(REVEAL_KEY)!=='false'}catch(e){}
+function isVeiled(r){var round=tournament&&tournament.schedule[r];return revealEnabled&&!!round&&!round.revealed&&!round.tables.some(function(t){return t.winner!==null})}
+function stopReveal(){clearTimeout(revealTimer);revealTimer=null}
+function toggleReveal(){revealEnabled=!revealEnabled;try{localStorage.setItem(REVEAL_KEY,String(revealEnabled))}catch(e){}renderTournament()}
+function stageHTML(idx,label,sub){var c=commanderOf(idx),arts=cmdCards(c).filter(function(x){return x.art}),bg=arts.length===2?' style="background-image:url(\''+esc(arts[0].art)+'\'),url(\''+esc(arts[1].art)+'\');background-size:50% 100%,50% 100%;background-position:left center,right center"':arts.length?' style="background-image:url(\''+esc(arts[0].art)+'\')"':'';return '<div class="stage-card'+(arts.length?'':' no-art')+'"'+bg+'><div class="stage-text"><div class="stage-label">'+esc(label)+'</div><div class="stage-name">'+esc(tournament.players[idx])+'</div>'+(c||sub?'<div class="stage-cmd">'+esc(c?cmdName(c):sub)+'</div>':'')+'</div><div class="stage-shine"></div></div>'}
+function revealRound(){
+ var r=editingRound,round=tournament&&tournament.schedule[r];if(!round||!isVeiled(r))return;
+ var grid=el('winnerChoices'),stage=el('revealStage'),quick=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches,steps=[];
+ var buttons=grid.querySelectorAll('.winner-choice'),n=0;
+ round.tables.forEach(function(m,t){m.players.forEach(function(idx,k){steps.push({idx:idx,node:buttons[n++],label:'Tisch '+(t+1)+(k===0?'':' · Spieler '+(k+1))})})});
+ if(round.bye!==null)steps.push({idx:round.bye,node:grid.querySelector('.bye-card'),label:'Pause',sub:'setzt diese Runde aus'});
+ round.revealed=true;saveTournament();el('roundHint').textContent='Wähle an jedem Tisch den Sieger. Tippe nochmals auf den Sieger, um die Markierung zu entfernen.';
+ var i=0;
+ function next(){
+  if(i>=steps.length){revealTimer=setTimeout(function(){stage.classList.add('hidden');stage.innerHTML='';grid.classList.remove('veiled');renderTournament()},quick?0:1400);return}
+  var step=steps[i++];
+  stage.innerHTML=stageHTML(step.idx,step.label,step.sub)+'<button type="button" class="btn reveal-skip" id="revealSkip">Alles zeigen ⏭</button>';
+  if(step.node)step.node.classList.add('shown');
+  revealTimer=setTimeout(next,quick?250:1500);
+ }
+ next();
 }
 function setTab(which){activeTab=which==='tournament'?'tournament':'life';closeModal();closeGameMenu();el('lifePanel').classList.toggle('hidden',activeTab!=='life');el('tournamentPanel').classList.toggle('hidden',activeTab!=='tournament');el('tabLife').setAttribute('aria-selected',String(activeTab==='life'));el('tabTournament').setAttribute('aria-selected',String(activeTab==='tournament'));document.body.classList.toggle('table-mode',activeTab==='life'&&!!state&&state.mode==='table');document.body.classList.toggle('match-focus',activeTab==='life'&&!!state);if(activeTab==='tournament'){el('gameTag').textContent=tournament?'Turnier':'Turnierplanung';renderTournament()}else if(state)render();else revealSetup();window.scrollTo(0,0)}
 function syncPairingPreview(){
@@ -722,69 +1108,135 @@ function syncPairingPreview(){
  var l=getLayout(n);
  box.innerHTML='<strong>⚔ Tischaufteilung:</strong> '+l.tables+' '+(l.tables===1?'Partie':'Partien')+' mit je '+l.size+' '+(l.size===1?'Person':'Personen')+' pro Runde'+(l.bye?' · 1 Person pausiert in jeder Runde':' · keine Pausen')+'.'+(l.bye&&Number.isInteger(r)&&r>0?' Die Pausen werden über '+r+' Runden so gleichmäßig wie möglich verteilt.':'')+(l.size===2||l.size===5?' <span class="muted">Hinweis: Gleich große 3er-/4er-Tische sind bei dieser Spielerzahl rechnerisch nicht möglich.</span>':'');
 }
-function syncNameFields(){var n=Number(el('tournamentCount').value);syncPairingPreview();if(!Number.isInteger(n)||n<2||n>32)return;var container=el('tournamentNames');var old=container.querySelectorAll('input'),previous=[];for(var i=0;i<old.length;i++)previous.push(old[i].value);var html='';for(var j=0;j<n;j++)html+='<div><label for="tourPlayer'+j+'">Spieler '+(j+1)+'</label><input type="text" id="tourPlayer'+j+'" maxlength="35" autocomplete="off" placeholder="Spieler '+(j+1)+'" value="'+esc(previous[j]||'')+'"></div>';container.innerHTML=html}
+function syncNameFields(){var n=Number(el('tournamentCount').value);syncPairingPreview();if(!Number.isInteger(n)||n<2||n>32)return;var container=el('tournamentNames');var old=container.querySelectorAll('input[id^="tourPlayer"]'),previous=[];for(var i=0;i<old.length;i++)previous.push(old[i].value);var html='';for(var j=0;j<n;j++)html+='<div><label for="tourPlayer'+j+'">Spieler '+(j+1)+'</label><input type="text" id="tourPlayer'+j+'" maxlength="35" autocomplete="off" placeholder="Spieler '+(j+1)+'" value="'+esc(previous[j]||'')+'">'+cmdPickerHTML('setup:'+j,'Spieler '+(j+1))+'</div>';container.innerHTML=html}
 function createTournament(e){
  if(e)e.preventDefault();if(planningTournament)return;var n=Number(el('tournamentCount').value),r=Number(el('tournamentRounds').value);
  if(!Number.isInteger(n)||n<2||n>32||!Number.isInteger(r)||r<1||r>50){el('tournamentForm').reportValidity();return}
- var inputs=el('tournamentNames').querySelectorAll('input');if(inputs.length!==n){syncNameFields();inputs=el('tournamentNames').querySelectorAll('input')}
+ var inputs=el('tournamentNames').querySelectorAll('input[id^="tourPlayer"]');if(inputs.length!==n){syncNameFields();inputs=el('tournamentNames').querySelectorAll('input[id^="tourPlayer"]')}
  var names=[];for(var i=0;i<n;i++)names.push((inputs[i].value.trim().slice(0,35)||('Spieler '+(i+1))));
  planningTournament=true;el('tournamentSubmit').disabled=true;el('planningNote').classList.remove('hidden');
+ var commanders=names.map(function(_,i){return setupCommanders[i]||null});
  // Short delay so the note is painted before the first plan blocks the main thread.
  setTimeout(function(){planBestTournament(n,r,function(schedule){
   planningTournament=false;el('tournamentSubmit').disabled=false;el('planningNote').classList.add('hidden');
-  tournament={version:2,players:names,rounds:r,schedule:schedule};editingRound=0;saveTournament();renderTournament();window.scrollTo(0,0);
+  tournament={version:2,players:names,rounds:r,schedule:schedule,commanders:commanders};editingRound=0;saveTournament();renderTournament();window.scrollTo(0,0);
  })},50);
 }
 function counts(){
  var rows=tournament.players.map(function(_,i){return {idx:i,wins:0,played:0,byes:0,rounds:[]}});
  tournament.schedule.forEach(function(round,ri){if(round.bye!==null)rows[round.bye].byes++;
-  round.tables.forEach(function(match){if(match.winner!==null){match.players.forEach(function(i){rows[i].played++});rows[match.winner].wins++;rows[match.winner].rounds.push(ri+1)}});
+  round.tables.forEach(function(match){if(match.winner!==null){match.players.forEach(function(i){rows[i].played++});if(!round.final)rows[match.winner].wins++;rows[match.winner].rounds.push(shortRoundLabel(ri))}});
  });return rows;
 }
-function nextOpenRound(){if(!tournament)return null;for(var i=0;i<tournament.rounds;i++)if(tournament.schedule[i].tables.some(function(t){return t.winner===null}))return i;return null}
-function showRound(i){if(!tournament||!Number.isInteger(i)||i<0||i>=tournament.rounds)return;editingRound=i;renderRoundEditor();el('roundEditorCard').scrollIntoView({block:'start',behavior:'smooth'})}
+// Tie-break finals: once every regular round is recorded, players who share a place within the top three play
+// an extra final round (appended to the schedule with final:true, one or more tables per tied group, at most 4 per table).
+// A final win only breaks the tie inside that group; further finals follow until places 1–3 are unique.
+var MAX_FINALS=20;
+function regularRoundsDone(){for(var r=0;r<tournament.rounds;r++)if(tournament.schedule[r].tables.some(function(t){return t.winner===null}))return false;return true}
+function visibleRounds(){return regularRoundsDone()?tournament.schedule.length:tournament.rounds}
+function roundLabel(i){return i<tournament.rounds?'Runde '+(i+1):'Finale '+(i-tournament.rounds+1)}
+function shortRoundLabel(i){return i<tournament.rounds?'R'+(i+1):'F'+(i-tournament.rounds+1)}
+function sameRank(a,b){return a.wins===b.wins&&a.key.join()===b.key.join()}
+// Ranking by regular wins, then by the final rounds before index upto (2 = won, 1 = lost, 0 = not involved).
+function rankRows(upto){
+ var rows=counts();
+ rows.forEach(function(row){row.key=[];for(var r=tournament.rounds;r<upto;r++){var v=0;tournament.schedule[r].tables.forEach(function(m){if(m.winner!==null&&m.players.indexOf(row.idx)>=0)v=m.winner===row.idx?2:1});row.key.push(v)}});
+ rows.sort(function(a,b){if(b.wins!==a.wins)return b.wins-a.wins;for(var k=0;k<a.key.length;k++)if(a.key[k]!==b.key[k])return b.key[k]-a.key[k];return a.idx-b.idx});
+ rows.forEach(function(row,i){row.place=i>0&&sameRank(rows[i-1],row)?rows[i-1].place:i+1});
+ return rows;
+}
+function podiumTies(rows){
+ var groups=[];
+ for(var i=0;i<rows.length;){var j=i;while(j+1<rows.length&&sameRank(rows[i],rows[j+1]))j++;if(j>i&&rows[i].place<=3)groups.push({place:rows[i].place,players:rows.slice(i,j+1).map(function(r){return r.idx})});i=j+1}
+ return groups;
+}
+function makeFinal(groups){
+ var tables=[];
+ groups.forEach(function(g){var members=shuffleCopy(g.players),count=Math.ceil(members.length/4),split=[];for(var t=0;t<count;t++)split.push([]);members.forEach(function(idx,k){split[k%count].push(idx)});split.forEach(function(m){tables.push({players:m,winner:null,place:g.place})})});
+ return {final:true,bye:null,tables:tables};
+}
+function finalMatches(round,groups){
+ var key=function(list){return list.slice().sort(function(a,b){return a-b}).join()};
+ var want=groups.map(function(g){return key(g.players)}).sort().join('|'),have={};
+ round.tables.forEach(function(t){var g=groups.filter(function(g){return t.players.every(function(i){return g.players.indexOf(i)>=0})})[0];if(g){have[g.place]=(have[g.place]||[]).concat(t.players)}});
+ return Object.keys(have).map(function(k){return key(have[k])}).sort().join('|')===want&&round.tables.every(function(t){return groups.some(function(g){return t.players.every(function(i){return g.players.indexOf(i)>=0})})});
+}
+// Brings the final rounds in line with the current results; returns true if the schedule changed.
+function syncFinals(){
+ if(!tournament||!regularRoundsDone())return false;
+ var changed=false;
+ for(var k=tournament.rounds;k<tournament.rounds+MAX_FINALS;k++){
+  var groups=podiumTies(rankRows(k)),existing=tournament.schedule[k];
+  if(!groups.length){if(tournament.schedule.length>k){tournament.schedule.length=k;changed=true}break}
+  if(existing&&finalMatches(existing,groups)){if(existing.tables.some(function(t){return t.winner===null})){if(tournament.schedule.length>k+1){tournament.schedule.length=k+1;changed=true}break}continue}
+  tournament.schedule.length=k;tournament.schedule.push(makeFinal(groups));changed=true;break;
+ }
+ if(changed)saveTournament();
+ return changed;
+}
+function nextOpenRound(){if(!tournament)return null;for(var i=0;i<visibleRounds();i++)if(tournament.schedule[i].tables.some(function(t){return t.winner===null}))return i;return null}
+function showRound(i){if(!tournament||!Number.isInteger(i)||i<0||i>=visibleRounds())return;editingRound=i;renderRoundEditor();el('roundEditorCard').scrollIntoView({block:'start',behavior:'smooth'})}
 function renderRoundEditor(){
- if(!tournament)return;var r=editingRound;if(!Number.isInteger(r)||r<0||r>=tournament.rounds)r=nextOpenRound();if(r===null)r=tournament.rounds-1;editingRound=r;
+ if(!tournament)return;var total=visibleRounds(),r=editingRound;if(!Number.isInteger(r)||r<0||r>=total)r=nextOpenRound();if(r===null)r=total-1;editingRound=r;
  el('roundEditorCard').classList.remove('hidden');var round=tournament.schedule[r],done=round.tables.filter(function(t){return t.winner!==null}).length;
  el('roundEyebrow').textContent=done===round.tables.length?'✧ Runde abgeschlossen':'✧ Die Begegnungen';
- el('roundHeading').textContent='Runde '+(r+1)+' von '+tournament.rounds;
- el('roundHint').textContent='Wähle an jedem Tisch den Sieger. Tippe nochmals auf den Sieger, um die Markierung zu entfernen.';
- el('roundPageStatus').textContent=(r+1)+' / '+tournament.rounds;el('roundPrev').disabled=r===0;el('roundNext').disabled=r===tournament.rounds-1;
+ el('roundHeading').textContent=round.final?'🏆 '+roundLabel(r):'Runde '+(r+1)+' von '+tournament.rounds;
+ el('roundHint').textContent=round.final?'Gleichstand in der Tabelle: Wer hier gewinnt, steht vor den anderen Spielern am Tisch. Die Siege aus den regulären Runden bleiben erhalten.':'Wähle an jedem Tisch den Sieger. Tippe nochmals auf den Sieger, um die Markierung zu entfernen.';
+ el('roundPageStatus').textContent=round.final?roundLabel(r):(r+1)+' / '+tournament.rounds;el('roundPrev').disabled=r===0;el('roundNext').disabled=r===total-1;
  el('roundBack').classList.toggle('hidden',nextOpenRound()===null||r===nextOpenRound());
  var html=round.tables.map(function(match,i){var won=match.winner!==null;
-  return '<section class="match-card '+(won?'done':'')+'"><div class="match-head"><span class="match-title">⚔ Tisch '+(i+1)+'</span><span class="match-status">'+(won?'✓ Ergebnis erfasst':'Noch offen')+'</span></div><div class="match-contenders">'+match.players.map(function(idx){var picked=match.winner===idx;return '<button type="button" class="winner-choice '+(picked?'selected':'')+'" data-table="'+i+'" data-winner="'+idx+'" aria-pressed="'+picked+'"><span>'+esc(tournament.players[idx])+'</span><span class="marker">'+(picked?'✓':'')+'</span></button>'}).join('')+'</div><div class="match-foot">'+(won?'🏆 Sieger: '+esc(tournament.players[match.winner]):'Berühre den Gewinner dieser Partie.')+'</div></section>';
+  return '<section class="match-card '+(won?'done':'')+'"><div class="match-head"><span class="match-title">⚔ Tisch '+(i+1)+(round.final&&match.place?' · um Platz '+match.place:'')+'</span><span class="match-status">'+(won?'✓ Ergebnis erfasst':'Noch offen')+'</span></div><div class="match-contenders">'+match.players.map(function(idx){var picked=match.winner===idx;return '<button type="button" class="winner-choice '+(picked?'selected':'')+'" data-table="'+i+'" data-winner="'+idx+'" aria-pressed="'+picked+'"><span>'+cmdThumb(idx)+esc(tournament.players[idx])+'</span><span class="marker">'+(picked?'✓':'')+'</span></button>'}).join('')+'</div><button type="button" class="btn match-play" data-play-table="'+i+'">❤ Im Lebenszähler spielen</button><div class="match-foot">'+(won?'🏆 Sieger: '+esc(tournament.players[match.winner]):'Berühre den Gewinner dieser Partie.')+'</div></section>';
  }).join('');
  if(round.bye!==null)html+='<div class="bye-card">⏳ <span><strong>Pause:</strong> '+esc(tournament.players[round.bye])+' — in dieser Runde keine Partie.</span></div>';
  el('winnerChoices').innerHTML=html;
+ stopReveal();var veiled=isVeiled(r);el('winnerChoices').classList.toggle('veiled',veiled);el('revealStage').classList.toggle('hidden',!veiled);
+ if(veiled){el('revealStage').innerHTML='<button type="button" class="btn primary reveal-go" id="revealGo">✨ Tische enthüllen</button>';el('roundHint').textContent='Die Tische dieser Runde sind noch verdeckt.'}
  el('roundStatus').textContent=done+' von '+round.tables.length+' '+(round.tables.length===1?'Partie':'Partien')+' abgeschlossen. Änderungen werden sofort gespeichert.';
 }
 function renderTournament(){
  var started=!!tournament;el('tournamentSetup').classList.toggle('hidden',started);el('tournamentActive').classList.toggle('hidden',!started);if(!started){syncPairingPreview();return}
- var matches=0,done=0,rDone=0;for(var r=0;r<tournament.rounds;r++){var completed=true;for(var j=0;j<tournament.schedule[r].tables.length;j++){matches++;if(tournament.schedule[r].tables[j].winner!==null)done++;else completed=false}if(completed)rDone++}
+ syncFinals();var total=visibleRounds(),finals=total-tournament.rounds;
+ var matches=0,done=0,rDone=0;for(var r=0;r<total;r++){var completed=true;for(var j=0;j<tournament.schedule[r].tables.length;j++){matches++;if(tournament.schedule[r].tables[j].winner!==null)done++;else completed=false}if(completed&&r<tournament.rounds)rDone++}
  var l=getLayout(tournament.players.length),finished=done===matches;
  el('tourSubtitle').textContent=tournament.players.length+' Teilnehmer · '+tournament.rounds+' Runden · '+l.tables+' '+(l.tables===1?'Tisch':'Tische')+' pro Runde';
- el('tourMetrics').innerHTML='<span class="tour-metric"><strong>'+rDone+' / '+tournament.rounds+'</strong> Runden</span><span class="tour-metric"><strong>'+done+' / '+matches+'</strong> Partien erfasst</span>'+(l.bye?'<span class="tour-metric"><strong>1</strong> Pause / Runde</span>':'')+(finished?'<span class="tour-metric"><strong>✓</strong> Turnier abgeschlossen</span>':'');
+ el('tourMetrics').innerHTML='<span class="tour-metric"><strong>'+rDone+' / '+tournament.rounds+'</strong> Runden</span><span class="tour-metric"><strong>'+done+' / '+matches+'</strong> Partien erfasst</span>'+(l.bye?'<span class="tour-metric"><strong>1</strong> Pause / Runde</span>':'')+(finals?'<span class="tour-metric"><strong>🏆 '+finals+'</strong> '+(finals===1?'Finalrunde':'Finalrunden')+'</span>':'')+(finished?'<span class="tour-metric"><strong>✓</strong> Turnier abgeschlossen</span>':'');
+ el('tourReveal').textContent='✨ Enthüllung: '+(revealEnabled?'AN':'AUS');el('tourReveal').setAttribute('aria-pressed',String(revealEnabled));
  el('tourProgress').style.width=(done/matches*100)+'%';renderRoundEditor();
- var ranking=counts().sort(function(a,b){return b.wins-a.wins||a.idx-b.idx}),previousWins=null,place=0;
- el('rankingBody').innerHTML=ranking.map(function(row,i){if(row.wins!==previousWins)place=i+1;previousWins=row.wins;return '<tr class="'+(place===1&&row.wins>0?'leader':'')+'"><td>'+place+'.</td><td>'+esc(tournament.players[row.idx])+'</td><td>'+row.wins+'</td><td>'+row.played+'</td><td>'+row.byes+'</td><td>'+(row.rounds.length?row.rounds.map(function(v){return 'R'+v}).join(' · '):'—')+'</td></tr>'}).join('');
- el('roundsList').innerHTML=tournament.schedule.map(function(round,i){var wins=round.tables.filter(function(t){return t.winner!==null}).length;
-  var all=wins===round.tables.length,state=all?'done':wins===0?'pending':'partial';
+ var ranking=rankRows(total);
+ el('rankingBody').innerHTML=ranking.map(function(row){var place=row.place;return '<tr class="'+(place===1&&row.wins>0?'leader':'')+'"><td>'+place+'.</td><td><button type="button" class="rank-player" data-player="'+row.idx+'"><span>'+esc(tournament.players[row.idx])+'</span>'+cmdTag(row.idx)+'</button></td><td>'+row.wins+'</td><td>'+row.played+'</td><td>'+row.byes+'</td><td>'+(row.rounds.length?row.rounds.join(' · '):'—')+'</td></tr>'}).join('');
+ el('roundsList').innerHTML=tournament.schedule.slice(0,total).map(function(round,i){var wins=round.tables.filter(function(t){return t.winner!==null}).length;
+  var all=wins===round.tables.length,state=all?'done':wins===0?'pending':'partial',veiled=isVeiled(i);
   var tables=round.tables.map(function(t,j){var open=t.winner===null;
    var people=t.players.map(function(idx){var cls=open?'':idx===t.winner?'winner':'beaten';return '<span class="mini-player '+cls+'">'+(idx===t.winner?'🏆 ':'')+esc(tournament.players[idx])+'</span>'}).join('');
-   return '<div class="mini-table '+(open?'open':'done')+'"><div class="mini-head"><span>⚔ Tisch '+(j+1)+'</span><span class="mini-status">'+(open?'○ offen':'✓ entschieden')+'</span></div><div class="mini-players">'+people+'</div></div>'}).join('');
-  return '<div class="round-item '+state+'"><div class="round-row"><span class="round-label">Runde '+(i+1)+'</span><span class="round-state">'+(all?'✓ abgeschlossen':wins+'/'+round.tables.length+' entschieden')+'</span><button type="button" class="btn" data-edit-round="'+i+'">'+(all?'Ansehen':'Erfassen')+'</button></div><div class="round-tables">'+tables+'</div>'+(round.bye!==null?'<div class="round-bye">⏳ Pause: '+esc(tournament.players[round.bye])+'</div>':'')+'</div>'
+   return '<div class="mini-table '+(open?'open':'done')+'"><div class="mini-head"><span>⚔ Tisch '+(j+1)+(round.final&&t.place?' · um Platz '+t.place:'')+'</span><span class="mini-status">'+(open?'○ offen':'✓ entschieden')+'</span></div><div class="mini-players">'+people+'</div></div>'}).join('');
+  return '<div class="round-item '+state+'"><div class="round-row"><span class="round-label">'+(round.final?'🏆 ':'')+roundLabel(i)+'</span><span class="round-state">'+(all?'✓ abgeschlossen':wins+'/'+round.tables.length+' entschieden')+'</span><button type="button" class="btn" data-edit-round="'+i+'">'+(all?'Ansehen':'Erfassen')+'</button></div><div class="round-tables">'+tables+'</div>'+(round.bye!==null?'<div class="round-bye">⏳ Pause: '+(veiled?'?':esc(tournament.players[round.bye]))+'</div>':'')+'</div>'
  }).join('');
+ if(fsOpen)renderBoard();
+}
+// Opens a tournament table in the life counter with the participants' names already filled in.
+function launchTournamentMatch(round,table){
+ var match=tournament&&tournament.schedule[round]&&tournament.schedule[round].tables[table];if(!match)return;
+ state=freshState(match.players.map(function(idx){return tournament.players[idx]}));state.tournamentMatch={round:round,table:table,label:roundLabel(round)};
+ match.players.forEach(function(idx,k){var c=commanderOf(idx);if(c&&c.art)state.players[k].art=c.art});history=[];store();
+ setTab('life');el('announcement').classList.add('hidden');runStarterSpin();
+}
+function playTournamentMatch(table){
+ if(!tournament||editingRound===null)return;
+ if(!state){launchTournamentMatch(editingRound,table);return}
+ el('modalTitle').textContent='Laufende Partie ersetzen?';el('modalContent').innerHTML='<p class="muted">Im Lebenszähler läuft bereits eine Partie. Ihre Lebenspunkte und Spezialzähler werden gelöscht, wenn du Tisch '+(table+1)+' startest.</p><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button><button class="btn warning" type="button" id="reallyPlayMatch" data-round="'+editingRound+'" data-table="'+table+'">Tisch starten</button></div>';activeModal=null;el('modalBackdrop').classList.remove('hidden');
 }
 function selectMatchWinner(table,index){
  if(!tournament||editingRound===null)return;var match=tournament.schedule[editingRound].tables[table];if(!match||!match.players.includes(index))return;
- match.winner=match.winner===index?null:index;saveTournament();renderTournament();
+ match.winner=match.winner===index?null:index;saveTournament();
+ var before=tournament.schedule.length;syncFinals();if(tournament.schedule.length>before)editingRound=tournament.schedule.length-1;
+ renderTournament();
 }
 function promptTournamentReset(){closeGameMenu();if(!tournament)return;el('modalTitle').textContent='Ein neues Turnier beginnen?';el('modalContent').innerHTML='<p class="muted">Die aktuelle Tabelle, die Tischzuordnung und alle Sieger werden aus der App entfernt. Exportiere vorher bei Bedarf die CSV-Datei.</p><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button><button class="btn warning" type="button" id="reallyResetTour">Turnier löschen</button></div>';activeModal=null;el('modalBackdrop').classList.remove('hidden')}
 function exportTournamentCsv(){
- if(!tournament)return;var rows=[['Platz','Spieler','Siege','Gespielte Partien','Geplante Pausen','Gewonnene Runden']];var ranking=counts().sort(function(a,b){return b.wins-a.wins||a.idx-b.idx}),place=0,last=null;
- ranking.forEach(function(p,i){if(p.wins!==last)place=i+1;last=p.wins;rows.push([place,tournament.players[p.idx],p.wins,p.played,p.byes,p.rounds.join(', ')])});
+ if(!tournament)return;syncFinals();var total=visibleRounds(),rows=[['Platz','Spieler','Commander','Siege','Gespielte Partien','Geplante Pausen','Gewonnene Runden']];
+ rankRows(total).forEach(function(p){rows.push([p.place,tournament.players[p.idx],cmdName(commanderOf(p.idx)),p.wins,p.played,p.byes,p.rounds.join(', ')])});
  rows.push([]);rows.push(['Runde','Tisch','Mitspieler','Sieger','Pausiert']);
- tournament.schedule.forEach(function(round,i){round.tables.forEach(function(m,j){rows.push([i+1,j+1,m.players.map(function(p){return tournament.players[p]}).join(' / '),m.winner===null?'':tournament.players[m.winner],round.bye===null?'':tournament.players[round.bye]])})});
+ tournament.schedule.slice(0,total).forEach(function(round,i){round.tables.forEach(function(m,j){rows.push([roundLabel(i),j+1,m.players.map(function(p){return tournament.players[p]}).join(' / '),m.winner===null?'':tournament.players[m.winner],round.bye===null?'':tournament.players[round.bye]])})});
  var content='\uFEFF'+rows.map(function(row){return row.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"'}).join(';')}).join('\r\n');
  var blob=new Blob([content],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='Commander_Turnier_8_Ergebnisse.csv';document.body.appendChild(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url)},10000);
 }
@@ -811,7 +1263,7 @@ function restoreBackup(e){
     (backup.tournament!==null&&!validTournament(backup.tournament)))throw new Error('Ungültige Sicherungsdatei');
    if(!window.confirm('Die vorhandene Partie und das vorhandene Turnier durch diese Sicherung ersetzen?'))return;
    if(backup.life===null){state=null;discard()}else{state=backup.life;state.mode=(state.mode==='table'?'table':'standard');store()}
-   if(backup.tournament===null){tournament=null;try{localStorage.removeItem(TOUR_STORAGE)}catch(e){}}else{tournament=backup.tournament;saveTournament()}
+   if(backup.tournament===null){tournament=null;try{localStorage.removeItem(TOUR_STORAGE)}catch(e){}}else{tournament=normalizeCommanders(backup.tournament);saveTournament()}
    history=[];editingRound=null;el('backupFeedback').textContent='Sicherung eingelesen.';
    setTab(activeTab);renderTournament();
   }catch(err){el('backupFeedback').textContent='Ungültige Sicherung. Keine Daten geändert.'}
@@ -833,6 +1285,9 @@ el('menuClosePrimary').addEventListener('click',closeGameMenu);
 el('gameMenuBackdrop').addEventListener('click',closeGameMenu);
 el('menuMode').addEventListener('click',function(){el('mode').click();renderGameMenu()});
 el('menuPick').addEventListener('click',function(){el('pick').click();renderGameMenu()});
+el('menuDice').addEventListener('click',openDice);
+el('modalContent').addEventListener('click',onDiceClick);
+el('modalContent').addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.id==='diceSides'){e.preventDefault();var b=el('modalContent').querySelector('button[data-roll="custom"]');if(b)b.click()}});
 el('menuUndo').addEventListener('click',function(){el('undo').click();renderGameMenu()});
 el('menuReset').addEventListener('click',function(){closeGameMenu();el('reset').click()});
 el('menuTournament').addEventListener('click',function(){closeGameMenu();setTab('tournament')});
@@ -845,23 +1300,95 @@ if('ResizeObserver' in window){new ResizeObserver(scheduleCardSizing).observe(el
 window.addEventListener('orientationchange',scheduleCardSizing);
 el('tabLife').addEventListener('click',function(){setTab('life')});el('tabTournament').addEventListener('click',function(){setTab('tournament')});
 el('tournamentCount').addEventListener('input',syncNameFields);el('tournamentCount').addEventListener('change',syncNameFields);el('tournamentRounds').addEventListener('input',syncPairingPreview);el('tournamentForm').addEventListener('submit',createTournament);
-el('winnerChoices').addEventListener('click',function(e){var b=e.target.closest('button[data-winner]');if(!b)return;selectMatchWinner(Number(b.getAttribute('data-table')),Number(b.getAttribute('data-winner')))});
+el('winnerChoices').addEventListener('click',function(e){var play=e.target.closest('button[data-play-table]');if(play){playTournamentMatch(Number(play.getAttribute('data-play-table')));return}var b=e.target.closest('button[data-winner]');if(!b)return;selectMatchWinner(Number(b.getAttribute('data-table')),Number(b.getAttribute('data-winner')))});
 el('roundPrev').addEventListener('click',function(){showRound(editingRound-1)});el('roundNext').addEventListener('click',function(){showRound(editingRound+1)});el('roundsList').addEventListener('click',function(e){var btn=e.target.closest('button[data-edit-round]');if(btn)showRound(Number(btn.getAttribute('data-edit-round')))});
-el('roundBack').addEventListener('click',function(){var next=nextOpenRound();if(next!==null)showRound(next)});el('tourReset').addEventListener('click',promptTournamentReset);el('tourCsv').addEventListener('click',exportTournamentCsv);el('playerChoices').addEventListener('click',function(e){var b=e.target.closest('button[data-n]');if(b)setChoice(Number(b.getAttribute('data-n')))});
+el('roundBack').addEventListener('click',function(){var next=nextOpenRound();if(next!==null)showRound(next)});el('tourReset').addEventListener('click',promptTournamentReset);el('tourCsv').addEventListener('click',exportTournamentCsv);el('tourCommanders').addEventListener('click',openCommanderEditor);el('tourReveal').addEventListener('click',toggleReveal);
+el('revealStage').addEventListener('click',function(e){if(e.target.closest('#revealGo'))revealRound();else if(e.target.closest('#revealSkip')){stopReveal();renderTournament()}});
+document.addEventListener('input',function(e){if(e.target.classList&&e.target.classList.contains('cmd-input'))searchCommanders(e.target)});
+document.addEventListener('click',onCommanderClick);
+document.addEventListener('keydown',function(e){if(e.key!=='Enter'||!e.target.classList||!e.target.classList.contains('cmd-input'))return;e.preventDefault();var picker=e.target.closest('.cmd-picker');if((cmdResults[picker.getAttribute('data-slot')]||[]).length)pickCommander(picker,0)});el('playerChoices').addEventListener('click',function(e){var b=e.target.closest('button[data-n]');if(b)setChoice(Number(b.getAttribute('data-n')))});
 // A real form submit works with both touch and keyboard and does not rely on click handlers.
 el('setupForm').addEventListener('submit',beginGame);
 el('board').addEventListener('click',onBoardClick);
+if(window.PointerEvent){
+ el('board').addEventListener('pointerdown',startHold);el('modalContent').addEventListener('pointerdown',startHold);
+ document.addEventListener('pointerup',function(e){endHold(e.pointerId)});
+ document.addEventListener('pointercancel',function(e){endHold(e.pointerId,true)});
+ document.addEventListener('contextmenu',function(e){if(e.target.closest&&e.target.closest(HOLD_BUTTONS))e.preventDefault()});
+ window.addEventListener('blur',endAllHolds);document.addEventListener('visibilitychange',function(){if(document.hidden)endAllHolds()});
+}
 el('mode').addEventListener('click',function(){if(!state)return;state.mode=state.mode==='table'?'standard':'table';store();render();window.scrollTo(0,0)});
-el('pick').addEventListener('click',function(){if(!state)return;remember();state.starter=pickRandom(state.players.length);store();render();announce('🎲 '+state.players[state.starter].name+' beginnt!')});
+el('pick').addEventListener('click',function(){if(!state)return;remember();state.starter=pickRandom(state.players.length);store();render();runStarterSpin()});
+el('spinOverlay').addEventListener('click',function(){if(spin&&!spin.landed)spinFinish();else spinClose()});
 el('undo').addEventListener('click',function(){if(!history.length)return;state=JSON.parse(history.pop());store();render()});
 el('reset').addEventListener('click',newGamePrompt);
 el('modalClose').addEventListener('click',closeModal);
 el('modalBackdrop').addEventListener('click',function(e){if(e.target===el('modalBackdrop'))closeModal()});
 el('modalContent').addEventListener('click',onModalClick);
 el('modalContent').addEventListener('change',onNameChange);
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(!el('gameMenu').classList.contains('hidden'))closeGameMenu();else closeModal()}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&spin){if(!spin.landed)spinFinish();else spinClose();return}if(e.key==='Escape'){if(!el('gameMenu').classList.contains('hidden'))closeGameMenu();else closeModal()}});
 if(restore()||migrate())render();else revealSetup()}
 initialize();
+// Fullscreen board for a laptop or projector. fsRound===null follows the next open round automatically.
+var fsOpen=false,fsRound=null;
+function openBoard(){if(!tournament)return;closeGameMenu();fsOpen=true;fsRound=null;document.body.classList.add('fs-open');el('fsView').classList.remove('hidden');renderBoard();var d=document.documentElement;if(d.requestFullscreen&&!document.fullscreenElement){var p=d.requestFullscreen();if(p&&p.catch)p.catch(function(){})}el('fsClose').focus()}
+function closeBoard(){if(!fsOpen)return;fsOpen=false;document.body.classList.remove('fs-open');el('fsView').classList.add('hidden');if(document.fullscreenElement&&document.exitFullscreen){var p=document.exitFullscreen();if(p&&p.catch)p.catch(function(){})}el('tourBoard').focus()}
+function boardRound(){var total=visibleRounds();if(fsRound!==null&&fsRound<total)return fsRound;fsRound=null;var r=nextOpenRound();return r===null?total-1:r}
+function artBox(idx){var c=commanderOf(idx),imgs=cmdArtImgs(c);return imgs?'<span class="fs-art'+(c.partner&&c.partner.art&&c.art?' duo':'')+'">'+imgs+'</span>':'<span class="fs-art none">🃏</span>'}
+function renderBoard(){
+ if(!tournament){closeBoard();return}
+ var total=visibleRounds(),r=boardRound(),open=nextOpenRound(),round=tournament.schedule[r];
+ el('fsTitle').textContent=el('tourTitle').textContent;el('fsMetrics').innerHTML=el('tourMetrics').innerHTML;el('fsProgressFill').style.width=el('tourProgress').style.width;
+ el('fsRanking').innerHTML=rankRows(total).map(function(row){var c=commanderOf(row.idx);return '<button type="button" class="fs-rank-row'+(row.place===1&&row.wins>0?' leader':'')+'" data-player="'+row.idx+'"><span class="fs-place">'+row.place+'.</span>'+artBox(row.idx)+'<span class="fs-who"><strong>'+esc(tournament.players[row.idx])+'</strong><small>'+(c?esc(cmdName(c)):'kein Commander')+'</small></span><span class="fs-wins">'+row.wins+'<small>'+(row.wins===1?'Sieg':'Siege')+'</small></span></button>'}).join('');
+ var head='<div class="fs-round-head"><button type="button" class="btn" data-fs-step="-1" aria-label="Vorherige Runde"'+(r===0?' disabled':'')+'>‹</button><h3>'+(round.final?'🏆 '+roundLabel(r):'Runde '+(r+1)+' von '+tournament.rounds)+'</h3>'+(open!==null&&r!==open?'<button type="button" class="btn" data-fs-round="'+open+'">Aktuelle Runde ↗</button>':'')+'<button type="button" class="btn" data-fs-step="1" aria-label="Nächste Runde"'+(r===total-1?' disabled':'')+'>›</button></div>';
+ var body;
+ if(isVeiled(r))body='<div class="fs-veil"><p>Die Tische dieser Runde sind noch verdeckt.</p><button type="button" class="btn primary" data-fs-reveal="'+r+'">✨ Tische enthüllen</button></div>';
+ else{
+  body='<div class="fs-tables">'+round.tables.map(function(m,t){var won=m.winner!==null;return '<div class="fs-table'+(won?' done':'')+'"><div class="fs-table-head"><span>⚔ Tisch '+(t+1)+(round.final&&m.place?' · um Platz '+m.place:'')+'</span><span>'+(won?'✓ entschieden':'offen')+'</span></div>'+m.players.map(function(idx){var c=commanderOf(idx),picked=m.winner===idx;return '<button type="button" class="fs-player'+(picked?' selected':won?' beaten':'')+'" data-fs-table="'+t+'" data-fs-winner="'+idx+'" aria-pressed="'+picked+'">'+artBox(idx)+'<span class="fs-who"><strong>'+esc(tournament.players[idx])+'</strong><small>'+(c?esc(cmdName(c)):'')+'</small></span><span class="marker">'+(picked?'✓':'')+'</span></button>'}).join('')+'</div>'}).join('')+'</div>';
+  if(round.bye!==null)body+='<div class="fs-bye">⏳ <strong>Pause:</strong> '+esc(tournament.players[round.bye])+'</div>';
+ }
+ el('fsRound').innerHTML=head+body;
+ el('fsRounds').innerHTML=tournament.schedule.slice(0,total).map(function(rd,i){var wins=rd.tables.filter(function(t){return t.winner!==null}).length,all=wins===rd.tables.length,veiled=isVeiled(i);
+  var lines=veiled?'<span>verdeckt</span>':rd.tables.map(function(t,j){return '<span>T'+(j+1)+': '+t.players.map(function(idx){var n=esc(tournament.players[idx]);return idx===t.winner?'<b>🏆 '+n+'</b>':n}).join(' · ')+'</span>'}).join('')+(rd.bye!==null?'<span>⏳ '+esc(tournament.players[rd.bye])+'</span>':'');
+  return '<button type="button" class="fs-round '+(all?'done':wins?'partial':'pending')+(i===open?' current':'')+(i===r?' viewing':'')+'" data-fs-round="'+i+'"><div class="fs-round-top"><span>'+(rd.final?'🏆 ':'')+roundLabel(i)+'</span><span>'+(all?'✓ abgeschlossen':wins+'/'+rd.tables.length+' entschieden')+'</span></div><div class="fs-round-tables">'+lines+'</div></button>'}).join('');
+}
+function boardGo(i){if(!tournament)return;if(i<0||i>=visibleRounds())return;fsRound=i===nextOpenRound()?null:i;renderBoard()}
+function onBoardClick(e){
+ var b=e.target.closest('button');if(!b||!tournament)return;
+ if(b.id==='fsClose'){closeBoard();return}
+ if(b.hasAttribute('data-player')){openCommanderInfo(Number(b.getAttribute('data-player')));return}
+ if(b.hasAttribute('data-fs-step')){boardGo(boardRound()+Number(b.getAttribute('data-fs-step')));return}
+ if(b.hasAttribute('data-fs-round')){boardGo(Number(b.getAttribute('data-fs-round')));return}
+ if(b.hasAttribute('data-fs-reveal')){var rd=tournament.schedule[Number(b.getAttribute('data-fs-reveal'))];if(rd){rd.revealed=true;saveTournament();renderTournament()}return}
+ if(b.hasAttribute('data-fs-winner')){var r=boardRound();fsRound=r===nextOpenRound()?null:r;editingRound=r;selectMatchWinner(Number(b.getAttribute('data-fs-table')),Number(b.getAttribute('data-fs-winner')))}
+}
+// Commander dialog: card image plus Oracle text loaded from Scryfall (cached per card name).
+var oracleCache={};
+function oracleHTML(card){var faces=card.card_faces&&!card.oracle_text?card.card_faces:[card];return faces.map(function(f){return '<div class="oracle-face">'+(faces.length>1?'<strong>'+esc(f.name||'')+'</strong>':'')+'<p class="oracle-type">'+esc(f.type_line||'')+(f.mana_cost?' · '+esc(f.mana_cost):'')+'</p>'+String(f.oracle_text||'').split('\n').filter(Boolean).map(function(l){return '<p>'+esc(l)+'</p>'}).join('')+(f.power!=null?'<p class="oracle-pt">'+esc(f.power)+' / '+esc(f.toughness)+'</p>':f.loyalty!=null?'<p class="oracle-pt">Loyalität '+esc(f.loyalty)+'</p>':'')+'</div>'}).join('')}
+function loadOracle(name){
+ var show=function(html){Array.prototype.forEach.call(el('modalContent').querySelectorAll('.cmd-oracle'),function(box){if(box.getAttribute('data-name')===name)box.innerHTML=html})};
+ if(oracleCache[name]){show(oracleCache[name]);return}
+ fetch('https://api.scryfall.com/cards/named?exact='+encodeURIComponent(name),{headers:{Accept:'application/json'}})
+ .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+ .then(function(card){oracleCache[name]=oracleHTML(card);show(oracleCache[name])})
+ .catch(function(){show('<p class="muted tiny">Regeltext konnte nicht geladen werden. Bist du offline?</p>')});
+}
+function openCommanderInfo(idx){
+ if(!tournament||!tournament.players[idx])return;
+ var c=commanderOf(idx),row=rankRows(visibleRounds()).filter(function(x){return x.idx===idx})[0];
+ var html='<p class="cmd-info-stats">'+row.place+'. Platz · '+row.wins+' '+(row.wins===1?'Sieg':'Siege')+' · '+row.played+' gespielt'+(row.byes?' · '+row.byes+' '+(row.byes===1?'Pause':'Pausen'):'')+'</p>';
+ if(!c)html+='<p class="muted">Für diese Person ist kein Commander hinterlegt. Über „🃏 Commander“ in der Turnierübersicht kannst du einen auswählen.</p>';
+ else{var cards=cmdCards(c);html+='<div class="cmd-info-grid'+(cards.length>1?' duo':'')+'">'+cards.map(function(x){return '<div class="cmd-info">'+(x.image?'<img class="cmd-info-card" src="'+esc(x.image)+'" alt="Karte '+esc(x.name)+'">':'')+'<h3>'+esc(x.name)+'</h3><div class="cmd-oracle" data-name="'+esc(x.name)+'"><p class="muted tiny">Regeltext wird geladen …</p></div>'+(x.artist?'<p class="muted tiny">🎨 '+esc(x.artist)+'</p>':'')+(/^https:\/\/scryfall\.com\//.test(x.uri||'')?'<p class="tiny"><a href="'+esc(x.uri)+'" target="_blank" rel="noopener">Auf Scryfall ansehen ↗</a></p>':'')+'</div>'}).join('')+'</div>'}
+ html+='<div class="modal-actions"><button class="btn primary" type="button" id="modalDone">Schließen</button></div>';
+ el('modalTitle').textContent=tournament.players[idx];el('modalContent').innerHTML=html;activeModal=null;el('modalBackdrop').classList.remove('hidden');el('modalBackdrop').firstChild.classList.toggle('wide',!!(c&&c.partner));
+ cmdCards(c).forEach(function(x){loadOracle(x.name)});
+}
+el('tourBoard').addEventListener('click',openBoard);
+el('fsView').addEventListener('click',onBoardClick);
+el('rankingBody').addEventListener('click',function(e){var b=e.target.closest('button[data-player]');if(b)openCommanderInfo(Number(b.getAttribute('data-player')))});
+document.addEventListener('fullscreenchange',function(){if(!document.fullscreenElement&&fsOpen&&el('modalBackdrop').classList.contains('hidden'))closeBoard()});
+// Capture phase: runs before the global Escape handler closes a dialog, so Escape closes the dialog first and the board second.
+window.addEventListener('keydown',function(e){if(!fsOpen||!el('modalBackdrop').classList.contains('hidden')||!el('spinOverlay').classList.contains('hidden'))return;if(e.key==='Escape')closeBoard();else if(e.key==='ArrowLeft')boardGo(boardRound()-1);else if(e.key==='ArrowRight')boardGo(boardRound()+1)},true);
 })();
 </script>
 </body>
