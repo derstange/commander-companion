@@ -16,7 +16,8 @@ A) VERÖFFENTLICHEN MIT GITHUB PAGES (kostenlos)
 4. Im Repository "Add file" > "Upload files" anklicken.
    Die folgenden Dateien einzeln/zusammen aus dem entpackten Ordner hochladen:
    index.html, manifest.webmanifest, sw.js, icon-192.png, icon-512.png,
-   apple-touch-icon.png, .nojekyll (soweit beim System sichtbar).
+   apple-touch-icon.png, die Wappen (crest-*.webp), die Ordner css/ und js/
+   sowie .nojekyll (soweit beim System sichtbar).
    Wichtig: Dateien NICHT bloß als ZIP hochladen! Sie gehören direkt in
    das Stammverzeichnis des Repositorys, nicht in einen Unterordner.
 5. Änderungen über "Commit changes" speichern.
@@ -65,15 +66,25 @@ C) SPIELSTÄNDE, SICHERUNGEN, UPDATES
   Informationen als Dateien mit hochladen. Die JSON-Sicherungen gehören
   NICHT ins öffentliche Repository.
 
+D) TURNIERABEND MIT EIGENEM SERVER (OPTIONAL)
+--------------------------------------------
+Mit einem Laptop oder Raspberry Pi im selben WLAN können alle Handys
+dasselbe Turnier sehen: Tische starten, Sieger eintragen, und der Beamer
+zeigt die Vollbild-Übersicht live mit QR-Code zum Mitspielen.
+Anleitung: server/README.md. Ohne Server ändert sich nichts.
+
 DATEIEN
 -------
-index.html              Haupt-App (Life Tracker + Turnier)
+index.html              Haupt-App (Seitenaufbau)
+css/app.css             Gestaltung
+js/*.js                 Programmcode (Lebenszähler, Turnier, Vollbild, Sync)
 manifest.webmanifest    Installations-Metadaten
 sw.js                   Offline-Service-Worker
 icon-192.png            PWA-Symbol 192x192
 icon-512.png            PWA-Symbol 512x512
 apple-touch-icon.png    iPhone-Symbol 180x180
 .nojekyll               Deaktiviert Jekyll in GitHub Pages
+server/                 Optionaler lokaler Turnier-Server (nicht nötig für GitHub Pages)
 
 OFFIZIELLE HILFE
 ----------------

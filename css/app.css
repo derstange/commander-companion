@@ -539,3 +539,13 @@ button.fs-node.center:hover,button.fs-node.center:focus-visible{background:linea
 .link-btn{background:none;border:0;padding:6px 4px;color:var(--gold);font-weight:700;font-size:.82rem;text-decoration:underline;text-underline-offset:3px}
 .link-btn:hover,.link-btn:focus-visible{color:#fff1c9}
 .backup-feedback{margin:8px 0 0;min-height:1em}
+/* Optional local tournament server (server/serve.py): live badge and join QR code on the fullscreen board. */
+.sync-badge{margin:4px 0 0;color:#8fd3a8}
+.sync-badge.off{color:var(--muted)}
+.sync-badge[hidden],.fs-join[hidden],.fs-join img[hidden]{display:none}
+.fs-join{display:flex;align-items:center;gap:10px;margin-left:auto;padding:6px 12px 6px 6px;border:1px solid var(--line);border-radius:14px;background:#0a131299}
+.fs-join img{width:76px;height:76px;border-radius:8px;background:#fff;image-rendering:pixelated}
+.fs-join span{display:flex;flex-direction:column;gap:2px;line-height:1.2}
+.fs-join small{color:var(--muted);font-size:.78rem}
+.fs-join b{color:#f7e8c3;font-size:1rem;font-variant-numeric:tabular-nums}
+.fs-join:not([hidden])+.fs-close{margin-left:0}

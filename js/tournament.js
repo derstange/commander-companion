@@ -3,7 +3,7 @@
 
 var TOUR_STORAGE='commander-companion-tournament-v2',LEGACY_TOUR_STORAGE='commander-companion-tournament-v1';
 var tournament=null,editingRound=null,planningTournament=false,PLAN_BUDGET_MS=1500;
-function saveTournament(){try{localStorage.setItem(TOUR_STORAGE,JSON.stringify(tournament))}catch(e){}}
+function saveTournament(){try{localStorage.setItem(TOUR_STORAGE,JSON.stringify(tournament))}catch(e){}if(typeof syncPushTournament==='function')syncPushTournament()}
 function validTournament(t){
  if(!t||t.version!==2||!Array.isArray(t.players)||t.players.length<2||t.players.length>32||!Number.isInteger(t.rounds)||t.rounds<1||t.rounds>50||!Array.isArray(t.schedule)||t.schedule.length<t.rounds||t.schedule.length>t.rounds+MAX_FINALS)return false;
  var n=t.players.length;
