@@ -247,7 +247,7 @@ function renderTournament(){
 function launchTournamentMatch(round,table){
  var match=tournament&&tournament.schedule[round]&&tournament.schedule[round].tables[table];if(!match)return;
  state=freshState(match.players.map(function(idx){return tournament.players[idx]}));state.tournamentMatch={round:round,table:table,label:roundLabel(round)};
- match.players.forEach(function(idx,k){var c=commanderOf(idx);if(c&&c.art){state.players[k].art=c.art;if(c.artist)state.players[k].artist=c.artist}});undoStack=[];store();
+ match.players.forEach(function(idx,k){var c=commanderOf(idx);if(!c)return;state.players[k].cmds=cmdCards(c).map(function(x){return x.name});if(c.art){state.players[k].art=c.art;if(c.artist)state.players[k].artist=c.artist}});normalizePlayers(state);undoStack=[];store();
  setTab('life');el('announcement').classList.add('hidden');runStarterSpin();
 }
 function playTournamentMatch(table){

@@ -52,7 +52,7 @@ if(window.PointerEvent){
  window.addEventListener('blur',endAllHolds);document.addEventListener('visibilitychange',function(){if(document.hidden)endAllHolds()});
 }
 el('mode').addEventListener('click',function(){if(!state)return;state.mode=state.mode==='table'?'standard':'table';store();render();window.scrollTo(0,0)});
-el('pick').addEventListener('click',function(){if(!state)return;remember();state.starter=pickRandom(state.players.length);store();render();runStarterSpin()});
+el('pick').addEventListener('click',function(){if(!state)return;remember();state.starter=pickRandom(state.players.length);state.started=false;store();render();runStarterSpin()});
 el('spinOverlay').addEventListener('click',function(){if(spin&&!spin.landed)spinFinish();else spinClose()});
 el('undo').addEventListener('click',function(){if(!undoStack.length)return;state=JSON.parse(undoStack.pop());store();render()});
 el('reset').addEventListener('click',newGamePrompt);

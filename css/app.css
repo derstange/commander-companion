@@ -395,6 +395,26 @@ body.match-focus .quick .btn{min-width:0}
  body.match-focus:not(.table-mode) .quick .btn{font-size:.8rem;min-height:40px}
 }
 
+/* Counters: tap the life total for the player dialog; only counters above zero appear as labels under it. */
+.life-display{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-width:0;min-height:0;padding:0;background:none;border:0;border-radius:12px;color:inherit}
+.life-display:active{background:#ffffff14}
+.marks{flex:0 0 auto;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;padding:0 6px 6px;min-width:0}
+.mark{display:inline-flex;align-items:center;gap:4px;max-width:100%;min-width:0;min-height:30px;padding:3px 10px;border-radius:99px;border:1px solid #f3d18ba8;background:#6e522a7d;color:#fff5df;font-size:.8rem;font-weight:750;white-space:nowrap}
+.mark span{min-width:0;max-width:9em;overflow:hidden;text-overflow:ellipsis}
+.mark b{font-weight:900;font-variant-numeric:tabular-nums}
+.mark span+b{padding-left:5px;border-left:1px solid #fff5df59}
+.mark:active{filter:brightness(1.35)}
+.mark.danger{border-color:#ef9d5f;background:#773f22ac}
+.mark.critical{border-color:#ff6969;background:#8b2837}
+body.table-mode.match-focus .marks{gap:3px;padding:0 3px 3px}
+body.table-mode.match-focus .mark{min-height:24px;padding:1px 8px;font-size:clamp(.62rem,1.9vw,.78rem)}
+body.table-mode.match-focus .mark span{max-width:7em}
+body.match-focus .board .player.under-crest .player-top{padding-top:27px}
+.counter-row .who small{display:block;font-size:.7rem;opacity:.7;overflow:hidden;text-overflow:ellipsis}
+.cmd-names{display:grid;gap:6px}
+.cmd-names .btn{justify-self:start}
+.mark-sub{margin:0 0 4px;color:#e8dcc0}
+
 /* Fullscreen tournament board (laptop / projector): standings left, current round middle, all rounds right. */
 .fs-view{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;gap:14px;padding:18px 22px;background:radial-gradient(ellipse at 50% -10%,#28443d 0%,transparent 55%),#0a1312;color:var(--ink);overflow:hidden}
 .fs-crest-bg{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);height:min(92vh,1100px);width:auto;opacity:.23;pointer-events:none;user-select:none;filter:saturate(.8)}
@@ -546,7 +566,7 @@ button.fs-node.center:hover,button.fs-node.center:focus-visible{background:linea
 .legal{margin:26px auto 8px;max-width:760px;text-align:center;color:var(--muted);font-size:.72rem;line-height:1.45;opacity:.8}
 .legal p{margin:4px 0}
 .legal a{color:inherit}
-body.table-mode .legal{display:none}
+body.match-focus .legal{display:none}
 .art-credits:empty,.fs-credits:empty{display:none}
 .fs-credits{position:relative;z-index:1;margin:0;text-align:center;color:var(--muted);font-size:.72rem;opacity:.8}
 .cmd-option small{display:block;color:var(--muted);font-size:.72rem}

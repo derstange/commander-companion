@@ -25,7 +25,7 @@ function openMatchPicker(r){
  activeModal=null;el('modalBackdrop').classList.remove('hidden');el('modalBackdrop').firstChild.classList.remove('wide');
 }
 function revealSetup(){closeModal();closeGameMenu();document.body.classList.remove('table-mode');document.body.classList.remove('match-focus');el('setup').classList.remove('hidden');el('game').classList.add('hidden');el('announcement').classList.add('hidden');syncTourChoice()}
-function freshState(names){var life=limit(parseInt(el('startingLife').value,10)||40,1,999),n=names.length,players=[];for(var i=0;i<n;i++){var damages=[];for(var j=0;j<n;j++)damages.push(0);players.push({name:names[i],life:life,poison:0,experience:0,commander:damages})}return {version:2,mode:'table',starter:pickRandom(n),players:players}}
+function freshState(names){var life=limit(parseInt(el('startingLife').value,10)||40,1,999),n=names.length,players=[];for(var i=0;i<n;i++){var damages=[];for(var j=0;j<n;j++)damages.push([0]);players.push({name:names[i],life:life,poison:0,experience:0,commander:damages,cmds:['']})}return {version:2,mode:'table',starter:pickRandom(n),started:false,players:players}}
 function beginGame(event){if(event)event.preventDefault();var names=[];for(var i=0;i<selectedCount;i++)names.push('Spieler '+(i+1));state=freshState(names);undoStack=[];store();render();el('announcement').classList.add('hidden');runStarterSpin();window.scrollTo(0,0)}
 // Starting player draw: the players' cards cycle one after another, slow down and stop at the drawn starter.
 // Uses the commander art of a player if one is attached (p.art from Scryfall), otherwise the player's colour.
@@ -172,18 +172,33 @@ function renderGameMenu(){
  if(el('menuMode'))el('menuMode').textContent=state.mode==='table'?'▦ Standardansicht':'↕ Tabletop-Modus';
  updateWakeUI();
 }
-function lostReasons(p){var r=[];if(p.life<=0)r.push('0 Leben');if(p.poison>=10)r.push('10 Gift');for(var j=0;j<p.commander.length;j++)if(p.commander[j]>=21){r.push('21 Commander-Schaden');break}return r}
-function commanderDamageHTML(p,i){
- var items=[];
- for(var j=0;j<state.players.length;j++){
-  if(j===i)continue;
-  var source=state.players[j], damage=p.commander[j]||0;
-  var klass=damage>=21?' critical':damage>=15?' danger':damage>0?' marked':'';
-  var sourceName=esc(source.name);
-  items.push('<button type="button" class="commander-chip'+klass+'" data-act="modal" data-i="'+i+'" title="'+sourceName+': '+damage+' von 21 Commander-Schaden erhalten · antippen zum Bearbeiten" aria-label="'+esc(p.name)+': '+damage+' Commander-Schaden von '+sourceName+'. Antippen zum Bearbeiten">'+
-   '<span class="cmd-who"><span class="cmd-number">'+(j+1)+'</span><span class="cmd-name">'+sourceName+'</span></span><span class="cmd-amount">'+damage+'<small>/21</small></span></button>');
- }
- return '<section class="commander-direct" aria-label="Erhaltener Commander-Schaden"><div class="commander-direct-title">⚔ Commander-DMG <span>Antippen zum Ändern</span></div><div class="commander-chips">'+items.join('')+'</div></section>';
+// Commanders per player: p.cmds holds one name, or two with a partner ('' = not named, falls back to the player name).
+// Commander damage is tracked per commander: p.commander[j][k] is what p took from commander k of player j.
+function cmdCount(p){return Array.isArray(p.cmds)&&p.cmds.length===2?2:1}
+// "Balrog, Durin's Bane" -> "Balrog", "Tymna the Weaver" -> "Tymna", "Meren of Clan Nel Toth" -> "Meren";
+// other names stay whole ("The Ur-Dragon", "Edgar Markov").
+function shortCmd(name){name=String(name||'').trim();return name.split(',')[0].split(/ (?:the|of) /)[0].trim()||name}
+function cmdLabel(j,k){var p=state.players[j],raw=p.cmds&&p.cmds[k];return raw?shortCmd(raw):k===0?p.name:p.name+' · Partner'}
+// Brings a (possibly older) game into the current shape: plain numbers become one-commander lists and every
+// damage list matches the commander count of its source player.
+function normalizePlayers(s){
+ var n=s.players.length;
+ s.players.forEach(function(p){var c=Array.isArray(p.cmds)&&p.cmds.length>=1&&p.cmds.length<=2?p.cmds:[''];p.cmds=c.map(function(x){return typeof x==='string'?x.slice(0,80):''})});
+ s.players.forEach(function(p){for(var j=0;j<n;j++){var want=cmdCount(s.players[j]),v=p.commander[j],list=Array.isArray(v)?v.slice(0,want):[v];while(list.length<want)list.push(0);p.commander[j]=list.map(function(x){return limit(Number(x)||0,0,999)})}});
+ s.started=s.started===true;
+}
+function lostReasons(p){var r=[];if(p.life<=0)r.push('0 Leben');if(p.poison>=10)r.push('10 Gift');if(p.commander.some(function(list){return list.some(function(d){return d>=21})}))r.push('21 Commander-Schaden');return r}
+// Only counters above zero are shown under the life total; tapping one opens a small dialog for just that value.
+function markHTML(i,key,source,slot,icon,text,value,level,label){
+ var data=' data-key="'+key+'"'+(source===null?'':' data-source="'+source+'" data-slot="'+slot+'"');
+ return '<button type="button" class="mark'+level+'" data-act="mark" data-i="'+i+'"'+data+' aria-label="'+esc(label)+'">'+icon+(text?' <span>'+esc(text)+'</span>':'')+' <b>'+value+'</b></button>';
+}
+function marksHTML(p,i){
+ var m=[];
+ if(p.poison>0)m.push(markHTML(i,'poison',null,null,'☠','',p.poison,p.poison>=10?' critical':p.poison>=7?' danger':'',p.name+': '+p.poison+' Gift'));
+ if(p.experience>0)m.push(markHTML(i,'experience',null,null,'✦','',p.experience,'',p.name+': '+p.experience+' Erfahrung'));
+ for(var j=0;j<state.players.length;j++){if(j===i)continue;for(var k=0;k<p.commander[j].length;k++){var d=p.commander[j][k];if(d>0)m.push(markHTML(i,'commander',j,k,'⚔',cmdLabel(j,k),d,d>=21?' critical':d>=15?' danger':'',p.name+': '+d+' Commander-Schaden von '+cmdLabel(j,k)))}}
+ return m.length?'<div class="marks">'+m.join('')+'</div>':'';
 }
 function tableSeatClass(i){
  if(!state||state.mode!=='table')return '';
@@ -191,6 +206,8 @@ function tableSeatClass(i){
  if(n%2===1 && i===n-1)return ' center-seat';
  return i%2===0?' left-edge':' right-edge';
 }
+// The menu crest sits at the middle of the screen; a full-width field whose top edge is there gets room for it.
+function crestClass(i){var n=state.players.length;return (n===3&&i===2)||(n===2&&state.mode!=='table'&&i===1)?' under-crest':''}
 function boardRows(){
  if(!state)return 1;
  if(state.mode==='table'&&state.players.length===2)return 1;
@@ -208,7 +225,6 @@ function sizeRotatedCards(){
   if(!content)continue;
   content.style.setProperty('--rotated-width',Math.max(30,Math.floor(bounds.height-5))+'px');
   content.style.setProperty('--rotated-height',Math.max(30,Math.floor(bounds.width-5))+'px');
-  content.style.setProperty('--cmd-columns',state.players.length>6?'4':'3');
  }
 }
 var boardMeasureRequested=false;
@@ -217,19 +233,19 @@ function scheduleCardSizing(){
  boardMeasureRequested=true;
  requestAnimationFrame(function(){boardMeasureRequested=false;sizeRotatedCards()});
 }
-function playerHTML(p,i){var reasons=lostReasons(p),seatClass=tableSeatClass(i);return '<article class="player '+(state.starter===i?'starter ':'')+(reasons.length?'eliminated ':'')+seatClass+'" style="--player:'+PALETTE[i%PALETTE.length]+'">'+
-'<div class="player-inner"><div class="player-top"><span class="player-name">'+esc(p.name)+'</span>'+(i===state.starter?'<span class="star" aria-label="Startspieler">★ Start</span>':'')+'</div>'+
-'<div class="life-controls"><button type="button" class="step" data-act="life" data-i="'+i+'" data-d="-1" aria-label="'+esc(p.name)+': ein Leben abziehen">−</button><div class="life-display"><span class="life-value">'+p.life+'</span></div><button type="button" class="step" data-act="life" data-i="'+i+'" data-d="1" aria-label="'+esc(p.name)+': ein Leben hinzufügen">+</button></div>'+
-commanderDamageHTML(p,i)+
-'<div class="quick"><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Giftmarken von '+esc(p.name)+' verwalten">☠ Gift <strong>'+p.poison+'</strong></button><button type="button" class="btn" data-act="modal" data-i="'+i+'" aria-label="Alle Spezialzähler von '+esc(p.name)+' verwalten">⚙ Zähler</button></div>'+
+// The "Start" label disappears with the first life change: from then on the game has clearly begun.
+function playerHTML(p,i){var reasons=lostReasons(p),starter=i===state.starter&&!state.started;return '<article class="player '+(starter?'starter ':'')+(reasons.length?'eliminated ':'')+tableSeatClass(i)+crestClass(i)+'" style="--player:'+PALETTE[i%PALETTE.length]+'">'+
+'<div class="player-inner"><div class="player-top"><span class="player-name">'+esc(p.name)+'</span>'+(starter?'<span class="star" aria-label="Startspieler">★ Start</span>':'')+'</div>'+
+'<div class="life-controls"><button type="button" class="step" data-act="life" data-i="'+i+'" data-d="-1" aria-label="'+esc(p.name)+': ein Leben abziehen">−</button><button type="button" class="life-display" data-act="modal" data-i="'+i+'" aria-label="'+esc(p.name)+': '+p.life+' Leben. Antippen für Gift, Erfahrung und Commander-Schaden"><span class="life-value">'+p.life+'</span></button><button type="button" class="step" data-act="life" data-i="'+i+'" data-d="1" aria-label="'+esc(p.name)+': ein Leben hinzufügen">+</button></div>'+
+marksHTML(p,i)+
 (reasons.length?'<div class="bottom-status">⚠ Ausgeschieden · '+esc(reasons.join(', '))+'</div>':'')+'</div></article>'}
-function render(){
+function render(keepModal){
  if(!state){revealSetup();return}
  document.body.classList.toggle('table-mode',activeTab==='life'&&state.mode==='table');
  document.body.classList.toggle('match-focus',activeTab==='life');
  el('setup').classList.add('hidden');
  el('game').classList.remove('hidden');
- 
+
  el('mode').textContent=state.mode==='table'?'▦ Standardansicht':'↕ Tabletop-Modus';
  el('mode').classList.toggle('active',state.mode==='table');
  el('undo').disabled=undoStack.length===0;
@@ -242,33 +258,55 @@ function render(){
  board.innerHTML=state.players.map(playerHTML).join('');
  scheduleCardSizing();
  renderGameMenu();
- if(activeModal!==null)renderModal()
+ if(activeModal!==null&&!keepModal)renderModal()
 }
-function adjust(i,key,d,source){if(!state||!state.players[i]||!Number.isFinite(d))return;var p=state.players[i];remember();if(key==='life')p.life=limit(p.life+d,-999,999);else if(key==='commander'){if(!Number.isInteger(source)||source<0||source>=state.players.length||source===i){undoStack.pop();return}p.commander[source]=limit(p.commander[source]+d,0,999)}else if(key==='poison'||key==='experience')p[key]=limit(p[key]+d,0,999);else{undoStack.pop();return}store();render()}
-function openModal(i){if(!state||!state.players[i])return;closeGameMenu();activeModal=i;el('modalBackdrop').classList.remove('hidden');renderModal()}
-function closeModal(){el('modalBackdrop').firstChild.classList.remove('wide');clearInterval(diceTimer);clearTimeout(diceTimer);diceTimer=null;activeModal=null;el('modalBackdrop').classList.add('hidden')}
-function counterHTML(title,i,key,value,source){var extra=typeof source==='number'?' data-source="'+source+'"':'';return '<div class="counter-row"><span class="who">'+esc(title)+'</span><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="-1"'+extra+' aria-label="'+esc(title)+' reduzieren">−</button><output>'+value+'</output><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="1"'+extra+' aria-label="'+esc(title)+' erhöhen">+</button></div>'}
-function renderModal(){if(activeModal===null||!state||!state.players[activeModal])return;var i=activeModal,p=state.players[i];el('modalTitle').textContent=p.name+' · Zähler';var html='<div class="field"><label for="editName">Spielername</label><input id="editName" type="text" maxlength="35" autocomplete="off" value="'+esc(p.name)+'"></div>';
-html+='<h3 class="section-label">Status & Marken</h3>'+counterHTML('☠ Giftmarken',i,'poison',p.poison)+counterHTML('✦ Erfahrungsmarken',i,'experience',p.experience);
-html+='<h3 class="section-label">Commander-Schaden erhalten</h3>';for(var j=0;j<state.players.length;j++)if(j!==i)html+=counterHTML('Von '+state.players[j].name,i,'commander',p.commander[j],j);
-html+='<p class="notice-inline">21 Schaden durch <strong>denselben</strong> Commander oder 10 Giftmarken bedeuten eine Niederlage. Commander-Schaden ändert hier nicht automatisch die Lebenspunkte, um Doppelzählungen zu vermeiden.</p><div class="modal-actions"><button type="button" class="btn primary" id="modalDone">Fertig</button></div>';el('modalContent').innerHTML=html}
+function validSource(i,source,slot){return Number.isInteger(source)&&source>=0&&source<state.players.length&&source!==i&&Number.isInteger(slot)&&slot>=0&&slot<state.players[i].commander[source].length}
+function adjust(i,key,d,source,slot){if(!state||!state.players[i]||!Number.isFinite(d))return;var p=state.players[i];remember();if(key==='life'){p.life=limit(p.life+d,-999,999);state.started=true}else if(key==='commander'){if(!validSource(i,source,slot)){undoStack.pop();return}p.commander[source][slot]=limit(p.commander[source][slot]+d,0,999)}else if(key==='poison'||key==='experience')p[key]=limit(p[key]+d,0,999);else{undoStack.pop();return}store();render()}
+// activeMark set: the small dialog for one counter (from a label on the board); null: the full player dialog.
+var activeMark=null;
+function openModal(i,mark){if(!state||!state.players[i])return;closeGameMenu();activeModal=i;activeMark=mark||null;el('modalBackdrop').classList.remove('hidden');renderModal()}
+function closeModal(){el('modalBackdrop').firstChild.classList.remove('wide');clearInterval(diceTimer);clearTimeout(diceTimer);diceTimer=null;activeModal=null;activeMark=null;el('modalBackdrop').classList.add('hidden')}
+function counterHTML(title,i,key,value,source,slot,sub){var extra=typeof source==='number'?' data-source="'+source+'" data-slot="'+slot+'"':'';return '<div class="counter-row"><span class="who">'+esc(title)+(sub?'<small>'+esc(sub)+'</small>':'')+'</span><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="-1"'+extra+' aria-label="'+esc(title)+' reduzieren">−</button><output>'+value+'</output><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="1"'+extra+' aria-label="'+esc(title)+' erhöhen">+</button></div>'}
+function damageRow(i,j,k){var label=cmdLabel(j,k),who=state.players[j].name;return counterHTML('von '+label,i,'commander',state.players[i].commander[j][k],j,k,label===who?'':who)}
+function renderMark(){
+ var i=activeModal,p=state.players[i],m=activeMark,html;
+ if(m.key==='commander'){
+  if(!validSource(i,m.source,m.slot)){activeMark=null;renderModal();return}
+  el('modalTitle').textContent='⚔ Commander-Schaden';
+  html='<p class="mark-sub">'+esc(p.name)+' von <strong>'+esc(cmdLabel(m.source,m.slot))+'</strong></p>'+damageRow(i,m.source,m.slot);
+ }else{
+  el('modalTitle').textContent=(m.key==='poison'?'☠ Gift':'✦ Erfahrung')+' · '+p.name;
+  html=counterHTML(m.key==='poison'?'☠ Gift':'✦ Erfahrung',i,m.key,p[m.key]);
+ }
+ el('modalContent').innerHTML=html+'<div class="modal-actions"><button type="button" class="btn" id="markAll">Alle Zähler</button><button type="button" class="btn primary" id="modalDone">Fertig</button></div>';
+}
+function renderModal(){if(activeModal===null||!state||!state.players[activeModal])return;if(activeMark){renderMark();return}var i=activeModal,p=state.players[i];el('modalTitle').textContent=p.name;
+var html='<div class="field"><label for="editName">Spielername</label><input id="editName" type="text" maxlength="35" autocomplete="off" value="'+esc(p.name)+'"></div>';
+html+='<h3 class="section-label">Commander</h3><div class="cmd-names">';
+for(var k=0;k<cmdCount(p);k++)html+='<input type="text" class="cmd-name-input" data-cmd-slot="'+k+'" maxlength="80" autocomplete="off" placeholder="'+esc(k?'Partner-Commander':p.name)+'" value="'+esc(p.cmds[k])+'" aria-label="'+(k?'Partner-Commander':'Commander')+' von '+esc(p.name)+'">';
+html+=(k===2?'<button type="button" class="btn" id="dropPartner">× Partner entfernen</button>':'<button type="button" class="btn" id="addPartner">+ Partner</button>')+'</div>';
+html+='<h3 class="section-label">Marken</h3>'+counterHTML('☠ Gift',i,'poison',p.poison)+counterHTML('✦ Erfahrung',i,'experience',p.experience);
+html+='<h3 class="section-label">Commander-Schaden erhalten</h3>';for(var j=0;j<state.players.length;j++)if(j!==i)for(k=0;k<p.commander[j].length;k++)html+=damageRow(i,j,k);
+html+='<div class="modal-actions"><button type="button" class="btn primary" id="modalDone">Fertig</button></div>';el('modalContent').innerHTML=html}
 function newGamePrompt(){closeGameMenu();el('modalTitle').textContent='Neue Partie starten?';el('modalContent').innerHTML='<p class="muted">Alle aktuellen Lebenspunkte und Spezialzähler werden gelöscht.</p><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button><button class="btn warning" type="button" id="reallyReset">Neue Partie</button></div>';activeModal=null;el('modalBackdrop').classList.remove('hidden')}
-function validate(s){if(!s||!Array.isArray(s.players)||s.players.length<2||s.players.length>8)return false;var n=s.players.length;if(!Number.isInteger(s.starter)||s.starter<0||s.starter>=n)return false;for(var i=0;i<n;i++){var p=s.players[i];if(!p||typeof p.name!=='string'||!Number.isFinite(p.life)||!Number.isFinite(p.poison)||!Number.isFinite(p.experience)||!Array.isArray(p.commander)||p.commander.length!==n)return false;for(var j=0;j<n;j++)if(!Number.isFinite(p.commander[j]))return false}return true}
+function finiteList(v){return Number.isFinite(v)||(Array.isArray(v)&&v.length>=1&&v.length<=2&&v.every(Number.isFinite))}
+// Checks a stored or loaded game and brings it into the current shape (see normalizePlayers).
+function validate(s){if(!s||!Array.isArray(s.players)||s.players.length<2||s.players.length>8)return false;var n=s.players.length;if(!Number.isInteger(s.starter)||s.starter<0||s.starter>=n)return false;for(var i=0;i<n;i++){var p=s.players[i];if(!p||typeof p.name!=='string'||!Number.isFinite(p.life)||!Number.isFinite(p.poison)||!Number.isFinite(p.experience)||!Array.isArray(p.commander)||p.commander.length!==n)return false;for(var j=0;j<n;j++)if(!finiteList(p.commander[j]))return false}normalizePlayers(s);return true}
 function restore(){try{var raw=window.localStorage.getItem(STORAGE);if(raw){var candidate=JSON.parse(raw);if(validate(candidate)){state=candidate;state.mode=(state.mode==='table'?'table':'standard');return true}}}catch(e){}return false}
 function migrate(){try{var raw=window.localStorage.getItem('commander-life-tracker-v1');if(!raw)return false;var s=JSON.parse(raw);if(!validate(s))return false;state={version:2,mode:'standard',starter:s.starter,players:s.players};store();return true}catch(e){return false}}
-// Press and hold on any − / + (life on the board, poison, experience and commander damage in the counter dialog):
+// Press and hold on any − / + (life on the board, poison, experience and commander damage in the counter dialogs):
 // the value keeps changing until release and speeds up the longer the button is held.
 // Only the number is updated while holding; everything is redrawn on release, and a whole hold is one undo step.
 var holds={},lastHoldEnd=0,HOLD_BUTTONS='.step[data-act="life"],.mini[data-act="adjust"]';
 function holdButton(h){
  if(h.key==='life')return el('board').querySelector('.step[data-act="life"][data-i="'+h.i+'"][data-d="'+h.d+'"]');
  if(activeModal!==h.i)return null;
- return el('modalContent').querySelector('.mini[data-key="'+h.key+'"][data-d="'+h.d+'"]'+(h.key==='commander'?'[data-source="'+h.source+'"]':''));
+ return el('modalContent').querySelector('.mini[data-key="'+h.key+'"][data-d="'+h.d+'"]'+(h.key==='commander'?'[data-source="'+h.source+'"][data-slot="'+h.slot+'"]':''));
 }
 function holdStep(h){
  var p=state.players[h.i];
  if(h.key==='life'){var before=p.life;p.life=limit(p.life+h.d,-999,999);return {value:p.life,change:p.life-before}}
- if(h.key==='commander'){var c=p.commander[h.source];p.commander[h.source]=limit(c+h.d,0,999);return {value:p.commander[h.source],change:p.commander[h.source]-c}}
+ if(h.key==='commander'){var list=p.commander[h.source],c=list[h.slot];list[h.slot]=limit(c+h.d,0,999);return {value:list[h.slot],change:list[h.slot]-c}}
  var old=p[h.key];p[h.key]=limit(old+h.d,0,999);return {value:p[h.key],change:p[h.key]-old};
 }
 function holdTick(id){
@@ -286,11 +324,12 @@ function holdTick(id){
  h.count++;
  h.timer=setTimeout(function(){holdTick(id)},h.count===1?450:Math.max(35,Math.round(170*Math.pow(.86,h.count-2))));
 }
+function dataNumber(node,name){return node.hasAttribute(name)?Number(node.getAttribute(name)):null}
 function startHold(e){
  var btn=e.target.closest(HOLD_BUTTONS);if(!btn||!state||(e.pointerType==='mouse'&&e.button!==0))return;
- var h={i:parseInt(btn.getAttribute('data-i'),10),key:btn.getAttribute('data-act')==='life'?'life':btn.getAttribute('data-key'),d:Number(btn.getAttribute('data-d')),source:btn.hasAttribute('data-source')?Number(btn.getAttribute('data-source')):null,count:0,total:0};
+ var h={i:parseInt(btn.getAttribute('data-i'),10),key:btn.getAttribute('data-act')==='life'?'life':btn.getAttribute('data-key'),d:Number(btn.getAttribute('data-d')),source:dataNumber(btn,'data-source'),slot:dataNumber(btn,'data-slot'),count:0,total:0};
  var p=state.players[h.i];if(!p||!Number.isFinite(h.d)||['life','poison','experience','commander'].indexOf(h.key)<0)return;
- if(h.key==='commander'&&(!Number.isInteger(h.source)||h.source<0||h.source>=state.players.length||h.source===h.i))return;
+ if(h.key==='commander'&&!validSource(h.i,h.source,h.slot))return;
  endHold(e.pointerId);remember();holds[e.pointerId]=h;holdTick(e.pointerId);
 }
 function endHold(id,cancelled){
@@ -298,12 +337,21 @@ function endHold(id,cancelled){
  var others=Object.keys(holds).length>0;
  // A cancelled short touch (e.g. the page or dialog started scrolling) should not change anything.
  if((cancelled&&h.count<=1)||h.total===0){if(state&&state.players[h.i]){h.d=-h.total;if(h.d)holdStep(h)}if(!others)undoStack.pop()}
+ else if(h.key==='life'&&state)state.started=true;
  store();if(!others)render();
 }
 function endAllHolds(){Object.keys(holds).forEach(function(id){endHold(id)})}
-function onBoardClick(e){var node=e.target.closest('button[data-act]');if(!node)return;var i=parseInt(node.getAttribute('data-i'),10);var action=node.getAttribute('data-act');if(action==='life'&&window.PointerEvent&&Date.now()-lastHoldEnd<700)return;if(action==='life')adjust(i,'life',Number(node.getAttribute('data-d')));else if(action==='modal')openModal(i)}
-function onModalClick(e){var btn=e.target.closest('button');if(!btn)return;if(btn.id==='modalDone'||btn.id==='keepGame'){closeModal();return}if(btn.id==='reallyResetTour'){closeModal();tournament=null;editingRound=null;try{window.localStorage.removeItem(TOUR_STORAGE)}catch(e){}if(typeof syncPushTournament==='function')syncPushTournament();renderTournament();return}if(btn.hasAttribute('data-pick-round')){openMatchPicker(Number(btn.getAttribute('data-pick-round')));return}if(btn.hasAttribute('data-pick-table')){var pr=pickRound;closeModal();launchTournamentMatch(pr,Number(btn.getAttribute('data-pick-table')));window.scrollTo(0,0);return}if(btn.id==='reallyPlayMatch'){closeModal();launchTournamentMatch(Number(btn.getAttribute('data-round')),Number(btn.getAttribute('data-table')));return}if(btn.id==='reallyReset'){closeModal();state=null;undoStack=[];discard();revealSetup();window.scrollTo(0,0);return}if(btn.getAttribute('data-act')==='adjust'){if(window.PointerEvent&&Date.now()-lastHoldEnd<700)return;var i=Number(btn.getAttribute('data-i')),key=btn.getAttribute('data-key'),d=Number(btn.getAttribute('data-d')),source=btn.hasAttribute('data-source')?Number(btn.getAttribute('data-source')):undefined;adjust(i,key,d,source)}}
-function onNameChange(e){if(e.target.id!=='editName'||activeModal===null||!state)return;var name=e.target.value.trim().slice(0,35)||'Spieler '+(activeModal+1);if(state.players[activeModal].name===name)return;remember();state.players[activeModal].name=name;store();render();el('modalTitle').textContent=name+' · Zähler'}
+function onBoardClick(e){var node=e.target.closest('button[data-act]');if(!node)return;var i=parseInt(node.getAttribute('data-i'),10);var action=node.getAttribute('data-act');if(action==='life'&&window.PointerEvent&&Date.now()-lastHoldEnd<700)return;if(action==='life')adjust(i,'life',Number(node.getAttribute('data-d')));else if(action==='modal')openModal(i);else if(action==='mark')openModal(i,{key:node.getAttribute('data-key'),source:dataNumber(node,'data-source'),slot:dataNumber(node,'data-slot')})}
+// Adding a partner gives every other player a second damage counter for it; removing it drops that counter (undo restores it).
+function setPartner(i,on){var p=state.players[i];if(on===(cmdCount(p)===2))return;remember();p.cmds=on?[p.cmds[0],'']:[p.cmds[0]];normalizePlayers(state);store();render()}
+function onModalClick(e){var btn=e.target.closest('button');if(!btn)return;if(btn.id==='modalDone'||btn.id==='keepGame'){closeModal();return}if(btn.id==='markAll'){activeMark=null;renderModal();return}if(btn.id==='addPartner'||btn.id==='dropPartner'){setPartner(activeModal,btn.id==='addPartner');return}if(btn.id==='reallyResetTour'){closeModal();tournament=null;editingRound=null;try{window.localStorage.removeItem(TOUR_STORAGE)}catch(e){}if(typeof syncPushTournament==='function')syncPushTournament();renderTournament();return}if(btn.hasAttribute('data-pick-round')){openMatchPicker(Number(btn.getAttribute('data-pick-round')));return}if(btn.hasAttribute('data-pick-table')){var pr=pickRound;closeModal();launchTournamentMatch(pr,Number(btn.getAttribute('data-pick-table')));window.scrollTo(0,0);return}if(btn.id==='reallyPlayMatch'){closeModal();launchTournamentMatch(Number(btn.getAttribute('data-round')),Number(btn.getAttribute('data-table')));return}if(btn.id==='reallyReset'){closeModal();state=null;undoStack=[];discard();revealSetup();window.scrollTo(0,0);return}if(btn.getAttribute('data-act')==='adjust'){if(window.PointerEvent&&Date.now()-lastHoldEnd<700)return;adjust(Number(btn.getAttribute('data-i')),btn.getAttribute('data-key'),Number(btn.getAttribute('data-d')),dataNumber(btn,'data-source'),dataNumber(btn,'data-slot'))}}
+// Name fields only redraw the board, not the dialog: replacing the dialog on blur would swallow a tap on "Fertig".
+function onNameChange(e){
+ if(activeModal===null||!state)return;var p=state.players[activeModal];
+ if(e.target.id==='editName'){var name=e.target.value.trim().slice(0,35)||'Spieler '+(activeModal+1);if(p.name===name)return;remember();p.name=name;store();render(true);el('modalTitle').textContent=name;return}
+ if(!e.target.hasAttribute('data-cmd-slot'))return;var k=Number(e.target.getAttribute('data-cmd-slot')),value=e.target.value.trim().slice(0,80);
+ if(!(k<cmdCount(p))||p.cmds[k]===value)return;remember();p.cmds[k]=value;store();render(true);
+}
 
 
 // Multi-table tournament planner: balanced byes, equal table size and diversified opponents.
