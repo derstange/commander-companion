@@ -10,9 +10,9 @@ function initialize(){buildChoices();syncNameFields();loadTournament();syncTourC
 el('gameFile').addEventListener('change',loadGameFile);
 el('tourFile').addEventListener('change',loadTournamentFile);
 el('setupGameImport').addEventListener('click',function(){el('gameFile').click()});
-el('setupTourImport').addEventListener('click',function(){el('tourFile').click()});
-el('tourExport').addEventListener('click',saveTournamentFile);
-el('tourImport').addEventListener('click',function(){el('tourFile').click()});
+el('setupTourImport').addEventListener('click',openTourLoad);
+el('tourExport').addEventListener('click',openTourSave);
+el('tourImport').addEventListener('click',openTourLoad);
 el('menuFab').addEventListener('click',toggleGameMenu);
 el('menuClose').addEventListener('click',closeGameMenu);
 el('menuClosePrimary').addEventListener('click',closeGameMenu);

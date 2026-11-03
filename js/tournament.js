@@ -3,9 +3,14 @@
 
 var TOUR_STORAGE='commander-companion-tournament-v2',LEGACY_TOUR_STORAGE='commander-companion-tournament-v1';
 var tournament=null,editingRound=null,planningTournament=false,PLAN_BUDGET_MS=1500;
+// Optional tournament name (shown as the title) and, with the local server, the id of its named save (autosaved there).
+var TOUR_NAME_MAX=60,SAVE_ID=/^[0-9a-f]{32}$/,DEFAULT_TOUR_NAME='Commander-Turnier';
+function tourName(){return tournament&&typeof tournament.name==='string'&&tournament.name.trim()||DEFAULT_TOUR_NAME}
 function saveTournament(){try{localStorage.setItem(TOUR_STORAGE,JSON.stringify(tournament))}catch(e){}if(typeof syncPushTournament==='function')syncPushTournament()}
 function validTournament(t){
  if(!t||t.version!==2||!Array.isArray(t.players)||t.players.length<2||t.players.length>32||!Number.isInteger(t.rounds)||t.rounds<1||t.rounds>50||!Array.isArray(t.schedule)||t.schedule.length<t.rounds||t.schedule.length>t.rounds+MAX_FINALS)return false;
+ if('name' in t&&(typeof t.name!=='string'||t.name.length>TOUR_NAME_MAX))return false;
+ if('saveId' in t&&!(typeof t.saveId==='string'&&SAVE_ID.test(t.saveId)))return false;
  var n=t.players.length;
  for(var i=0;i<n;i++)if(typeof t.players[i]!=='string')return false;
  for(var r=0;r<t.schedule.length;r++){
@@ -133,13 +138,14 @@ function createTournament(e){
  if(e)e.preventDefault();if(planningTournament)return;var n=Number(el('tournamentCount').value),r=Number(el('tournamentRounds').value);
  if(!Number.isInteger(n)||n<2||n>32||!Number.isInteger(r)||r<1||r>50){el('tournamentForm').reportValidity();return}
  var inputs=el('tournamentNames').querySelectorAll('input[id^="tourPlayer"]');if(inputs.length!==n){syncNameFields();inputs=el('tournamentNames').querySelectorAll('input[id^="tourPlayer"]')}
+ var title=el('tournamentName').value.trim().slice(0,TOUR_NAME_MAX);
  var names=[];for(var i=0;i<n;i++)names.push((inputs[i].value.trim().slice(0,35)||('Spieler '+(i+1))));
  planningTournament=true;el('tournamentSubmit').disabled=true;el('planningNote').classList.remove('hidden');
  var commanders=names.map(function(_,i){return setupCommanders[i]||null});
  // Short delay so the note is painted before the first plan blocks the main thread.
  setTimeout(function(){planBestTournament(n,r,function(schedule){
   planningTournament=false;el('tournamentSubmit').disabled=false;el('planningNote').classList.add('hidden');
-  tournament={version:2,players:names,rounds:r,schedule:schedule,commanders:commanders};editingRound=0;saveTournament();renderTournament();window.scrollTo(0,0);
+  tournament={version:2,players:names,rounds:r,schedule:schedule,commanders:commanders};if(title)tournament.name=title;el('tournamentName').value='';editingRound=0;saveTournament();renderTournament();window.scrollTo(0,0);
  })},50);
 }
 function counts(){
@@ -221,6 +227,7 @@ function renderTournament(){
  syncFinals();var total=visibleRounds(),finals=total-tournament.rounds;
  var matches=0,done=0,rDone=0;for(var r=0;r<total;r++){var completed=true;for(var j=0;j<tournament.schedule[r].tables.length;j++){matches++;if(tournament.schedule[r].tables[j].winner!==null)done++;else completed=false}if(completed&&r<tournament.rounds)rDone++}
  var l=getLayout(tournament.players.length),finished=done===matches;
+ el('tourTitle').textContent=tourName();
  el('tourSubtitle').textContent=tournament.players.length+' Teilnehmer · '+tournament.rounds+' Runden · '+l.tables+' '+(l.tables===1?'Tisch':'Tische')+' pro Runde';
  el('tourMetrics').innerHTML='<span class="tour-metric"><strong>'+rDone+' / '+tournament.rounds+'</strong> Runden</span><span class="tour-metric"><strong>'+done+' / '+matches+'</strong> Partien erfasst</span>'+(l.bye?'<span class="tour-metric"><strong>1</strong> Pause / Runde</span>':'')+(finals?'<span class="tour-metric"><strong>🏆 '+finals+'</strong> '+(finals===1?'Finalrunde':'Finalrunden')+'</span>':'')+(finished?'<span class="tour-metric"><strong>✓</strong> Turnier abgeschlossen</span>':'');
  el('tourReveal').textContent='✨ Enthüllung: '+(revealEnabled?'AN':'AUS');el('tourReveal').setAttribute('aria-pressed',String(revealEnabled));
@@ -277,7 +284,9 @@ function saveGameFile(){
 }
 function saveTournamentFile(){
  if(!tournament)return;
- downloadJSON({format:'commander-companion-tournament',version:1,created:new Date().toISOString(),tournament:tournament},'Commander_Companion_Turnier_'+fileDate()+'.json');
+ var copy=Object.assign({},tournament);delete copy.saveId;
+ var slug=tournament.name?tournament.name.replace(/[^0-9A-Za-zÄÖÜäöüß_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40):'';
+ downloadJSON({format:'commander-companion-tournament',version:1,created:new Date().toISOString(),tournament:copy},'Commander_Companion_Turnier_'+(slug?slug+'_':'')+fileDate()+'.json');
  say(TOUR_FEEDBACK,'Turnier gesichert. Bitte die Datei gut aufbewahren.');
 }
 function readJSONFile(e,feedback,apply){
@@ -301,6 +310,6 @@ function loadTournamentFile(e){readJSONFile(e,TOUR_FEEDBACK,function(data){
  if(t===null){say(TOUR_FEEDBACK,'Diese Sicherung enthält kein Turnier. Keine Daten geändert.');return}
  if(!t||!validTournament(t)){say(TOUR_FEEDBACK,'Keine gültige Turnierdatei. Keine Daten geändert.');return}
  if(tournament&&!window.confirm('Das aktuelle Turnier durch das gespeicherte Turnier ersetzen?'))return;
- tournament=normalizeCommanders(t);saveTournament();editingRound=null;setTab('tournament');
+ delete t.saveId;tournament=normalizeCommanders(t);saveTournament();editingRound=null;setTab('tournament');
  say(TOUR_FEEDBACK,'Turnier geladen.');
 })}

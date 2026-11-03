@@ -64,6 +64,7 @@
     <h2>Neues Commander-Turnier</h2>
     <p class="muted">Legt eure Turnierrunden fest. Mehr als vier Teilnehmer werden automatisch auf gleich große Spieltische verteilt. Jeder Tisch kürt einen Sieger.</p>
     <form id="tournamentForm">
+      <div class="field"><label for="tournamentName">Turniername</label><input type="text" id="tournamentName" maxlength="60" autocomplete="off" placeholder="Commander-Turnier"></div>
       <div class="tour-fields">
         <div class="field"><label for="tournamentCount">Anzahl der Spieler (2–32)</label><input type="number" id="tournamentCount" min="2" max="32" step="1" value="4" inputmode="numeric" required></div>
         <div class="field"><label for="tournamentRounds">Anzahl der Runden (1–50)</label><input type="number" id="tournamentRounds" min="1" max="50" step="1" value="5" inputmode="numeric" required></div>

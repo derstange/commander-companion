@@ -102,9 +102,56 @@ function syncStart(){
   document.addEventListener('visibilitychange',function(){if(!document.hidden)syncPull()});
  }).catch(function(){clearTimeout(timer)});
 }
+// Named saves on the server: only on a laptop/Pi (desktop) that talks to the server. Phones keep the plain file buttons.
+function serverSaves(){return sync.on&&typeof isDesktop==='function'&&isDesktop()}
+function savesApi(path,opts){return fetch('./api/'+path,Object.assign({cache:'no-store'},opts||{})).then(function(r){return r.json().catch(function(){return {}}).then(function(body){body.status=r.status;return body})})}
+function openModalWith(title,html){el('modalTitle').textContent=title;el('modalContent').innerHTML=html;activeModal=null;el('modalBackdrop').classList.remove('hidden')}
+function saveDate(iso){var d=new Date(iso);return isNaN(d)?'':d.toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+function openTourSave(){
+ if(!tournament)return;if(!serverSaves()){saveTournamentFile();return}
+ var linked=!!tournament.saveId;
+ openModalWith('Turnier speichern','<p class="muted tiny">'+(linked?'Dieses Turnier ist auf dem Server gespeichert und wird bei jeder Änderung automatisch aktualisiert.':'Auf dem Server gespeichert, wird das Turnier ab dann bei jeder Änderung automatisch aktualisiert.')+'</p>'
+  +'<div class="field"><label for="saveName">Turniername</label><input type="text" id="saveName" maxlength="'+TOUR_NAME_MAX+'" autocomplete="off" placeholder="'+esc(DEFAULT_TOUR_NAME)+'" value="'+esc(tournament.name||'')+'"></div>'
+  +'<p id="saveFeedback" class="tiny muted" role="status" aria-live="polite"></p>'
+  +'<div class="save-choice"><button class="btn" type="button" id="saveToFile">💾 JSON herunterladen</button><button class="btn primary" type="button" id="saveToServer">🖥 Auf Server speichern</button></div><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button></div>');
+ var input=el('saveName');input.focus();input.select();
+}
+function saveToServer(){
+ var name=el('saveName').value.trim().slice(0,TOUR_NAME_MAX)||tourName(),btn=el('saveToServer');btn.disabled=true;
+ var send=function(id){return savesApi('saves',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,tournament:tournament,id:id})})};
+ // A save deleted on the server (404) is simply created again.
+ send(tournament.saveId||null).then(function(res){return res.status===404?send(null):res}).then(function(res){
+  if(res.status!==200||!SAVE_ID.test(res.id||'')){el('saveFeedback').textContent=res.error?'Nicht gespeichert: '+res.error+'.':'Nicht gespeichert.';btn.disabled=false;return}
+  tournament.name=res.name;tournament.saveId=res.id;saveTournament();renderTournament();closeModal();
+  say(TOUR_FEEDBACK,'„'+res.name+'“ auf dem Server gespeichert. Änderungen werden automatisch übernommen.');
+ }).catch(function(){el('saveFeedback').textContent='Server nicht erreichbar.';btn.disabled=false});
+}
+function openTourLoad(){
+ if(!serverSaves()){el('tourFile').click();return}
+ openModalWith('Turnier laden','<button class="btn full save-file" type="button" id="loadFromFile">📂 Datei auswählen …</button><h3 class="section-label">Auf dem Server gespeichert</h3><div id="saveList" class="save-list"><p class="muted tiny">Wird geladen …</p></div><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button></div>');
+ savesApi('saves').then(function(res){
+  var list=el('saveList');if(!list)return;var saves=Array.isArray(res.saves)?res.saves:[];
+  list.innerHTML=saves.length?saves.map(function(s){var current=tournament&&tournament.saveId===s.id;
+   return '<button type="button" class="save-item'+(current?' current':'')+'" data-load-save="'+esc(s.id)+'"><strong>'+esc(s.name||DEFAULT_TOUR_NAME)+(current?' <small>· läuft gerade</small>':'')+'</strong><span>'+esc(s.players)+' Spieler · '+esc(s.rounds)+' Runden · '+esc(saveDate(s.saved))+'</span></button>'}).join(''):'<p class="muted tiny">Noch keine Turniere auf dem Server gespeichert.</p>';
+ }).catch(function(){var list=el('saveList');if(list)list.innerHTML='<p class="muted tiny">Server nicht erreichbar.</p>'});
+}
+function loadFromServer(id){
+ if(!SAVE_ID.test(id))return;
+ savesApi('saves/'+id).then(function(res){
+  var t=res.tournament;if(res.status!==200||!t||!validTournament(t)){say(TOUR_FEEDBACK,'Spielstand ungültig oder nicht gefunden. Keine Daten geändert.');closeModal();return}
+  if(tournament&&tournament.saveId!==id&&!window.confirm('Das aktuelle Turnier durch „'+(t.name||DEFAULT_TOUR_NAME)+'“ ersetzen?'))return;
+  closeModal();t.saveId=id;tournament=normalizeCommanders(t);saveTournament();editingRound=null;setTab('tournament');
+  say(TOUR_FEEDBACK,'„'+tourName()+'“ vom Server geladen.');
+ }).catch(function(){say(TOUR_FEEDBACK,'Server nicht erreichbar.');closeModal()});
+}
 el('modalContent').addEventListener('click',function(e){
  var b=e.target.closest('button');if(!b)return;
  if(b.id==='syncUpload'){closeModal();sync.hold=false;syncPushTournament()}
  else if(b.id==='syncUseServer'){closeModal();sync.hold=false;syncShow(null)}
+ else if(b.id==='saveToFile'){closeModal();saveTournamentFile()}
+ else if(b.id==='saveToServer')saveToServer();
+ else if(b.id==='loadFromFile'){closeModal();el('tourFile').click()}
+ else if(b.hasAttribute('data-load-save'))loadFromServer(b.getAttribute('data-load-save'));
 });
+el('modalContent').addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.id==='saveName'){e.preventDefault();saveToServer()}});
 syncStart();

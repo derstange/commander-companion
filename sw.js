@@ -1,5 +1,5 @@
 /* Commander Companion VIII.2 — offline-first application shell. */
-const CACHE = 'commander-companion-v8-2-2026-11-02-2';
+const CACHE = 'commander-companion-v8-2-2026-11-03-1';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './crest-1x.webp', './crest-2x.webp', './crest-3x.webp',
   './css/app.css', './js/core.js', './js/life.js', './js/planner.js', './js/tournament.js', './js/main.js', './js/board.js', './js/sync.js'];
 self.addEventListener('install', event => {

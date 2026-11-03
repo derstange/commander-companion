@@ -46,6 +46,18 @@ Windows fragt beim ersten Start evtl., ob Python ins Netzwerk darf: **private Ne
 Das Turnier liegt in `server/data/tournament.json` (nicht in git) und übersteht einen Neustart.
 „Neues Turnier“ in der App löscht es für alle.
 
+## Turniere mit Namen speichern (nur Laptop/Pi)
+
+Am Laptop oder Pi (nicht am Handy) öffnen **💾 Turnier sichern** und **📂 Turnier laden** einen Dialog:
+
+- **Sichern:** Namen eingeben → **🖥 Auf Server speichern** oder wie bisher **💾 JSON herunterladen**.
+  Ein auf dem Server gespeichertes Turnier wird danach bei jeder Änderung (auch vom Handy) automatisch aktualisiert.
+- **Laden:** einen gespeicherten Stand aus der Liste wählen oder **📂 Datei auswählen …**.
+
+Die Stände liegen in `server/data/saves/` (höchstens 100). Zum Löschen die Datei dort entfernen.
+Dateinamen sind zufällige IDs; der Turniername steht nur in der Datei. Eine geladene JSON-Datei ist nie
+mit einem Server-Stand verknüpft, überschreibt ihn also nicht.
+
 ## Gut zu wissen
 
 - Über die lokale Adresse (`http://…`) läuft die App als normaler Browser-Tab, nicht installierbar und nicht offline.
