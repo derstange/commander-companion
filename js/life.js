@@ -267,7 +267,7 @@ var activeMark=null;
 function openModal(i,mark){if(!state||!state.players[i])return;closeGameMenu();activeModal=i;activeMark=mark||null;el('modalBackdrop').classList.remove('hidden');renderModal()}
 function closeModal(){el('modalBackdrop').firstChild.classList.remove('wide');clearInterval(diceTimer);clearTimeout(diceTimer);diceTimer=null;activeModal=null;activeMark=null;el('modalBackdrop').classList.add('hidden')}
 function counterHTML(title,i,key,value,source,slot,sub){var extra=typeof source==='number'?' data-source="'+source+'" data-slot="'+slot+'"':'';return '<div class="counter-row"><span class="who">'+esc(title)+(sub?'<small>'+esc(sub)+'</small>':'')+'</span><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="-1"'+extra+' aria-label="'+esc(title)+' reduzieren">−</button><output>'+value+'</output><button type="button" class="mini" data-act="adjust" data-i="'+i+'" data-key="'+key+'" data-d="1"'+extra+' aria-label="'+esc(title)+' erhöhen">+</button></div>'}
-function damageRow(i,j,k){var label=cmdLabel(j,k),who=state.players[j].name;return counterHTML('von '+label,i,'commander',state.players[i].commander[j][k],j,k,label===who?'':who)}
+function damageRow(i,j,k){var label=cmdLabel(j,k),who=state.players[j].name;return counterHTML(label,i,'commander',state.players[i].commander[j][k],j,k,label===who?'':who)}
 function renderMark(){
  var i=activeModal,p=state.players[i],m=activeMark,html;
  if(m.key==='commander'){
