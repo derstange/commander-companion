@@ -99,25 +99,84 @@ sudo systemctl enable --now commander
 
 ## Raspberry Pi als Anzeige am Fernseher (optional)
 
-Getestet mit Raspberry Pi OS Lite (64-bit) auf einem Pi 3B+. Der Pi zeigt die App per HDMI; mit angeschlossener Maus
-Turnier → `⛶ Vollbild` öffnen.
-Server wie oben als Dienst einrichten, dann:
+Getestet mit Raspberry Pi OS Lite (64-bit, Trixie) auf einem Pi 3B+ mit Benutzer `pi`. Der Pi startet ohne
+Desktop direkt in Chromium (Kiosk) und zeigt die App per HDMI. Mit angeschlossener Maus Turnier → `⛶ Vollbild` öffnen.
+Vorher den Server wie oben als Dienst `commander` einrichten.
 
+**1. Pakete** (Emoji-Schrift für die Symbole auf den Buttons, sonst bleiben sie leer)
 ```bash
-sudo apt install -y cage chromium curl
-sudo raspi-config   # System Options → Boot / Auto Login → Console Autologin
-cat >> ~/.bash_profile <<'EOF'
-if [ "$(tty)" = /dev/tty1 ]; then
-  until curl -s localhost:8000/api/status >/dev/null; do sleep 1; done
-  exec cage -- chromium --kiosk --noerrdialogs --disable-translate \
-    --disable-features=Translate --check-for-update-interval=31536000 \
-    "http://localhost:8000/"
-fi
-EOF
-sudo reboot
+sudo apt install -y cage chromium curl fonts-noto-color-emoji fonts-noto-core fonts-dejavu-core
 ```
 
-- Pi 3: Netzwerkkabel ist stabiler als WLAN. Eine feste IP in der FritzBox hält den QR-Code gleich
+**2. Startskript `~/kiosk.sh`**
+```bash
+cat > ~/kiosk.sh <<'EOF'
+#!/bin/sh
+# Keine "Seiten wiederherstellen?"-Leiste nach Stromausfall.
+P="$HOME/.config/chromium/Default/Preferences"
+[ -f "$P" ] && sed -i 's/"exited_cleanly":false/"exited_cleanly":true/; s/"exit_type":"[^"]*"/"exit_type":"Normal"/' "$P"
+exec cage -s -- chromium --kiosk --no-first-run --noerrdialogs \
+  --disable-translate --disable-features=Translate --password-store=basic \
+  --check-for-update-interval=31536000 http://localhost:8000/
+EOF
+chmod +x ~/kiosk.sh
+```
+
+**3. Dienst `/etc/systemd/system/kiosk.service`** (startet auf dem HDMI-Bildschirm, sobald der Server antwortet)
+```bash
+sudo tee /etc/systemd/system/kiosk.service >/dev/null <<'EOF'
+[Unit]
+Description=Commander kiosk (cage + Chromium on HDMI)
+After=commander.service systemd-user-sessions.service
+Wants=commander.service
+Conflicts=getty@tty1.service
+
+[Service]
+User=pi
+PAMName=login
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+StandardInput=tty
+StandardOutput=journal
+StandardError=journal
+UtmpIdentifier=tty1
+UtmpMode=user
+ExecStartPre=/bin/sh -c 'until curl -s -o /dev/null http://localhost:8000/api/status; do sleep 1; done'
+ExecStart=/home/pi/kiosk.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload
+sudo systemctl enable --now kiosk
+```
+Keine Konsolen-Autoanmeldung nötig (raspi-config: Boot → Console, mit Login). Fehler stehen in `journalctl -u kiosk -b`.
+`status=127` dort heißt: `cage` oder `chromium` fehlt.
+
+**4. Bluetooth-Maus** (der Pi 3B+ hat Bluetooth eingebaut; eine Maus mit USB-Empfänger einfach einstecken)
+```bash
+sudo apt install -y bluez && sudo systemctl enable --now bluetooth
+bluetoothctl   # dann: power on · agent on · default-agent · scan on
+               # Maus in Kopplungsmodus, Adresse ablesen, dann:
+               # scan off · pair <MAC> · trust <MAC> · connect <MAC> · quit
+```
+`trust` sorgt dafür, dass die Maus nach Neustart oder Ruhezustand von selbst wieder verbindet.
+
+**Bedienung und Pflege**
+- Kiosk verlassen am Pi: `Strg+Alt+F2` (Text-Login), zurück mit `Strg+Alt+F1`. Per SSH geht alles wie gewohnt.
+- Update: `cd ~/commander-companion && git pull && sudo systemctl restart commander kiosk`
+- Netzwerkkabel ist am Pi 3 stabiler als WLAN. Eine feste IP in der FritzBox hält den QR-Code gleich
   (Heimnetz → Netzwerk → Gerät → „Diesem Netzwerkgerät immer die gleiche IPv4-Adresse zuweisen“).
 - Wird das Kabel erst nach dem Start eingesteckt, zeigt der QR-Code noch die WLAN-Adresse:
   `sudo systemctl restart commander`.
+- Bild am Rand abgeschnitten: `disable_overscan=1` in `/boot/firmware/config.txt`.
+
+**Pi 3 zu langsam?** Chromium zeichnet dort meist ohne Grafikchip-Hilfe, jedes Pixel kostet Rechenzeit.
+- Fernseher auf 720p stellen: an die **eine** Zeile in `/boot/firmware/cmdline.txt` mit Leerzeichen
+  `video=HDMI-A-1:1280x720@60` anhängen, neu starten. Bringt am meisten.
+- In `~/kiosk.sh` probeweise `--ignore-gpu-blocklist --enable-gpu-rasterization` ergänzen
+  (bei Bildfehlern wieder entfernen) und/oder `--force-prefers-reduced-motion` (weniger Animationen).
+- `free -h` bei offener Seite: unter ~100 MB „available“ wird es zäh.
