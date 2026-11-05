@@ -11,6 +11,7 @@ function validTournament(t){
  if(!t||t.version!==2||!Array.isArray(t.players)||t.players.length<2||t.players.length>32||!Number.isInteger(t.rounds)||t.rounds<1||t.rounds>50||!Array.isArray(t.schedule)||t.schedule.length<t.rounds||t.schedule.length>t.rounds+MAX_FINALS)return false;
  if('name' in t&&(typeof t.name!=='string'||t.name.length>TOUR_NAME_MAX))return false;
  if('saveId' in t&&!(typeof t.saveId==='string'&&SAVE_ID.test(t.saveId)))return false;
+ if('revealAll' in t&&t.revealAll!==true)return false;
  var n=t.players.length;
  for(var i=0;i<n;i++)if(typeof t.players[i]!=='string')return false;
  for(var r=0;r<t.schedule.length;r++){
@@ -104,11 +105,12 @@ function openCommanderEditor(){
  activeModal=null;el('modalBackdrop').classList.remove('hidden');
 }
 // Round reveal: tables of a new round stay covered until someone presses the button; then the players appear one by one with their commander art.
-var REVEAL_KEY='commander-companion-reveal',revealEnabled=true,revealTimer=null;
-try{revealEnabled=localStorage.getItem(REVEAL_KEY)!=='false'}catch(e){}
-function isVeiled(r){var round=tournament&&tournament.schedule[r];return revealEnabled&&!!round&&!round.revealed&&!round.tables.some(function(t){return t.winner!==null})}
+// "Alle enthüllen" sets tournament.revealAll: it is part of the tournament, so it syncs to every device and also covers later finals.
+var revealTimer=null;
+try{localStorage.removeItem('commander-companion-reveal')}catch(e){} // old per-device AN/AUS switch
+function isVeiled(r){var round=tournament&&tournament.schedule[r];return !!round&&!tournament.revealAll&&!round.revealed&&!round.tables.some(function(t){return t.winner!==null})}
 function stopReveal(){clearTimeout(revealTimer);revealTimer=null}
-function toggleReveal(){revealEnabled=!revealEnabled;try{localStorage.setItem(REVEAL_KEY,String(revealEnabled))}catch(e){}renderTournament()}
+function toggleReveal(){if(!tournament)return;if(tournament.revealAll)delete tournament.revealAll;else tournament.revealAll=true;stopReveal();el('revealStage').classList.add('hidden');el('revealStage').innerHTML='';saveTournament();renderTournament()}
 function stageHTML(idx,label,sub){var c=commanderOf(idx),arts=cmdCards(c).filter(function(x){return x.art}),bg=arts.length===2?' style="background-image:url(\''+esc(arts[0].art)+'\'),url(\''+esc(arts[1].art)+'\');background-size:50% 100%,50% 100%;background-position:left center,right center"':arts.length?' style="background-image:url(\''+esc(arts[0].art)+'\')"':'';return '<div class="stage-card'+(arts.length?'':' no-art')+'"'+bg+'><div class="stage-text"><div class="stage-label">'+esc(label)+'</div><div class="stage-name">'+esc(tournament.players[idx])+'</div>'+(c||sub?'<div class="stage-cmd">'+esc(c?cmdName(c):sub)+'</div>':'')+'</div><div class="stage-shine"></div></div>'}
 function revealRound(){
  var r=editingRound,round=tournament&&tournament.schedule[r];if(!round||!isVeiled(r))return;
@@ -127,7 +129,7 @@ function revealRound(){
  }
  next();
 }
-function setTab(which){activeTab=which==='tournament'?'tournament':'life';closeModal();closeGameMenu();el('lifePanel').classList.toggle('hidden',activeTab!=='life');el('tournamentPanel').classList.toggle('hidden',activeTab!=='tournament');el('tabLife').setAttribute('aria-selected',String(activeTab==='life'));el('tabTournament').setAttribute('aria-selected',String(activeTab==='tournament'));document.body.classList.toggle('table-mode',activeTab==='life'&&!!state&&state.mode==='table');document.body.classList.toggle('match-focus',activeTab==='life'&&!!state);if(activeTab==='tournament'){renderTournament()}else if(state)render();else revealSetup();window.scrollTo(0,0)}
+function setTab(which){activeTab=which==='tournament'?'tournament':'life';closeModal();closeGameMenu();el('lifePanel').classList.toggle('hidden',activeTab!=='life');el('tournamentPanel').classList.toggle('hidden',activeTab!=='tournament');el('tabLife').setAttribute('aria-selected',String(activeTab==='life'));el('tabTournament').setAttribute('aria-selected',String(activeTab==='tournament'));document.body.classList.toggle('table-mode',activeTab==='life'&&!!state&&state.mode==='table');document.body.classList.toggle('match-focus',activeTab==='life'&&!!state);if(activeTab==='tournament'){exitGameFullscreen();renderTournament()}else if(state){render();enterGameFullscreen()}else revealSetup();window.scrollTo(0,0)}
 function syncPairingPreview(){
  var n=Number(el('tournamentCount').value),r=Number(el('tournamentRounds').value),box=el('pairingPreview');if(!Number.isInteger(n)||n<2||n>32){box.textContent='Gib eine Spieleranzahl zwischen 2 und 32 ein.';return}
  var l=getLayout(n);
@@ -223,14 +225,14 @@ function renderRoundEditor(){
 function artCredits(){if(!tournament)return '';var seen={},names=[];tournament.players.forEach(function(_,i){cmdCards(commanderOf(i)).forEach(function(x){if(x.art&&x.artist&&!seen[x.artist]){seen[x.artist]=true;names.push(x.artist)}})});return names.length?'🎨 Illustrationen: '+names.join(', ')+' · Kartenbilder via Scryfall · Magic: The Gathering ©Wizards of the Coast':''}
 function renderTournament(){
  el('tourCredits').textContent=artCredits();
- syncTourChoice();var started=!!tournament;el('tournamentSetup').classList.toggle('hidden',started);el('tournamentActive').classList.toggle('hidden',!started);if(!started){syncPairingPreview();return}
+ syncTourChoice();var started=!!tournament;el('tournamentSetup').classList.toggle('hidden',started);el('tournamentActive').classList.toggle('hidden',!started);if(!started){syncPairingPreview();if(typeof boardFollow==='function')boardFollow();return}
  syncFinals();var total=visibleRounds(),finals=total-tournament.rounds;
  var matches=0,done=0,rDone=0;for(var r=0;r<total;r++){var completed=true;for(var j=0;j<tournament.schedule[r].tables.length;j++){matches++;if(tournament.schedule[r].tables[j].winner!==null)done++;else completed=false}if(completed&&r<tournament.rounds)rDone++}
  var l=getLayout(tournament.players.length),finished=done===matches;
  el('tourTitle').textContent=tourName();
  el('tourSubtitle').textContent=tournament.players.length+' Teilnehmer · '+tournament.rounds+' Runden · '+l.tables+' '+(l.tables===1?'Tisch':'Tische')+' pro Runde';
  el('tourMetrics').innerHTML='<span class="tour-metric"><strong>'+rDone+' / '+tournament.rounds+'</strong> Runden</span><span class="tour-metric"><strong>'+done+' / '+matches+'</strong> Partien erfasst</span>'+(l.bye?'<span class="tour-metric"><strong>1</strong> Pause / Runde</span>':'')+(finals?'<span class="tour-metric"><strong>🏆 '+finals+'</strong> '+(finals===1?'Finalrunde':'Finalrunden')+'</span>':'')+(finished?'<span class="tour-metric"><strong>✓</strong> Turnier abgeschlossen</span>':'');
- el('tourReveal').textContent='✨ Enthüllung: '+(revealEnabled?'AN':'AUS');el('tourReveal').setAttribute('aria-pressed',String(revealEnabled));
+ el('tourReveal').textContent=tournament.revealAll?'🙈 Wieder verdecken':'✨ Alle enthüllen';el('tourReveal').setAttribute('aria-pressed',String(!!tournament.revealAll));
  el('tourProgress').style.width=(done/matches*100)+'%';renderRoundEditor();
  var ranking=rankRows(total);
  el('rankingBody').innerHTML=ranking.map(function(row){var place=row.place;return '<tr class="'+(place===1&&row.wins>0?'leader':'')+'"><td>'+place+'.</td><td><button type="button" class="rank-player" data-player="'+row.idx+'"><span>'+esc(tournament.players[row.idx])+'</span>'+cmdTag(row.idx)+'</button></td><td>'+row.wins+'</td><td>'+row.played+'</td><td>'+row.byes+'</td><td>'+(row.rounds.length?row.rounds.join(' · '):'—')+'</td></tr>'}).join('');
@@ -242,6 +244,7 @@ function renderTournament(){
   return '<div class="round-item '+state+'"><div class="round-row"><span class="round-label">'+(round.final?'🏆 ':'')+roundLabel(i)+'</span><span class="round-state">'+(all?'✓ abgeschlossen':wins+'/'+round.tables.length+' entschieden')+'</span><button type="button" class="btn" data-edit-round="'+i+'">'+(all?'Ansehen':'Erfassen')+'</button></div><div class="round-tables">'+tables+'</div>'+(round.bye!==null?'<div class="round-bye">⏳ Pause: '+(veiled?'?':esc(tournament.players[round.bye]))+'</div>':'')+'</div>'
  }).join('');
  if(fsOpen)renderBoard();
+ if(typeof boardFollow==='function')boardFollow();
 }
 // Opens a tournament table in the life counter with the participants' names already filled in.
 function launchTournamentMatch(round,table){

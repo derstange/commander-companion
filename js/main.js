@@ -28,6 +28,8 @@ el('menuTournament').addEventListener('click',function(){closeGameMenu();setTab(
 el('menuBackupExport').addEventListener('click',saveGameFile);
 el('menuBackupImport').addEventListener('click',function(){el('gameFile').click()});
 el('menuWake').addEventListener('click',toggleWakeLock);
+el('menuFullscreen').addEventListener('click',function(){closeGameMenu();toggleGameFullscreen()});
+document.addEventListener('fullscreenchange',updateFullscreenUI);
 initPWA();
 initializeWakeLock();
 if('ResizeObserver' in window){new ResizeObserver(scheduleCardSizing).observe(el('board'))}else window.addEventListener('resize',scheduleCardSizing);

@@ -6,6 +6,8 @@
 var fsOpen=false,fsRound=null,fsTab='round',fsPlayer=null;
 var DESKTOP_QUERY=window.matchMedia?window.matchMedia('(min-width:901px) and (hover:hover) and (pointer:fine)'):null;
 function isDesktop(){return !DESKTOP_QUERY||DESKTOP_QUERY.matches}
+// Called after every tournament render: a reset (also from another device) closes the board instead of leaving old data up.
+function boardFollow(){if(!tournament&&fsOpen)closeBoard()}
 function openBoard(){if(!tournament||!isDesktop())return;closeGameMenu();fsOpen=true;fsRound=null;fsTab='round';fsPlayer=null;document.body.classList.add('fs-open');el('fsView').classList.remove('hidden');renderBoard();var d=document.documentElement;if(d.requestFullscreen&&!document.fullscreenElement){var p=d.requestFullscreen();if(p&&p.catch)p.catch(function(){})}el('fsClose').focus()}
 function closeBoard(){if(!fsOpen)return;fsOpen=false;document.body.classList.remove('fs-open');el('fsView').classList.add('hidden');if(document.fullscreenElement&&document.exitFullscreen){var p=document.exitFullscreen();if(p&&p.catch)p.catch(function(){})}el('tourBoard').focus()}
 function boardRound(){var total=visibleRounds();if(fsRound!==null&&fsRound<total)return fsRound;fsRound=null;var r=nextOpenRound();return r===null?total-1:r}

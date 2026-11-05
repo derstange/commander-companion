@@ -24,9 +24,9 @@ function openMatchPicker(r){
  el('modalContent').innerHTML='<p class="muted tiny">Wähle deinen Tisch. '+roundLabel(r)+' · '+life+' Startlebenspunkte · Commander-Bilder werden übernommen.</p>'+rounds+'<div class="pick-matches">'+body+'</div><div class="modal-actions"><button class="btn" type="button" id="keepGame">Abbrechen</button></div>';
  activeModal=null;el('modalBackdrop').classList.remove('hidden');el('modalBackdrop').firstChild.classList.remove('wide');
 }
-function revealSetup(){closeModal();closeGameMenu();document.body.classList.remove('table-mode');document.body.classList.remove('match-focus');el('setup').classList.remove('hidden');el('game').classList.add('hidden');el('announcement').classList.add('hidden');syncTourChoice()}
+function revealSetup(){closeModal();closeGameMenu();exitGameFullscreen();document.body.classList.remove('table-mode');document.body.classList.remove('match-focus');el('setup').classList.remove('hidden');el('game').classList.add('hidden');el('announcement').classList.add('hidden');syncTourChoice()}
 function freshState(names){var life=limit(parseInt(el('startingLife').value,10)||40,1,999),n=names.length,players=[];for(var i=0;i<n;i++){var damages=[];for(var j=0;j<n;j++)damages.push([0]);players.push({name:names[i],life:life,poison:0,experience:0,commander:damages,cmds:['']})}return {version:2,mode:'table',starter:pickRandom(n),started:false,players:players}}
-function beginGame(event){if(event)event.preventDefault();var names=[];for(var i=0;i<selectedCount;i++)names.push('Spieler '+(i+1));state=freshState(names);undoStack=[];store();render();el('announcement').classList.add('hidden');runStarterSpin();window.scrollTo(0,0)}
+function beginGame(event){if(event)event.preventDefault();var names=[];for(var i=0;i<selectedCount;i++)names.push('Spieler '+(i+1));state=freshState(names);undoStack=[];store();render();enterGameFullscreen();el('announcement').classList.add('hidden');runStarterSpin();window.scrollTo(0,0)}
 // Starting player draw: the players' cards cycle one after another, slow down and stop at the drawn starter.
 // Uses the commander art of a player if one is attached (p.art from Scryfall), otherwise the player's colour.
 var spin=null,SPIN_MS=3500;
@@ -163,6 +163,24 @@ function initializeWakeLock(){
  window.addEventListener('pageshow',function(){requestWakeLock()});
  document.addEventListener('pointerdown',function(){if(keepAwake&&!wakePending&&(!wakeSentinel||wakeSentinel.released))requestWakeLock()},{passive:true});
 }
+// Phone fullscreen: hides the browser's address bar while the life counter is open. Works over plain http, but only
+// after a tap (start game, life tab, menu button). Android browsers support it; iPhone Safari has no page fullscreen,
+// there the button stays hidden ("Zum Home-Bildschirm" gives the app look instead). Desktops keep the board's fullscreen.
+function phoneFullscreenOk(){return !!document.documentElement.requestFullscreen&&typeof isDesktop==='function'&&!isDesktop()} // board.js loads last
+function enterGameFullscreen(){
+ if(!phoneFullscreenOk()||document.fullscreenElement||!state||activeTab!=='life')return;
+ try{var p=document.documentElement.requestFullscreen({navigationUI:'hide'});if(p&&p.catch)p.catch(function(){})}catch(e){}
+}
+function exitGameFullscreen(){
+ if(!document.fullscreenElement||fsOpen||!document.exitFullscreen)return;
+ var p=document.exitFullscreen();if(p&&p.catch)p.catch(function(){});
+}
+function toggleGameFullscreen(){if(document.fullscreenElement)exitGameFullscreen();else enterGameFullscreen()}
+function updateFullscreenUI(){
+ var b=el('menuFullscreen');if(!b)return;
+ b.classList.toggle('hidden',!phoneFullscreenOk());
+ b.textContent=document.fullscreenElement?'⛶ Vollbild beenden':'⛶ Vollbild';
+}
 function renderGameMenu(){
  var inMatch=activeTab==='life'&&!!state;
  if(el('menuFab'))el('menuFab').classList.toggle('hidden',!inMatch);
@@ -170,7 +188,7 @@ function renderGameMenu(){
  if(el('menuSummary'))el('menuSummary').innerHTML=gameSummaryHTML();
  if(el('menuUndo'))el('menuUndo').disabled=undoStack.length===0;
  if(el('menuMode'))el('menuMode').textContent=state.mode==='table'?'▦ Standardansicht':'↕ Tabletop-Modus';
- updateWakeUI();
+ updateWakeUI();updateFullscreenUI();
 }
 // Commanders per player: p.cmds holds one name, or two with a partner ('' = not named, falls back to the player name).
 // Commander damage is tracked per commander: p.commander[j][k] is what p took from commander k of player j.

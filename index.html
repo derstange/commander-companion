@@ -50,6 +50,7 @@
       <button id="menuBackupExport" class="btn" type="button">💾 Spiel sichern</button>
       <button id="menuBackupImport" class="btn" type="button">📂 Spiel laden</button>
       <button id="menuWake" class="btn" type="button">☀ Bildschirm wachhalten</button>
+      <button id="menuFullscreen" class="btn hidden" type="button">⛶ Vollbild</button>
       <button id="menuClosePrimary" class="btn primary" type="button">Weiter spielen</button>
     </div>
     <p class="menu-wake-status" id="wakeStatus" role="status" aria-live="polite">Bildschirmstatus wird geprüft.</p>
@@ -79,7 +80,7 @@
   </div>
   <div id="tournamentActive" class="hidden">
     <div class="tour-card">
-      <div class="tour-head"><div><p class="eyebrow">Turnierübersicht</p><h2 id="tourTitle">Commander-Turnier</h2><p class="muted tiny" id="tourSubtitle"></p><p id="syncBadge" class="sync-badge tiny" hidden></p></div><div class="tour-actions"><button type="button" id="tourBoard" class="btn primary">⛶ Vollbild</button><button type="button" id="tourCommanders" class="btn">🃏 Commander</button><button type="button" id="tourReveal" class="btn" aria-pressed="true">✨ Enthüllung: AN</button><button type="button" id="tourExport" class="btn">💾 Turnier sichern</button><button type="button" id="tourImport" class="btn">📂 Turnier laden</button><button type="button" id="tourReset" class="btn warning">↻ Neues Turnier</button></div></div>
+      <div class="tour-head"><div><p class="eyebrow">Turnierübersicht</p><h2 id="tourTitle">Commander-Turnier</h2><p class="muted tiny" id="tourSubtitle"></p><p id="syncBadge" class="sync-badge tiny" hidden></p></div><div class="tour-actions"><button type="button" id="tourBoard" class="btn primary">⛶ Vollbild</button><button type="button" id="tourCommanders" class="btn">🃏 Commander</button><button type="button" id="tourReveal" class="btn" aria-pressed="false">✨ Alle enthüllen</button><button type="button" id="tourExport" class="btn">💾 Turnier sichern</button><button type="button" id="tourImport" class="btn">📂 Turnier laden</button><button type="button" id="tourReset" class="btn warning">↻ Neues Turnier</button></div></div>
       <div id="tourMetrics" class="tour-metrics"></div><div class="progress-track" aria-label="Turnierfortschritt"><div class="progress-fill" id="tourProgress"></div></div><p id="tourBackupFeedback" class="tiny muted backup-feedback" role="status" aria-live="polite"></p>
     </div>
     <div class="tour-card" id="roundEditorCard">

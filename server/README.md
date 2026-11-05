@@ -39,6 +39,9 @@ Im Terminal erscheinen die Adresse (z.B. `http://192.168.1.20:8000/`) und ein QR
 - **Großer Bildschirm:** auf dem Server-Rechner `http://localhost:8000/` öffnen → Turnier → `⛶ Vollbild`.
 - **Handys:** QR-Code oben rechts in der Vollbild-Übersicht scannen (öffnet in Safari/Chrome).
 - Auf der Turnierseite zeigt `● Live über …` die Verbindung an.
+- **Android lädt die Seite nicht?** Dem Browser die Berechtigung **„Geräte in der Nähe“** erlauben
+  (App lange drücken → App-Info → Berechtigungen). Ohne sie erreicht der Browser nur das Internet,
+  aber kein Gerät im WLAN, nicht einmal die FritzBox.
 
 Optionen: `--port 8080`, `--host 192.168.1.20` (Adresse im QR-Code, falls die automatisch erkannte nicht passt).
 Windows fragt beim ersten Start evtl., ob Python ins Netzwerk darf: **private Netzwerke** erlauben.
@@ -62,6 +65,10 @@ mit einem Server-Stand verknüpft, überschreibt ihn also nicht.
 
 - Über die lokale Adresse (`http://…`) läuft die App als normaler Browser-Tab, nicht installierbar und nicht offline.
   Dafür weiterhin die GitHub-Adresse nutzen. Die von GitHub installierte App erreicht den lokalen Server nicht.
+- Auf Android-Handys schaltet der Lebenszähler beim Start einer Partie in den Browser-Vollbildmodus (ohne Adressleiste).
+  Wieder hinein: Schlachtmenü → **⛶ Vollbild**. Auf dem iPhone gibt es das in Safari nicht; dort
+  „Teilen → Zum Home-Bildschirm“ verwenden, dann öffnet die Seite ohne Adressleiste.
+- Über `http://` gibt es kein automatisches Wachhalten des Bildschirms. Für den Abend die Displaysperre am Handy verlängern.
 - Lokale Adresse und GitHub-App haben getrennte Daten. Ein Turnier überträgst du mit „Turnier sichern“ auf
   dem einen und „Turnier laden“ auf dem anderen Gerät. Hat ein Gerät schon ein Turnier und der Server noch keins,
   fragt die App, ob es geteilt werden soll.
@@ -89,3 +96,28 @@ WantedBy=multi-user.target
 ```bash
 sudo systemctl enable --now commander
 ```
+
+## Raspberry Pi als Anzeige am Fernseher (optional)
+
+Getestet mit Raspberry Pi OS Lite (64-bit) auf einem Pi 3B+. Der Pi zeigt die App per HDMI; mit angeschlossener Maus
+Turnier → `⛶ Vollbild` öffnen.
+Server wie oben als Dienst einrichten, dann:
+
+```bash
+sudo apt install -y cage chromium curl
+sudo raspi-config   # System Options → Boot / Auto Login → Console Autologin
+cat >> ~/.bash_profile <<'EOF'
+if [ "$(tty)" = /dev/tty1 ]; then
+  until curl -s localhost:8000/api/status >/dev/null; do sleep 1; done
+  exec cage -- chromium --kiosk --noerrdialogs --disable-translate \
+    --disable-features=Translate --check-for-update-interval=31536000 \
+    "http://localhost:8000/"
+fi
+EOF
+sudo reboot
+```
+
+- Pi 3: Netzwerkkabel ist stabiler als WLAN. Eine feste IP in der FritzBox hält den QR-Code gleich
+  (Heimnetz → Netzwerk → Gerät → „Diesem Netzwerkgerät immer die gleiche IPv4-Adresse zuweisen“).
+- Wird das Kabel erst nach dem Start eingesteckt, zeigt der QR-Code noch die WLAN-Adresse:
+  `sudo systemctl restart commander`.

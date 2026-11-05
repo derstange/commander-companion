@@ -72,6 +72,8 @@ Mit einem Laptop oder Raspberry Pi im selben WLAN können alle Handys
 dasselbe Turnier sehen: Tische starten, Sieger eintragen, und der Beamer
 zeigt die Vollbild-Übersicht live mit QR-Code zum Mitspielen.
 Anleitung: server/README.md. Ohne Server ändert sich nichts.
+Android-Handy lädt die Seite nicht? Dem Browser die Berechtigung
+"Geräte in der Nähe" erlauben (App-Info → Berechtigungen).
 
 DATEIEN
 -------
