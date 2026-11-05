@@ -165,6 +165,21 @@ bluetoothctl   # dann: power on · agent on · default-agent · scan on
 ```
 `trust` sorgt dafür, dass die Maus nach Neustart oder Ruhezustand von selbst wieder verbindet.
 
+**5. Auflösung 720p** (empfohlen auf dem Pi 3, deutlich flüssiger)
+
+Ohne Vorgabe nimmt der Pi die bevorzugte Auflösung des Bildschirms (Pi 3: höchstens etwa 1920×1200).
+Chromium zeichnet dort meist ohne Grafikchip-Hilfe, jedes Pixel kostet Rechenzeit. 1280×720 kann praktisch
+jeder Fernseher und Monitor, die Übersicht passt (sie braucht mindestens 901 px Breite).
+```bash
+sudo cp /boot/firmware/cmdline.txt /boot/firmware/cmdline.txt.bak
+sudo sed -i '1 s/$/ video=HDMI-A-1:1280x720@60/' /boot/firmware/cmdline.txt
+cat /boot/firmware/cmdline.txt   # muss EINE Zeile sein, endet auf video=HDMI-A-1:1280x720@60
+sudo reboot
+```
+Aktuellen Modus prüfen: `sudo apt install -y kms++-utils && kmsprint`. Schärfer, aber langsamer:
+`1920x1080@60` statt `1280x720@60`. Rückgängig:
+`sudo cp /boot/firmware/cmdline.txt.bak /boot/firmware/cmdline.txt && sudo reboot`.
+
 **Bedienung und Pflege**
 - Kiosk verlassen am Pi: `Strg+Alt+F2` (Text-Login), zurück mit `Strg+Alt+F1`. Per SSH geht alles wie gewohnt.
 - Update: `cd ~/commander-companion && git pull && sudo systemctl restart commander kiosk`
@@ -174,9 +189,7 @@ bluetoothctl   # dann: power on · agent on · default-agent · scan on
   `sudo systemctl restart commander`.
 - Bild am Rand abgeschnitten: `disable_overscan=1` in `/boot/firmware/config.txt`.
 
-**Pi 3 zu langsam?** Chromium zeichnet dort meist ohne Grafikchip-Hilfe, jedes Pixel kostet Rechenzeit.
-- Fernseher auf 720p stellen: an die **eine** Zeile in `/boot/firmware/cmdline.txt` mit Leerzeichen
-  `video=HDMI-A-1:1280x720@60` anhängen, neu starten. Bringt am meisten.
+**Immer noch zu langsam?** (zuerst 720p einstellen, siehe Schritt 5)
 - In `~/kiosk.sh` probeweise `--ignore-gpu-blocklist --enable-gpu-rasterization` ergänzen
   (bei Bildfehlern wieder entfernen) und/oder `--force-prefers-reduced-motion` (weniger Animationen).
 - `free -h` bei offener Seite: unter ~100 MB „available“ wird es zäh.
