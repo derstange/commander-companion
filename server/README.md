@@ -9,6 +9,20 @@ Python-Server ist **optional**. Für einen Turnierabend auf Laptop oder Raspberr
 
 Der Lebenszähler bleibt auf jedem Gerät für sich. Ohne Server verhält sich die App genau wie bisher.
 
+## Checkliste Turniertag (Raspberry Pi)
+
+1. **IP des Pi notieren** (steht im QR-Code), im Router möglichst als feste IP eintragen.
+   Damit bleibt die Adresse für Handys, PC und SSH den ganzen Tag gleich.
+2. **Turnier am großen PC anlegen**: `http://<Pi-IP>:8000/` öffnen → Turnier → Spieler, Runden, Commander.
+   Die Enthüllung mit Animation läuft auf dem Gerät, auf dem getippt wird.
+3. **Vor dem Start prüfen** (per SSH): `vcgencmd get_throttled` sollte `throttled=0x0` zeigen
+   (sonst Netzteil zu schwach). Temperatur: `vcgencmd measure_temp`, unter 80 °C ist alles gut.
+4. **HDMI einstecken**, mit der Maus Turnier → `⛶ Vollbild`. Bleibt der Bildschirm schwarz:
+   `sudo systemctl restart kiosk` (Turnier bleibt erhalten).
+5. **Handys** scannen den QR-Code oben rechts. Android lädt nicht? Dem Browser **„Geräte in der Nähe“** erlauben.
+6. **Pi hängt?** `sudo reboot` per SSH. Alle Eingaben liegen in `server/data/` und überstehen den Neustart.
+7. **Am Ende** `sudo poweroff` und warten, bis die grüne LED aus ist. Nicht einfach den Stecker ziehen.
+
 ## Einrichten (einmalig)
 
 Python 3.8 oder neuer. Im Repository-Ordner ausführen:
